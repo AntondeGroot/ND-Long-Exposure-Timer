@@ -5,7 +5,7 @@
 - Raspberry Pi Zero, it needs linux for gphoto2 
 - 2.13'' E-paper display
 - 18650 cell + tp4056 charge module 
-- power button
+- power button. (latching 3 pole 1NO1NC)
 - read data button,
 - take photo button
 - USB C ==> UC-E6 UC-E16 UC-E17 USB-kabel
