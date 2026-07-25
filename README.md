@@ -1,5 +1,7 @@
 # Bill of Materials
-- vijfwegschakelaar
+- five way button
+<img width="238" height="211" alt="17849727845893738776011421435184" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
+
 - Raspberry Pi Zero, it needs linux for gphoto2 
 - 2.13'' E-paper display
 - 18650 cell + tp4056 charge module 
