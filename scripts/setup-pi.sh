@@ -7,7 +7,7 @@
 #   - GPIO/Python stack (gpiozero, spidev, Pillow) in a venv
 #   - Waveshare e-Paper driver library
 #   - gphoto2 for camera control (delegates to install-gphoto2.sh)
-#   - a clean-shutdown GPIO pin for the latching power button
+#   - optional clean-shutdown GPIO pin (momentary buttons only, see --shutdown-pin)
 #   - battery-friendly tweaks (activity LED off, splash off)
 #   - a systemd unit so the timer starts on boot
 #
@@ -16,7 +16,9 @@
 # Usage: sudo ./setup-pi.sh [options]
 #   --user NAME        account that runs the timer (default: $SUDO_USER)
 #   --app-dir PATH     project checkout (default: parent of this script)
-#   --shutdown-pin N   BCM pin for the power button (default: 3, also wakes from halt)
+#   --shutdown-pin N   install gpio-shutdown on BCM pin N. Only for a MOMENTARY
+#                      button. A latching switch that cuts power cannot use this:
+#                      the OS gets no warning, so there is nothing to halt.
 #   --no-gphoto2       skip the camera stack
 #   --no-power-tweaks  leave config.txt power settings alone
 #   -y, --yes          no prompts
@@ -30,7 +32,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 TARGET_USER="${SUDO_USER:-${USER:-pi}}"
 APP_DIR="$(dirname "$SCRIPT_DIR")"
-SHUTDOWN_PIN=3
+SHUTDOWN_PIN=""
 DO_GPHOTO2=1
 DO_POWER_TWEAKS=1
 ASSUME_YES=0
@@ -132,10 +134,12 @@ write_config_block() {
     echo "$MARKER_BEGIN"
     echo "# Managed by scripts/setup-pi.sh - edits inside this block are overwritten."
     echo "dtparam=spi=on"
-    echo ""
-    echo "# Latching power button: pulling BCM${SHUTDOWN_PIN} to ground halts the Pi cleanly."
-    echo "# GPIO3 doubles as a wake-from-halt pin, which is why it is the default."
-    echo "dtoverlay=gpio-shutdown,gpio_pin=${SHUTDOWN_PIN},active_low=1,gpio_pull=up"
+    if [[ -n "$SHUTDOWN_PIN" ]]; then
+      echo ""
+      echo "# Momentary button: pulling BCM${SHUTDOWN_PIN} to ground halts the Pi cleanly."
+      echo "# GPIO3 doubles as a wake-from-halt pin, which is why it is the usual choice."
+      echo "dtoverlay=gpio-shutdown,gpio_pin=${SHUTDOWN_PIN},active_low=1,gpio_pull=up"
+    fi
 
     if [[ $DO_POWER_TWEAKS -eq 1 ]]; then
       echo ""
@@ -192,6 +196,11 @@ fi
 
 EPD_PKG="$WAVESHARE_DIR/RaspberryPi_JetsonNano/python"
 if [[ -d "$EPD_PKG" ]]; then
+  # The package has a legacy setup.py and no pyproject.toml, so pip builds it in
+  # place and needs to write egg-info into the source tree. pip runs as the target
+  # user (to keep the venv out of root's hands), so the root-owned clone has to be
+  # handed over first.
+  chown -R "$TARGET_USER" "$WAVESHARE_DIR"
   as_user "$VENV_DIR/bin/pip" install "$EPD_PKG" \
     || warn "could not install the waveshare_epd package from $EPD_PKG"
 else
@@ -303,10 +312,15 @@ Note: gadget mode and the camera both want the micro-USB data port. Once the
 display and buttons are wired, drop the USB link and work over the display, or
 keep a mini-HDMI cable handy.
 
-Power button: wire the latching switch so it pulls BCM${SHUTDOWN_PIN} to GND.
-That halts the Pi cleanly; on GPIO3 the same press also wakes it from halt.
-Cut power from the TP4056 only after the activity LED stops - the SD card will
-thank you.
+Power button: a LATCHING switch cuts power with no warning to the OS, which can
+corrupt the SD card mid-write. Either run "sudo halt" and wait for the activity
+LED to stop before flipping it, or make the root filesystem read-only so a hard
+cut is harmless:
+
+    sudo raspi-config nonint enable_overlayfs   # then reboot
+
+(Wire a separate MOMENTARY button and rerun with --shutdown-pin 3 if you want a
+clean software shutdown instead.)
 
 To undo the config.txt changes: restore ${CONFIG_TXT}.nd-timer.bak
 EOF

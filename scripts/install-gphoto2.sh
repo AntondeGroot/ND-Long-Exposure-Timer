@@ -75,7 +75,11 @@ apt-get update
 
 if [[ "$MODE" == "apt" ]]; then
   log "installing gphoto2 from apt"
-  apt-get install -y gphoto2 libgphoto2-6 libgphoto2-dev libgphoto2-port12 udev
+  # Only the unversioned names: Debian renamed libgphoto2-6 to libgphoto2-6t64
+  # (and libgphoto2-port12 to -port12t64) in the 64-bit time_t transition, and
+  # pinning versioned library names breaks on every such rename. gphoto2 and
+  # libgphoto2-dev depend on whichever runtime library this release ships.
+  apt-get install -y gphoto2 libgphoto2-dev udev
 else
   log "installing build dependencies"
   apt-get install -y \
