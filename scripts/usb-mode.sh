@@ -178,6 +178,14 @@ case "$ACTION" in
     fi
     ;;
   peripheral)
+    # The revert timer fires on every boot, not only after a switch to host, so
+    # this must be a no-op when there is nothing to revert - otherwise the Pi
+    # reboots itself every N minutes for no reason.
+    if [[ "$(current_mode)" == "peripheral" ]]; then
+      systemctl disable --now "${REVERT_UNIT}.timer" >/dev/null 2>&1 || true
+      log "already in peripheral mode - nothing to do, not rebooting"
+      exit 0
+    fi
     set_mode peripheral
     systemctl disable --now "${REVERT_UNIT}.timer" >/dev/null 2>&1 || true
     log "ssh over USB returns after the reboot (10.55.0.1)"

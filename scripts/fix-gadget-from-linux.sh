@@ -20,6 +20,7 @@
 set -euo pipefail
 
 PI_ADDR="10.55.0.1/24"
+HOST_ADDR="10.55.0.2"
 DEVICE=""
 DRY_RUN=0
 MNT_BOOT="/mnt/pi-boot"
@@ -114,6 +115,9 @@ RemainAfterExit=yes
 ExecStartPre=/bin/sh -c 'for i in \$(seq 1 30); do [ -d /sys/class/net/usb0 ] && exit 0; sleep 1; done; exit 1'
 ExecStart=/sbin/ip link set usb0 up
 ExecStart=/sbin/ip addr replace ${PI_ADDR} dev usb0
+# The route matters as much as the address: without it the Pi reaches the host
+# but not the internet, and apt fails with DNS errors that look unrelated.
+ExecStart=-/sbin/ip route replace default via ${HOST_ADDR} dev usb0
 
 [Install]
 WantedBy=multi-user.target
@@ -148,6 +152,12 @@ sed 's/^/    /' "$CMDLINE"
 grep -q '^dtoverlay=dwc2,dr_mode=peripheral' "$MNT_BOOT/config.txt" \
   && log "config.txt already has dtoverlay=dwc2,dr_mode=peripheral" \
   || { printf '\n[all]\ndtoverlay=dwc2,dr_mode=peripheral\n' >> "$MNT_BOOT/config.txt"; log "added peripheral-mode overlay"; }
+
+log "writing the udev rule (event-driven, cannot race the module load)"
+cat > "$MNT_ROOT/etc/udev/rules.d/99-usb0-static.rules" <<UDEV_EOF
+# Configure the USB ethernet gadget the instant the kernel creates it.
+SUBSYSTEM=="net", ACTION=="add", NAME=="usb0", RUN+="/sbin/ip link set usb0 up", RUN+="/sbin/ip addr replace ${PI_ADDR} dev usb0", RUN+="/sbin/ip route replace default via ${HOST_ADDR} dev usb0"
+UDEV_EOF
 
 # Leave a breadcrumb the Pi itself can show us later.
 date > "$MNT_ROOT/etc/gadget-fix-applied" 2>/dev/null || true
