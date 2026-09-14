@@ -143,9 +143,13 @@ write_config_block() {
 
     if [[ $DO_POWER_TWEAKS -eq 1 ]]; then
       echo ""
-      echo "# Battery savers for the 18650 pack."
+      echo "# Battery savers for the 18650 pack. On a Zero the ACT LED is active-low,"
+      echo "# so activelow=on is what switches it OFF - the Pi 3/4 recipe (=off)"
+      echo "# leaves it permanently lit, which costs current instead of saving it."
+      echo "# Note this also detaches the LED from SD activity, so it stops being"
+      echo "# usable as a boot/disk-activity indicator while debugging."
       echo "dtparam=act_led_trigger=none"
-      echo "dtparam=act_led_activelow=off"
+      echo "dtparam=act_led_activelow=on"
       echo "disable_splash=1"
     fi
 

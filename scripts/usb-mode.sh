@@ -147,19 +147,30 @@ WantedBy=timers.target
 TIMER_EOF
 
   systemctl daemon-reload
-  systemctl enable "${REVERT_UNIT}.timer" >/dev/null 2>&1
-  log "armed automatic revert: ${minutes} minutes after the next boot"
+  # Never report the safety net as armed without checking: a silently failed
+  # enable here means host mode with no way back, which is the one outcome this
+  # whole mechanism exists to prevent.
+  if ! systemctl enable "${REVERT_UNIT}.timer" 2>&1 | sed 's/^/    /'; then
+    die "could not enable ${REVERT_UNIT}.timer - refusing to switch to host mode without a way back"
+  fi
+  systemctl is-enabled "${REVERT_UNIT}.timer" >/dev/null 2>&1 \
+    || die "${REVERT_UNIT}.timer is still not enabled - refusing to leave you stranded"
+  log "armed automatic revert: ${minutes} minutes after the next boot (verified)"
 }
 
 case "$ACTION" in
   host)
+    # Arm the revert BEFORE changing the mode, so a failure to arm leaves the Pi
+    # in the mode that still has ssh rather than the one that does not.
+    if [[ $PERMANENT -eq 0 ]]; then
+      arm_revert "$REVERT_MINUTES"
+    fi
     set_mode host
     if [[ $PERMANENT -eq 1 ]]; then
       systemctl disable --now "${REVERT_UNIT}.timer" >/dev/null 2>&1 || true
       warn "permanent host mode: ssh over USB will NOT come back on its own."
       warn "to undo it you need a keyboard and mini-HDMI, or the SD card in another machine."
     else
-      arm_revert "$REVERT_MINUTES"
       echo
       warn "After the reboot you lose ssh over USB. If you can get to a console,"
       warn "run 'sudo $SELF keep' to stay in host mode."

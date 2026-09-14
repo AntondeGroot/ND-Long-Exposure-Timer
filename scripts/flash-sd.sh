@@ -56,8 +56,8 @@ detach_disk() {
 }
 
 list_disks() {
-  log "removable disks:"
-  diskutil list external physical || true
+  log "removable disks (includes the built-in SD slot, which reports as internal):"
+  diskutil list physical | grep -v "^$" || true
   echo
   echo "Pick the one whose size matches your SD card. Getting this wrong erases the wrong disk."
 }
@@ -84,10 +84,15 @@ done
 
 INFO="$(diskutil info "$DISK" 2>/dev/null)" || die "no such disk: $DISK"
 
-grep -q "Device Location:.*Internal" <<<"$INFO" \
-  && die "$DISK is an INTERNAL disk. Refusing. Use --list to find the SD card."
-grep -qE "Removable Media:.*(Removable|Yes)|Device Location:.*External" <<<"$INFO" \
-  || die "$DISK does not look removable. Refusing."
+# Removability is the safety property, not location: a Mac's built-in SDXC slot
+# reports "Device Location: Internal" for a perfectly removable card, so keying
+# on location alone refuses the most obvious way to flash one.
+grep -qE "Removable Media:.*(Removable|Yes)" <<<"$INFO" \
+  || die "$DISK is not removable media. Refusing. Use --list to find the SD card."
+
+# Whole-system disks are never removable, but be explicit: never touch the boot disk.
+BOOT_DISK="$(diskutil info / 2>/dev/null | awk -F: '/Part of Whole/ {gsub(/ /,"",$2); print $2}')"
+[[ "$DISK" != "/dev/${BOOT_DISK}" ]] || die "$DISK is this Mac's boot disk. Refusing."
 
 DISK_NAME="$(awk -F: '/Device \/ Media Name/ {gsub(/^ +/,"",$2); print $2}' <<<"$INFO" | head -1)"
 DISK_SIZE="$(awk -F: '/Disk Size/ {gsub(/^ +/,"",$2); print $2}' <<<"$INFO" | head -1)"
