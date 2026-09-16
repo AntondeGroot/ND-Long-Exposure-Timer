@@ -95,8 +95,9 @@ the scripts in `scripts/`.
 - <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/32fce523-0029-4b52-a5a5-c7ed3eab73d9" />
 
 
-- 2x tactile buttons with arduino pcb 
-<img width="300" alt="17849734931638991192088338593401" src="https://github.com/user-attachments/assets/a8dd1dc3-aa32-450f-abc2-f41018760ed5" />
+- 2x TLYCRQJXF Momentary Tactile Push Button, 12 x 12 x 7,3 mm
+<img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/a8823ef3-7dc4-4e2d-9e30-258b56376464" />
+
 
 - USB A ==> UC-E6 UC-E16 UC-E17 USB-kabel
 -  1/4" Camera Hot shoe Mount
