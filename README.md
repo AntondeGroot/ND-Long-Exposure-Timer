@@ -1,29 +1,25 @@
 # ND Long Exposure Timer
 
-A hot-shoe mounted long-exposure calculator and shutter timer for a DSLR, built on a
-Raspberry Pi Zero.
+Taking long exposure photos can be cumbersome:
+- you first need to determine the correct exposure
+- then calculate how much the total exposure is when you put certain ND filters on
+- and then backsolve how to adjust the exposure time so that the total exposure time has the desired effect.
+- then take the photo
 
-Fit a strong ND filter and your camera's meter is useless: it cannot see through ten
-stops of glass, and the exposure you need is minutes rather than fractions of a second.
-This device reads what the camera metered *before* the filter went on, adds up the stops
-of the filters you are using, and works out how long the shutter must stay open. Then it
-holds it open for you and counts down, because past 30 seconds the camera cannot time
-itself.
+This module will
+- when you have your exposure set correctly
+- sync with your camera
+- let you chose the total exposure time and tell you what filters you need to put on
+- no calculations or iterative backsolving required!
+
 
 - **SYNC** reads ISO, aperture and shutter speed from the camera over USB
-- Shift ISO or aperture and the base shutter recomputes to hold the same exposure
-- Pick a filter or a stack; the final time and whether it needs BULB update as you go
-- **SHOOT** fires it - the camera times anything up to 30s, the Pi times the rest
+- Shifts ISO or aperture and the base shutter recomputes to hold the same exposure
+- Pick a filter or a stack of filters; the final time and whether it needs BULB update as you go
 
 ## What it looks like
 
-The display is a 2.13" e-paper panel mounted upright: 122 x 250 pixels as the screens
-are drawn, one bit deep. No grey, no antialiasing, so "selected" is shown by inverting.
-The panel's own buffer is 250 x 122 and the driver rotates a quarter turn on the way
-out, which nothing above that layer needs to know about.
-
-These images are rendered from the real drawing code and byte-compared by the test
-suite, so they cannot drift out of date without a test failing.
+The display is a 2.13" e-paper panel mounted upright: 122 x 250 pixels. "selected" is shown by inverting the colors.
 
 ### Calculator
 
