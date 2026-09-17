@@ -2,15 +2,15 @@
 
 Taking long exposure photos can be cumbersome:
 - you first need to determine the correct exposure
-- then calculate how much the total exposure is when you put certain ND filters on
-- and then backsolve how to adjust the exposure time so that the total exposure time has the desired effect.
-- then take the photo
+- then calculate how much the total exposure time will be for multiple ND filters
+- and then backsolve how to adjust exposure time so that the total exposure time has the desired effect.
 
 This module will
-- when you have your exposure set correctly
-- sync with your camera
-- let you chose the total exposure time and tell you what filters you need to put on
-- no calculations or iterative backsolving required!
+- sync with your camera when you have your exposure set correctly
+- let you chose the total exposure time
+- it will tell you what filters you need to put on
+
+no calculations or iterative backsolving required!
 
 
 - **SYNC** reads ISO, aperture and shutter speed from the camera over USB
