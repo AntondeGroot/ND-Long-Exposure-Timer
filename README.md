@@ -90,7 +90,7 @@ the scripts in `scripts/`.
 - usb-c port with only power cables\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
 
-- micro-usb soldering plug 5 poles\
+- micro-usb soldering plug 5 pins\
   <img width="200"  alt="image" src="https://github.com/user-attachments/assets/4b83c40a-3927-49ab-8324-e03e0da98926" />
 
 - usb-A port with 4 pole\
