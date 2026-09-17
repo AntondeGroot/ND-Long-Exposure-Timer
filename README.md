@@ -83,8 +83,8 @@ the scripts in `scripts/`.
 
 - Raspberry Pi Zero, it needs linux for gphoto2 
 - 2.13'' E-paper display
-- 18650 cell + tp4056 charge module 
-- power button. (latching 3 pole 1NO1NC)
+- UPS HAT for Raspberry Pi Zero with 1000mah battery
+- power button 16mm diameter (latching 3 pole 1NO1NC)
 - usb-c port with only power cables\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
 
