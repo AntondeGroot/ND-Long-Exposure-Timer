@@ -78,28 +78,28 @@ Provisioning a fresh Pi, flashing a card and driving the camera by hand are cove
 the scripts in `scripts/`.
 
 # Bill of Materials
-- five way button
-<img width="238" height="211" alt="17849727845893738776011421435184" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
+- five way button\
+<img width="200" alt="17849727845893738776011421435184" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
 
 - Raspberry Pi Zero, it needs linux for gphoto2 
 - 2.13'' E-paper display
 - 18650 cell + tp4056 charge module 
 - power button. (latching 3 pole 1NO1NC)
-- usb-c port with 2 pole
-  <img width="300" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
+- usb-c port with only power cables\
+  <img width="200" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
 
-- micro-usb soldering plug
-- <img width="300"  alt="image" src="https://github.com/user-attachments/assets/4b83c40a-3927-49ab-8324-e03e0da98926" />
+- micro-usb soldering plug 5 poles\
+<img width="200"  alt="image" src="https://github.com/user-attachments/assets/4b83c40a-3927-49ab-8324-e03e0da98926" />
 
-- usb-A port with 4 pole
-- <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/32fce523-0029-4b52-a5a5-c7ed3eab73d9" />
+- usb-A port with 4 pole\
+<img width="200" alt="image" src="https://github.com/user-attachments/assets/32fce523-0029-4b52-a5a5-c7ed3eab73d9" />
 
 
-- 2x TLYCRQJXF Momentary Tactile Push Button, 12 x 12 x 7,3 mm
+- 2x TLYCRQJXF Momentary Tactile Push Button, 12 x 12 x 7,3 mm\
 <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/a8823ef3-7dc4-4e2d-9e30-258b56376464" />
 
 
-- USB A ==> UC-E6 UC-E16 UC-E17 USB-kabel
--  1/4" Camera Hot shoe Mount
-<img width="300" alt="image" src="https://github.com/user-attachments/assets/daab8fbc-d2e3-43ca-9c25-478450506ead" />
+- USB A ==> UC-E6 UC-E16 UC-E17 cable
+-  1/4" Camera Hot shoe Mount\
+<img width="200" alt="image" src="https://github.com/user-attachments/assets/daab8fbc-d2e3-43ca-9c25-478450506ead" />
 
