@@ -27,7 +27,8 @@ class MainScreen:
     selected_row: int
     base_shutter: str
     final_time: str
-    range_status: str
+    target: str
+    direction: int
     is_bulb: bool
     synced_note: str
     battery: int
@@ -95,23 +96,40 @@ def _draw_answer(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
         draw, layout.CENTRE_X, layout.ANSWER_CENTRE_Y,
         screen.final_time, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES,
     )
-    _draw_status_pill(draw, layout.CENTRE_X, screen)
+    _draw_target(draw, layout.CENTRE_X, screen)
+    _draw_bulb_badge(draw, layout.CENTRE_X, screen)
     draw.line((0, layout.ANSWER_BOTTOM, WIDTH, layout.ANSWER_BOTTOM), fill=BLACK)
 
 
-def _draw_status_pill(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> None:
-    text = "BULB" if screen.is_bulb else screen.range_status
-    font = render.bold(layout.TINY)
-    width = draw.textlength(text, font=font) + 12
-    box = (centre - width / 2, layout.PILL_TOP, centre + width / 2, layout.PILL_TOP + layout.PILL_HEIGHT)
+def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> None:
+    """What this subject wants, and which way to move if you are outside it.
 
-    # Bulb is the state worth shouting about: it means the Pi is the timer.
-    if screen.is_bulb:
-        draw.rectangle(box, fill=BLACK)
-        render.draw_centred(draw, centre, layout.PILL_TOP + 2, text, font, fill=WHITE)
-    else:
-        draw.rectangle(box, outline=BLACK)
-        render.draw_centred(draw, centre, layout.PILL_TOP + 2, text, font)
+    An arrow rather than a verdict: being told the exposure is wrong is not
+    useful, knowing it needs to be longer is.
+    """
+    if not screen.target:
+        return
+
+    # Triangles rather than letters: at 9px a "v" reads as text, an arrow reads
+    # as an instruction. DejaVu has both glyphs.
+    arrow = {1: " ▲", -1: " ▼"}.get(screen.direction, "")
+    render.draw_centred(
+        draw, centre, layout.TARGET_Y, f"aim {screen.target}{arrow}", render.regular(layout.TINY)
+    )
+
+
+def _draw_bulb_badge(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> None:
+    """Bulb is worth shouting about: it means the Pi is doing the timing."""
+    if not screen.is_bulb:
+        return
+
+    font = render.bold(layout.TINY)
+    width = draw.textlength("BULB", font=font) + 12
+    draw.rectangle(
+        (centre - width / 2, layout.PILL_TOP, centre + width / 2, layout.PILL_TOP + layout.PILL_HEIGHT),
+        fill=BLACK,
+    )
+    render.draw_centred(draw, centre, layout.PILL_TOP + 2, "BULB", font, fill=WHITE)
 
 
 def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:

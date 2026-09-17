@@ -41,27 +41,27 @@ README_SCALE = 3
 CASES = {
     "splash": SplashScreen(message="starting up...", version="v0.1"),
     "main-waterfall": MainScreen(
-        mode="Waterfall", iso="100", aperture="f/11", nd_label="64", nd_stops="6st",
+        mode="WATERFALL", iso="100", aperture="f/11", nd_label="64", nd_stops="6st",
         selected_row=1, base_shutter="1/60 s", final_time="1.1 s",
-        range_status="IN RANGE", is_bulb=False, synced_note="SYNCED 8s", battery=84,
+        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 8s", battery=84,
     ),
     "main-bulb": MainScreen(
-        mode="Cloud", iso="100", aperture="f/11", nd_label="8+1000", nd_stops="13st",
+        mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", nd_stops="13st",
         selected_row=3, base_shutter="1/60 s", final_time="2m 17s",
-        range_status="IN RANGE", is_bulb=True, synced_note="SYNCED 2m", battery=71,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 2m", battery=71,
     ),
     "main-not-synced": MainScreen(
-        mode="Manual", iso="--", aperture="--", nd_label="none", nd_stops="0st",
+        mode="MANUAL", iso="--", aperture="--", nd_label="none", nd_stops="0st",
         selected_row=0, base_shutter="--", final_time="--",
-        range_status="NO SYNC", is_bulb=False, synced_note="NOT SYNCED", battery=100,
+        target="", direction=0, is_bulb=False, synced_note="NOT SYNCED", battery=100,
     ),
     "main-stacked": MainScreen(
-        mode="Cloud", iso="200", aperture="f/16", nd_label="8+64+1000", nd_stops="19st",
+        mode="CLOUDS", iso="200", aperture="f/16", nd_label="8+64+1000", nd_stops="19st",
         selected_row=2, base_shutter="1/125 s", final_time="1h 10m",
-        range_status="IN RANGE", is_bulb=True, synced_note="SYNCED 30s", battery=66,
+        target="2-6min", direction=-1, is_bulb=True, synced_note="SYNCED 30s", battery=66,
     ),
     "countdown-bulb": CountdownScreen(
-        mode="Cloud", remaining="3:42", elapsed="1:18", total="5:00",
+        mode="CLOUDS", remaining="3:42", elapsed="1:18", total="5:00",
         progress=0.26, is_bulb=True, battery=62,
     ),
     "countdown-nearly-done": CountdownScreen(

@@ -48,15 +48,21 @@ STATUS_BAR_HEIGHT = 15
 # The answer comes first and takes the top third: it is what the device is for,
 # and the only thing that needs reading at arm's length.
 ANSWER_TOP = STATUS_BAR_HEIGHT
-ANSWER_CENTRE_Y = 42
+ANSWER_CENTRE_Y = 40
+
+# The target the subject wants, directly under the answer so the two read together.
+TARGET_Y = 60
+
+# BULB only appears when it applies, so it sits below the target rather than
+# displacing it.
 PILL_HEIGHT = 14
-PILL_TOP = 64
-ANSWER_BOTTOM = 82
+PILL_TOP = 72
+ANSWER_BOTTOM = 88
 
 # The parameters below are a reference list, scanned rather than read, so one
 # line each: label left, value right.
-ROW_HEIGHT = 19
-FIRST_ROW_TOP = ANSWER_BOTTOM + 4
+ROW_HEIGHT = 18
+FIRST_ROW_TOP = ANSWER_BOTTOM + 2
 
 # Six rows. Two of them are derived rather than edited: the base shutter comes
 # from the camera and the ISO/aperture shift, and the stops follow from whichever
