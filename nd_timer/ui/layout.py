@@ -45,6 +45,10 @@ COUNTDOWN_HERO = 46
 
 STATUS_BAR_HEIGHT = 15
 
+# A tag in the status bar, right-aligned to clear the battery, which starts at
+# WIDTH - 26. It is where the screen says the answer is no longer its own.
+STATUS_TAG_RIGHT_X = WIDTH - 30
+
 # The answer comes first and takes the top third: it is what the device is for,
 # and the only thing that needs reading at arm's length.
 ANSWER_TOP = STATUS_BAR_HEIGHT
@@ -57,7 +61,21 @@ TARGET_Y = 60
 # displacing it.
 PILL_HEIGHT = 14
 PILL_TOP = 72
+PILL_PADDING = 12
 ANSWER_BOTTOM = 88
+
+# Selection on the answer, escalating: an outline says the five-way is pointing
+# at the time, the same box filled says it is being set. Inverting the rows is
+# how "selected" is said everywhere else, and this is that idiom given a border
+# so the biggest thing on the panel is not a solid black third of the screen
+# every time the selection passes over it.
+ANSWER_BOX = (1, ANSWER_TOP + 2, WIDTH - 2, ANSWER_BOTTOM - 2)
+
+# While the time is being set the arrows live in the margins, so the number keeps
+# the middle of the column and most of its size.
+SETTING_ARROW_X = 4
+SETTING_ARROW_WIDTH = 14
+SETTING_MAX_WIDTH = ANSWER_MAX_WIDTH - 2 * SETTING_ARROW_WIDTH
 
 # The parameters below are a reference list, scanned rather than read, so one
 # line each: label left, value right.
@@ -80,6 +98,13 @@ ROW_PLAN = (
     ("MODE", SELECTABLE),
 )
 ROW_COUNT = len(ROW_PLAN)
+
+# What the five-way can be pointing at, and the order up and down walk them. The
+# answer leads because it is what the screen is for, and because arriving at it
+# first is what makes taking it over a thing you find rather than are told.
+TIME = "time"
+SELECTABLE_ROWS = tuple(label for label, is_selectable in ROW_PLAN if is_selectable)
+SELECTIONS = (TIME, *SELECTABLE_ROWS)
 
 CENTRE_X = WIDTH // 2
 LABEL_X = 4

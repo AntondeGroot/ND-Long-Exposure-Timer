@@ -80,9 +80,10 @@ def draw_inverted_bar(draw: ImageDraw.ImageDraw, box) -> None:
     draw.rectangle(box, fill=BLACK)
 
 
-def draw_status_bar(draw: ImageDraw.ImageDraw, left: str, battery: int) -> None:
-    """The sync note and the battery. A title would not fit beside them."""
+def draw_status_bar(draw: ImageDraw.ImageDraw, left: str, battery: int, tag: str = "") -> None:
+    """The sync note, an optional tag and the battery. A title would not fit too."""
     draw.text((2, 2), left, font=regular(layout.TINY), fill=BLACK)
+    _draw_status_tag(draw, tag)
 
     # A battery drawn rather than written: it reads faster and costs less width.
     body = (WIDTH - 26, 3, WIDTH - 8, 12)
@@ -93,6 +94,16 @@ def draw_status_bar(draw: ImageDraw.ImageDraw, left: str, battery: int) -> None:
         draw.rectangle((body[0] + 1, body[1] + 1, body[0] + fill_width, body[3] - 1), fill=BLACK)
 
     draw.line((0, layout.STATUS_BAR_HEIGHT, WIDTH, layout.STATUS_BAR_HEIGHT), fill=BLACK)
+
+
+def _draw_status_tag(draw: ImageDraw.ImageDraw, tag: str) -> None:
+    """A word tucked in beside the battery, where the eye already goes for state."""
+    if not tag:
+        return
+
+    font = regular(layout.TINY)
+    width = draw.textlength(tag, font=font)
+    draw.text((layout.STATUS_TAG_RIGHT_X - width, 2), tag, font=font, fill=BLACK)
 
 
 def draw_banner_footer(draw: ImageDraw.ImageDraw, text: str) -> None:

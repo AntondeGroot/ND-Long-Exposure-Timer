@@ -23,6 +23,14 @@ SECONDS_PER_HOUR = 3600
 # shutter open on bulb and becomes the timer.
 LONGEST_TIMED_EXPOSURE_SECONDS = 30.0
 
+# Fast shutter speeds are read as fractions, the way they are printed on the
+# dial: "1/125 s", not "0.008 s". The camera itself switches to decimals at 0.4.
+FRACTIONS_BELOW_SECONDS = 0.4
+
+# Past ten seconds a tenth of a second is noise: nothing about the shot changes
+# between 12.3s and 12.4s, and the two extra glyphs cost the hero its size.
+TENTHS_SHOWN_BELOW_SECONDS = 10.0
+
 # Stacking more than this is possible but not useful: vignetting and colour cast
 # make the result worse than the extra stops are worth.
 MAX_STACKED_FILTERS = 3
@@ -115,6 +123,36 @@ def exposure_through_filter(base_seconds: float, stops: float) -> float:
     if base_seconds <= 0:
         raise ValueError(f"base exposure must be positive, got {base_seconds}")
     return base_seconds * (2.0**stops)
+
+
+def format_exposure(seconds: float) -> str:
+    """The exposure written the way it is read off the panel.
+
+    Precision follows length: a fast shutter wants to be a fraction, a second and
+    a bit wants its tenth, a minute wants its seconds, an hour wants neither.
+    """
+    if seconds < FRACTIONS_BELOW_SECONDS:
+        return f"1/{round(1 / seconds)} s"
+    if seconds < TENTHS_SHOWN_BELOW_SECONDS:
+        return f"{seconds:.1f} s"
+
+    whole = round(seconds)
+    if whole < SECONDS_PER_MINUTE:
+        return f"{whole} s"
+    if whole < SECONDS_PER_HOUR:
+        return _written_in_minutes(whole)
+    return _written_in_hours(whole)
+
+
+def _written_in_minutes(whole_seconds: int) -> str:
+    minutes, seconds = divmod(whole_seconds, SECONDS_PER_MINUTE)
+    return f"{minutes}m {seconds}s" if seconds else f"{minutes}m"
+
+
+def _written_in_hours(whole_seconds: int) -> str:
+    hours, remainder = divmod(whole_seconds, SECONDS_PER_HOUR)
+    minutes = remainder // SECONDS_PER_MINUTE
+    return f"{hours}h {minutes}m" if minutes else f"{hours}h"
 
 
 def needs_bulb(seconds: float) -> bool:

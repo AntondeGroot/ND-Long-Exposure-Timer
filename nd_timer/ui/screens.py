@@ -24,9 +24,12 @@ class MainScreen:
     aperture: str
     nd_label: str
     nd_stops: str
-    selected_row: int
+    selected: str
     base_shutter: str
     final_time: str
+    setting_time: bool
+    shows_nudge_hint: bool
+    time_is_set: bool
     target: str
     direction: int
     is_bulb: bool
@@ -79,26 +82,89 @@ def render_main(screen: MainScreen):
     frame = render.blank_frame()
     draw = ImageDraw.Draw(frame)
 
-    render.draw_status_bar(draw, screen.synced_note, screen.battery)
+    render.draw_status_bar(draw, screen.synced_note, screen.battery, _hand_set_tag(screen))
     _draw_answer(draw, screen)
     _draw_parameter_list(draw, screen)
     render.draw_footer(draw)
     return frame
 
 
+def _hand_set_tag(screen: MainScreen) -> str:
+    """The status bar says when the answer is no longer the calculator's.
+
+    Without it the panel would show a time that quietly contradicts the working
+    printed underneath it.
+    """
+    return "SET" if screen.time_is_set else ""
+
+
 def _draw_answer(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
-    """The computed exposure, given the top of the screen and the largest type.
+    """The exposure, given the top of the screen and the largest type.
 
     It is the only thing here worth reading at arm's length; everything below is
-    the working that produced it.
+    the working that produced it - and it is also the one value the photographer
+    can take over, so this is where the selection and the setting arrows show.
     """
+    ink = WHITE if screen.setting_time else BLACK
+
+    _draw_answer_box(draw, screen)
+    _draw_final_time(draw, screen, ink)
+    _draw_target_or_hint(draw, screen, ink)
+    _draw_bulb_badge(draw, layout.CENTRE_X, screen, ink)
+    draw.line((0, layout.ANSWER_BOTTOM, WIDTH, layout.ANSWER_BOTTOM), fill=BLACK)
+
+
+def _draw_answer_box(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
+    """Outlined when the five-way points at the time, filled while it is set."""
+    if screen.setting_time:
+        render.draw_inverted_bar(draw, layout.ANSWER_BOX)
+        return
+    if screen.selected == layout.TIME:
+        draw.rectangle(layout.ANSWER_BOX, outline=BLACK)
+
+
+def _draw_final_time(draw: ImageDraw.ImageDraw, screen: MainScreen, ink: int) -> None:
+    if screen.setting_time:
+        _draw_setting_arrows(draw, ink)
+
     render.draw_fitted(
         draw, layout.CENTRE_X, layout.ANSWER_CENTRE_Y,
-        screen.final_time, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES,
+        screen.final_time, _answer_width(screen), layout.HERO_SIZES, fill=ink,
     )
-    _draw_target(draw, layout.CENTRE_X, screen)
-    _draw_bulb_badge(draw, layout.CENTRE_X, screen)
-    draw.line((0, layout.ANSWER_BOTTOM, WIDTH, layout.ANSWER_BOTTOM), fill=BLACK)
+
+
+def _answer_width(screen: MainScreen) -> int:
+    """The arrows take the margins while the time is being set."""
+    return layout.SETTING_MAX_WIDTH if screen.setting_time else layout.ANSWER_MAX_WIDTH
+
+
+def _draw_setting_arrows(draw: ImageDraw.ImageDraw, ink: int) -> None:
+    """Left and right, flanking the number they move."""
+    font = render.bold(layout.MEDIUM)
+    draw.text((layout.SETTING_ARROW_X, layout.ANSWER_CENTRE_Y), "\u25c0", font=font, fill=ink, anchor="lm")
+    draw.text((WIDTH - layout.SETTING_ARROW_X, layout.ANSWER_CENTRE_Y), "\u25b6", font=font, fill=ink, anchor="rm")
+
+
+def _draw_target_or_hint(draw: ImageDraw.ImageDraw, screen: MainScreen, ink: int) -> None:
+    """The line under the time: what the subject wants, or what up and down do.
+
+    While the time is being set the target has nothing to say - the photographer
+    has already decided - and the line is worth more as the other half of the
+    controls, since arrows alone would not say that seconds are a press away.
+
+    Down at the fast end a second is three stops, which is a jump rather than an
+    adjustment. The press still works - it is often how you leave the fast end -
+    but the line stays empty rather than offering it as a fine control.
+    """
+    if not screen.setting_time:
+        _draw_target(draw, layout.CENTRE_X, screen)
+        return
+    if not screen.shows_nudge_hint:
+        return
+
+    render.draw_centred(
+        draw, layout.CENTRE_X, layout.TARGET_Y, "\u25b2\u25bc 1s", render.regular(layout.TINY), fill=ink
+    )
 
 
 def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> None:
@@ -118,18 +184,27 @@ def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> 
     )
 
 
-def _draw_bulb_badge(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> None:
-    """Bulb is worth shouting about: it means the Pi is doing the timing."""
+def _draw_bulb_badge(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen, ink: int) -> None:
+    """Bulb is worth shouting about: it means the Pi is doing the timing.
+
+    The pill is an inversion of whatever it sits on, so it keeps shouting once
+    the answer around it has been inverted for setting.
+    """
     if not screen.is_bulb:
         return
 
     font = render.bold(layout.TINY)
-    width = draw.textlength("BULB", font=font) + 12
+    width = draw.textlength("BULB", font=font) + layout.PILL_PADDING
     draw.rectangle(
         (centre - width / 2, layout.PILL_TOP, centre + width / 2, layout.PILL_TOP + layout.PILL_HEIGHT),
-        fill=BLACK,
+        fill=ink,
     )
-    render.draw_centred(draw, centre, layout.PILL_TOP + 2, "BULB", font, fill=WHITE)
+    render.draw_centred(draw, centre, layout.PILL_TOP + 2, "BULB", font, fill=_behind(ink))
+
+
+def _behind(ink: int) -> int:
+    """The other of the panel's two colours - the one this ink is legible on."""
+    return WHITE if ink == BLACK else BLACK
 
 
 def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
@@ -147,13 +222,8 @@ def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
         "MODE": screen.mode,
     }
 
-    selectable_index = 0
     for row, (label, is_selectable) in enumerate(layout.ROW_PLAN):
-        selected = False
-        if is_selectable:
-            selected = selectable_index == screen.selected_row
-            selectable_index += 1
-
+        selected = is_selectable and label == screen.selected
         _draw_row(draw, layout.row_top(row), label, values[label], selected)
 
 

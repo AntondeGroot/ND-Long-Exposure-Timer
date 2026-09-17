@@ -2,7 +2,7 @@
 
 import pytest
 
-from nd_timer.exposure import exposure_through_filter, shutter_after_shift
+from nd_timer.exposure import exposure_through_filter, format_exposure, shutter_after_shift
 
 
 def test_each_stop_of_filtration_doubles_the_exposure():
@@ -28,3 +28,13 @@ def test_a_stop_of_extra_iso_buys_back_a_stop_of_shutter():
     # speed a camera offers - snapping to the dial is the camera's job, not the
     # arithmetic's, and it only applies to shots the camera times itself.
     assert shutter == pytest.approx(1 / 120)
+
+
+def test_the_exposure_is_written_to_the_precision_that_matters():
+    # A fraction while the camera would print one, a tenth while a tenth still
+    # changes the shot, and neither once the shot is minutes long.
+    assert format_exposure(1 / 125) == "1/125 s"
+    assert format_exposure(1.1) == "1.1 s"
+    assert format_exposure(47.0) == "47 s"
+    assert format_exposure(137.0) == "2m 17s"
+    assert format_exposure(4200.0) == "1h 10m"

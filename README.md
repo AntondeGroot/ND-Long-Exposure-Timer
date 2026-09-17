@@ -43,6 +43,31 @@ rather than showing a confident wrong number.
 
 ![Calculator screen before syncing](docs/screens/main-not-synced@3x.png)
 
+### Setting the time by hand
+
+The calculation is not always the shot. Press the five-way's centre on the time and the
+answer becomes yours: left and right walk the camera's own third-stop ladder, up and down
+move a second for the times the ladder skips. Below a second the screen stops offering them
+- a second added to 1/8 is three stops, which is a jump rather than an adjustment - but the
+press still works, and is often how you leave the fast end.
+
+While the time is being set the answer is inverted and written as a clock, so a second on
+or off moves a digit rather than reflowing the whole number.
+
+![Calculator screen with the time being set](docs/screens/main-setting-time@3x.png)
+
+The ladder runs from 1/125 to 15s, then 00:16 and whole minutes to an hour - well past what
+long exposure needs at the fast end, because waves want 1/8 and a dial that reaches 1/125 is
+one a self-timer can be built on later.
+
+![Calculator screen dialling a fast shutter](docs/screens/main-setting-waves@3x.png)
+
+A hand-set time says SET in the status bar, because the rows underneath still show the
+calculation it no longer agrees with. Moving ISO, aperture or ND hands the answer back to
+the calculator.
+
+![Calculator screen with a hand-set time](docs/screens/main-time-set@3x.png)
+
 ### Exposing
 
 Remaining time gets the whole column, because it is read from wherever the camera is
@@ -56,9 +81,9 @@ five-minute exposure the extra ticks buy nothing.
 
 | Control | Does |
 |---------|------|
-| Five-way up / down | move between rows |
-| Five-way left / right | change the selected value |
-| Five-way centre | open the menu |
+| Five-way up / down | move between the time and the rows; while setting the time, a second on or off |
+| Five-way left / right | change the selected value; while setting the time, step it |
+| Five-way centre | start or stop setting the time when it is selected, otherwise open the menu |
 | SYNC | read the current exposure from the camera |
 | SHOOT | start the exposure; hold to cancel a running one |
 

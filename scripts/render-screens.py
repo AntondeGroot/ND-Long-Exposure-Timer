@@ -42,23 +42,51 @@ CASES = {
     "splash": SplashScreen(message="starting up...", version="v0.1"),
     "main-waterfall": MainScreen(
         mode="WATERFALL", iso="100", aperture="f/11", nd_label="64", nd_stops="6st",
-        selected_row=1, base_shutter="1/60 s", final_time="1.1 s",
+        selected="APER", base_shutter="1/60 s", final_time="1.1 s",
+        setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 8s", battery=84,
     ),
     "main-bulb": MainScreen(
         mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", nd_stops="13st",
-        selected_row=3, base_shutter="1/60 s", final_time="2m 17s",
+        selected="MODE", base_shutter="1/60 s", final_time="2m 17s",
+        setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 2m", battery=71,
     ),
     "main-not-synced": MainScreen(
         mode="MANUAL", iso="--", aperture="--", nd_label="none", nd_stops="0st",
-        selected_row=0, base_shutter="--", final_time="--",
+        selected="ISO", base_shutter="--", final_time="--",
+        setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="", direction=0, is_bulb=False, synced_note="NOT SYNCED", battery=100,
     ),
     "main-stacked": MainScreen(
         mode="CLOUDS", iso="200", aperture="f/16", nd_label="8+64+1000", nd_stops="19st",
-        selected_row=2, base_shutter="1/125 s", final_time="1h 10m",
+        selected="ND", base_shutter="1/125 s", final_time="1h 10m",
+        setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-6min", direction=-1, is_bulb=True, synced_note="SYNCED 30s", battery=66,
+    ),
+    # The answer taken over by hand: the filters ask for 17s, the photographer
+    # wants 2m 19s, and SET is what stops the two contradicting each other.
+    "main-time-set": MainScreen(
+        mode="CLOUDS", iso="100", aperture="f/11", nd_label="1000", nd_stops="10st",
+        selected="time", base_shutter="1/60 s", final_time="2m 19s",
+        setting_time=False, shows_nudge_hint=True, time_is_set=True,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 30s", battery=78,
+    ),
+    # Mid-dial: left and right walk the time, up and down move a second, and the
+    # clock face holds its shape while they do.
+    "main-setting-time": MainScreen(
+        mode="CLOUDS", iso="100", aperture="f/11", nd_label="1000", nd_stops="10st",
+        selected="time", base_shutter="1/60 s", final_time="02:19",
+        setting_time=True, shows_nudge_hint=True, time_is_set=True,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 30s", battery=78,
+    ),
+    # The fast end of the dial: waves want a shutter the camera times itself, and
+    # the ladder reaches it - the same dial a self-timer would use.
+    "main-setting-waves": MainScreen(
+        mode="WAVES", iso="100", aperture="f/11", nd_label="8", nd_stops="3st",
+        selected="time", base_shutter="1/60 s", final_time="1/8 s",
+        setting_time=True, shows_nudge_hint=False, time_is_set=True,
+        target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 1/60", battery=82,
     ),
     "countdown-bulb": CountdownScreen(
         mode="CLOUDS", remaining="3:42", elapsed="1:18", total="5:00",
