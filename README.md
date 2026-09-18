@@ -1,14 +1,16 @@
 # ND Long Exposure Timer
 
-Taking long exposure photos can be cumbersome:
+Taking long exposure photos can be cumbersome. You work forward based on the filters you might want to put on your camera. However working backwards based on the exposure time you desire is much more user friendly.
+This way you only need to think about the intended effect you want to create.
+
+Normally
 - you first need to determine the correct exposure
 - then guess which filters you would need
 - then calculate how much the total exposure time will be
 - maybe pick different filters and calculate again
-- and then backsolve how to adjust exposure time so that the total exposure time has the desired effect.
+- and then backsolve how to adjust:  iso / aperture so your base shutter speed will result in the total exposure time you wanted.
 
-This module will make the whole process shutter priority, and tell you which settings and filters you need.
-This way you only need to think about the intended effect you want to create and the module will do the boring work for you.
+This module will make the whole process shutter priority, and tell you which filters you need, it will take care of the camera settings.
 - sync with your camera when you have your exposure set correctly
 - let you chose the total exposure time
 - it will tell you what filters you need to put on
