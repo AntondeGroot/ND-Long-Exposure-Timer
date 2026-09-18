@@ -95,6 +95,24 @@ python3 -m venv .venv && ./.venv/bin/pip install pytest pillow
 ./scripts/render-screens.py           # after a deliberate UI change, then commit the images
 ```
 
+### Trying it without the hardware
+
+The whole device runs on a laptop, with the panel in a browser and the camera faked:
+
+```bash
+./scripts/simulator.py                # then open http://localhost:8000
+```
+
+The five-way, SYNC and SHOOT are on the page and on the keyboard, and the picture
+served is the exact 122 x 250 buffer the panel would be holding. The three values
+SYNC reads sit beside it, so a scene can be metered with no camera on the desk,
+and the clock can be run fast while the shutter is open - a six-minute exposure
+is worth watching at 60x rather than in real time.
+
+What the buttons drive is `nd_timer/device.py`, the state machine the Pi runs:
+presses arrive as method calls and the clock arrives as an argument, so the panel
+driver and gphoto2 are the only parts the simulator stands in for.
+
 Provisioning a fresh Pi, flashing a card and driving the camera by hand are covered by
 the scripts in `scripts/`.
 

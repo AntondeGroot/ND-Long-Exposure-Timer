@@ -39,6 +39,19 @@ class Subject:
             return None
         return math.sqrt(self.shortest * self.longest)
 
+    @property
+    def target_label(self) -> str:
+        """The range as the panel prints it: "1/4-2s", "2-6min", or nothing.
+
+        Written in whichever unit both ends share, because "120-360s" is a range
+        the reader has to divide before it means anything.
+        """
+        if not self.has_target:
+            return ""
+        if self.shortest >= SECONDS_PER_MINUTE:
+            return f"{_written(self.shortest / SECONDS_PER_MINUTE)}-{_written(self.longest / SECONDS_PER_MINUTE)}min"
+        return f"{_written(self.shortest)}-{_written(self.longest)}s"
+
     def direction_from(self, seconds: float) -> int:
         """-1 if the exposure is too long, +1 if too short, 0 if it suits.
 
@@ -52,6 +65,13 @@ class Subject:
         if seconds > self.longest:
             return -1
         return 0
+
+
+def _written(amount: float) -> str:
+    """A bound of the range: a fraction below one, a plain number above it."""
+    if amount < 1:
+        return f"1/{round(1 / amount)}"
+    return f"{amount:g}"
 
 
 SUBJECTS = (
