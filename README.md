@@ -2,13 +2,17 @@
 
 Taking long exposure photos can be cumbersome:
 - you first need to determine the correct exposure
-- then calculate how much the total exposure time will be for multiple ND filters
+- then guess which filters you would need
+- then calculate how much the total exposure time will be
+- maybe pick different filters and calculate again
 - and then backsolve how to adjust exposure time so that the total exposure time has the desired effect.
 
-This module will
+This module will make the whole process shutter priority, and tell you which settings and filters you need.
+This way you only need to think about the intended effect you want to create and the module will do the boring work for you.
 - sync with your camera when you have your exposure set correctly
 - let you chose the total exposure time
 - it will tell you what filters you need to put on
+- it will automatically determine the settings for the long exposure.
 
 no calculations or iterative backsolving required!
 
