@@ -1,8 +1,8 @@
 """The settings screens: the device's own lists, drawn the way the calculator's is.
 
 Settings are the things that are true of the bag rather than of the shot - which
-filters are in it, how far the ISO may be pushed when a suggestion goes looking
-for one. They change rarely enough to be worth a screen of their own, and the
+filters are in it, how far the ISO may be pushed and how wide and how far down
+the lens goes when the device goes looking for a recipe. They change rarely enough to be worth a screen of their own, and the
 calculator is the better for not carrying them.
 
 The filter list is the same screen one level down, under its own title, so it is
@@ -22,8 +22,17 @@ from nd_timer.ui import layout, render
 
 # What the screen lists, in the order it lists them. The navigation walks this,
 # so it is the one place the list is written down.
+#
+# Three of them are the shape of the kit: which filters are in the bag, how far
+# the ISO may be pushed, and how wide and how far down the lens goes. Between
+# them they are the whole search space the device is allowed to answer from.
 FILTERS = "FILTERS"
-ENTRY_LABELS = (FILTERS, "ISO MAX", "ABOUT")
+ISO_MAX = "ISO MAX"
+APERTURE_MIN = "APER MIN"
+APERTURE_MAX = "APER MAX"
+ABOUT = "ABOUT"
+
+ENTRY_LABELS = (FILTERS, ISO_MAX, APERTURE_MIN, APERTURE_MAX, ABOUT)
 
 
 @dataclass(frozen=True)

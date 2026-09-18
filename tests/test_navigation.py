@@ -3,7 +3,7 @@
 from nd_timer.exposure import COMMON_FILTERS
 from nd_timer.ui import layout
 from nd_timer.ui.navigation import Navigation
-from nd_timer.ui.settings import ENTRY_LABELS
+from nd_timer.ui.settings import ABOUT, ENTRY_LABELS
 
 
 def test_settings_is_one_press_up_from_the_time():
@@ -70,9 +70,12 @@ def test_reopening_settings_starts_again_at_the_first_entry():
 
 def test_centre_on_the_version_does_nothing():
     # ABOUT only says which version is running: there is nothing behind it to
-    # open or change, so the press leaves everything exactly where it was.
-    on_about = Navigation(selected=layout.SETTINGS).pressed_centre().pressed_down().pressed_down()
-    assert ENTRY_LABELS[on_about.settings_entry] == "ABOUT"
+    # open or change, so the press leaves everything exactly where it was. It is
+    # walked to rather than counted to, so the list can grow an entry.
+    on_about = Navigation(selected=layout.SETTINGS).pressed_centre()
+    for _ in range(ENTRY_LABELS.index(ABOUT)):
+        on_about = on_about.pressed_down()
+    assert ENTRY_LABELS[on_about.settings_entry] == ABOUT
 
     assert on_about.pressed_centre() == on_about
 

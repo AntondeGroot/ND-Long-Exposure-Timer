@@ -68,7 +68,7 @@ def test_the_time_only_moves_once_setting_has_started():
     assert not calculated.pressed_right().is_hand_set
 
 
-def test_a_hand_set_time_is_marked_until_it_is_recalculated():
+def test_a_hand_set_time_is_marked_until_something_else_suggests_one():
     # The mark is what stops the panel showing a time that contradicts the
     # working printed under it. Stopping setting keeps it; a parameter moving
     # underneath hands the answer back to the calculator.
@@ -77,9 +77,9 @@ def test_a_hand_set_time_is_marked_until_it_is_recalculated():
     assert dial.is_hand_set
     assert dial.pressed_centre().is_hand_set
 
-    recalculated = dial.recalculated(17.0)
-    assert not recalculated.is_hand_set
-    assert recalculated.label == "17 s"
+    suggested = dial.suggested(17.0)
+    assert not suggested.is_hand_set
+    assert suggested.label == "17 s"
 
 
 def test_the_dial_stops_at_an_hour():

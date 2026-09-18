@@ -5,6 +5,10 @@ running device. The device holds numbers, because that is what the arithmetic
 needs. This is the one place the two meet: every number written for the eye is
 written here, and each screen is chosen by the one thing that is true of the
 device at that moment.
+
+The main screen reads as one sentence down the column: this was the scene, and
+this is the ISO, the aperture and the filters that turn it into the time at the
+top. Only the first row is a measurement; the rest are instructions.
 """
 
 from __future__ import annotations
@@ -35,23 +39,24 @@ def screen_for(device, now: float):
 
 
 def _main_screen(device, now: float) -> MainScreen:
+    """The time the photographer asked for, and what it would take to shoot it."""
     seconds = device.exposure_seconds
-    metered = device.metered is not None
+    recipe = device.recipe
     return MainScreen(
         mode=device.subject.name,
-        iso=_if_metered(metered, f"{device.working_iso:g}"),
-        aperture=_if_metered(metered, f"f/{device.working_aperture:g}"),
-        nd_label=device.choice.short_label,
-        nd_stops=device.choice.stops_label,
+        iso=_recipe_value(recipe, lambda r: f"{r.iso:g}"),
+        aperture=_recipe_value(recipe, lambda r: f"f/{r.aperture:g}"),
+        nd_label=_recipe_value(recipe, lambda r: r.filters.short_label),
+        off_by=_recipe_value(recipe, lambda r: r.error_label),
         selected=device.navigation.selected,
-        base_shutter=_if_metered(metered, _exposure(device.base_seconds)),
-        final_time=device.dial.label if seconds is not None else NO_VALUE,
+        base_shutter=_metered_shutter(device),
+        final_time=device.dial.label,
         setting_time=device.dial.is_being_set,
         shows_nudge_hint=device.dial.shows_nudge_hint,
         time_is_set=device.dial.is_hand_set,
         target=device.subject.target_label,
-        direction=device.subject.direction_from(seconds) if seconds else 0,
-        is_bulb=seconds is not None and needs_bulb(seconds),
+        direction=device.subject.direction_from(seconds),
+        is_bulb=needs_bulb(seconds),
         synced_note=_synced_note(device, now),
         battery=device.battery,
     )
@@ -91,9 +96,25 @@ def _filters_screen(device) -> SettingsScreen:
     )
 
 
-def _if_metered(metered: bool, text: str) -> str:
-    """Values that mean nothing until the camera has been read say so."""
-    return text if metered else NO_VALUE
+def _metered_shutter(device) -> str:
+    """The shutter the camera was reading when SYNC was pressed.
+
+    Nothing the device does moves it. It is the measurement the whole recipe is
+    worked out from, and a row that quietly restated it at each ISO the solver
+    tried would be showing arithmetic rather than the scene.
+    """
+    if device.metered is None:
+        return NO_VALUE
+    return format_exposure(device.metered.shutter_seconds)
+
+
+def _recipe_value(recipe, written) -> str:
+    """A row of the recipe, or a dash while there is no scene to solve for.
+
+    Before SYNC there is nothing to work back from, and a row of confident
+    numbers would be a worse answer than saying so.
+    """
+    return NO_VALUE if recipe is None else written(recipe)
 
 
 def _synced_note(device, now: float) -> str:
@@ -101,10 +122,6 @@ def _synced_note(device, now: float) -> str:
     if device.synced_at is None:
         return NOT_SYNCED
     return f"SYNCED {_age(now - device.synced_at)}"
-
-
-def _exposure(seconds: float | None) -> str:
-    return NO_VALUE if seconds is None else format_exposure(seconds)
 
 
 def _clock(seconds: float) -> str:
