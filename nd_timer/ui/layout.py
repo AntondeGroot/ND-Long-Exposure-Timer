@@ -104,7 +104,8 @@ ROW_COUNT = len(ROW_PLAN)
 # first is what makes taking it over a thing you find rather than are told.
 TIME = "time"
 SELECTABLE_ROWS = tuple(label for label, is_selectable in ROW_PLAN if is_selectable)
-SELECTIONS = (TIME, *SELECTABLE_ROWS)
+SETTINGS = "settings"
+SELECTIONS = (TIME, *SELECTABLE_ROWS, SETTINGS)
 
 CENTRE_X = WIDTH // 2
 LABEL_X = 4
@@ -123,5 +124,24 @@ FOOTER_TOP = 200
 SHOOT_TOP = 222
 
 
+# The settings list has no answer above it to make room for, so it starts just
+# under the status bar and the whole screen is entries.
+SETTINGS_FIRST_ROW_TOP = STATUS_BAR_HEIGHT + 6
+
+# A list longer than the screen scrolls, and says so with a small arrow at the
+# end that has more beyond it: the top one sits in the gap under the status bar,
+# the bottom one in room kept free above BACK. The filter list is the long one.
+SCROLL_HINT_HEIGHT = 4
+SCROLL_HINT_HALF_WIDTH = 4
+SCROLL_HINT_ROOM = 8
+SETTINGS_VISIBLE_ROWS = (SHOOT_TOP - SETTINGS_FIRST_ROW_TOP - SCROLL_HINT_ROOM) // ROW_HEIGHT
+SCROLL_HINT_UP_TOP = STATUS_BAR_HEIGHT + 2
+SCROLL_HINT_DOWN_TOP = SETTINGS_FIRST_ROW_TOP + SETTINGS_VISIBLE_ROWS * ROW_HEIGHT + 2
+
+
 def row_top(index: int) -> int:
     return FIRST_ROW_TOP + index * ROW_HEIGHT
+
+
+def settings_row_top(index: int) -> int:
+    return SETTINGS_FIRST_ROW_TOP + index * ROW_HEIGHT

@@ -17,6 +17,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
+from nd_timer.bag import Bag  # noqa: E402
+from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
+from nd_timer.ui.settings import SettingsEntry, SettingsScreen, render_settings  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
     MainScreen,
@@ -25,6 +28,9 @@ from nd_timer.ui.screens import (  # noqa: E402
     render_main,
     render_splash,
 )
+
+# A typical bag: a light filter for water, a medium one and a big stopper.
+TYPICAL_BAG = Bag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
 
 OUTPUT_DIR = REPO / "docs" / "screens"
 
@@ -96,11 +102,34 @@ CASES = {
         mode="Waterfall", remaining="0:04", elapsed="0:56", total="1:00",
         progress=0.93, is_bulb=False, battery=59,
     ),
+    "settings-selected": MainScreen(
+        mode="WAVES", iso="100", aperture="f/11", nd_label="8", nd_stops="3st",
+        selected="settings", base_shutter="1/60 s", final_time="1/8 s",
+        setting_time=False, shows_nudge_hint=False, time_is_set=True,
+        target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 1/60", battery=10,
+    ),
+    "settings": SettingsScreen(
+        entries=(
+            SettingsEntry("FILTERS", "9 owned"),
+            SettingsEntry("ISO MAX", "400"),
+            SettingsEntry("ABOUT", "v0.1"),
+        ),
+        selected=0, battery=10,
+    ),
+    "settings-filters": SettingsScreen(
+        entries=tuple(SettingsEntry(f.name, TYPICAL_BAG.ownership_label(f)) for f in COMMON_FILTERS),
+        selected=2, battery=10, title="FILTERS", left_right_change_values=False,
+    ),
+    "settings-filters-scrolled": SettingsScreen(
+        entries=tuple(SettingsEntry(f.name, TYPICAL_BAG.ownership_label(f)) for f in COMMON_FILTERS),
+        selected=8, battery=10, title="FILTERS", left_right_change_values=False,
+    ),
 }
 
 
 RENDERERS = {
     SplashScreen: render_splash,
+    SettingsScreen: render_settings,
     CountdownScreen: render_countdown,
     MainScreen: render_main,
 }

@@ -106,25 +106,68 @@ def _draw_status_tag(draw: ImageDraw.ImageDraw, tag: str) -> None:
     draw.text((layout.STATUS_TAG_RIGHT_X - width, 2), tag, font=font, fill=BLACK)
 
 
-def draw_banner_footer(draw: ImageDraw.ImageDraw, text: str) -> None:
-    """One inverted bar across the whole width, for a screen with a single action."""
+def draw_banner_footer(draw: ImageDraw.ImageDraw, text: str, selected: bool = True) -> None:
+    """One bar across the whole width, for a screen with a single action.
+
+    Where the action is a stop the five-way walks to, the bar is only inverted
+    while it holds the selection - the same idiom as every row above it.
+    """
     # Same height as SHOOT's bar on the calculator screen, so the footer does not
     # jump about as screens change.
     top = layout.SHOOT_TOP
-    draw.rectangle((0, top, WIDTH, HEIGHT), fill=BLACK)
-    draw_centred(draw, WIDTH // 2, top + 6, text, bold(layout.SMALL), fill=WHITE)
+    if selected:
+        draw.rectangle((0, top, WIDTH, HEIGHT), fill=BLACK)
+    else:
+        draw.line((0, top, WIDTH, top), fill=BLACK)
+    ink = WHITE if selected else BLACK
+    draw_centred(draw, WIDTH // 2, top + 6, text, bold(layout.SMALL), fill=ink)
 
 
-def draw_footer(draw: ImageDraw.ImageDraw, quiet=("MENU", "SYNC"), action="SHOOT") -> None:
-    """Two bands: the quiet buttons share a row, the one with consequences gets its own."""
+def draw_value_row(
+    draw: ImageDraw.ImageDraw, top: int, label: str, value: str, selected: bool, carets: bool = True
+) -> None:
+    """A label and its value on one line, inverted when it holds the selection.
+
+    Both of the device's lists are this row - the calculator's working and the
+    settings - so it lives here rather than with either of them.
+    """
+    ink = WHITE if selected else BLACK
+    if selected:
+        draw_inverted_bar(draw, (0, top, WIDTH, top + layout.ROW_HEIGHT - 2))
+
+    label_font = regular(layout.TINY)
+    draw.text((layout.LABEL_X, top + 4), label, font=label_font, fill=ink)
+
+    # Carets appear only on the selected row: they say left and right change it,
+    # so a row they do nothing on goes without.
+    text = f"< {value} >" if selected and carets else value
+
+    # Whatever is left once the label has had its say.
+    label_width = draw.textlength(label, font=label_font)
+    available = layout.VALUE_RIGHT_X - layout.LABEL_X - label_width - layout.LABEL_VALUE_GAP
+
+    draw_right_aligned_fitted(
+        draw, layout.VALUE_RIGHT_X, top + 3, text, available, layout.ROW_VALUE_SIZES, fill=ink,
+    )
+
+
+def draw_footer(draw: ImageDraw.ImageDraw, quiet="SETTINGS", action="SHOOT", selected: str = "") -> None:
+    """Two bands: the quiet button gets a row, the one with consequences its own.
+
+    The quiet band inverts when the five-way is pointing at it, which is how the
+    rows say "selected" too - it is a row's height, so it can carry the idiom the
+    answer is too big for. A hairline of white keeps it off the SHOOT bar.
+    """
     top = layout.FOOTER_TOP
     draw.line((0, top, WIDTH, top), fill=BLACK)
 
+    holds_selection = selected == layout.SETTINGS
+    if holds_selection:
+        draw_inverted_bar(draw, (0, top + 1, WIDTH, layout.SHOOT_TOP - 2))
+
     midpoint = WIDTH // 2
-    draw.line((midpoint, top, midpoint, layout.SHOOT_TOP), fill=BLACK)
-    for index, label in enumerate(quiet):
-        centre = midpoint // 2 + index * midpoint
-        draw_centred(draw, centre, top + 4, label, bold(layout.SMALL))
+    ink = WHITE if holds_selection else BLACK
+    draw_centred(draw, midpoint, top + 4, quiet, bold(layout.SMALL), fill=ink)
 
     draw.rectangle((0, layout.SHOOT_TOP, WIDTH, HEIGHT), fill=BLACK)
     draw_centred(draw, midpoint, layout.SHOOT_TOP + 5, action, bold(layout.MEDIUM), fill=WHITE)

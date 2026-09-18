@@ -85,7 +85,7 @@ def render_main(screen: MainScreen):
     render.draw_status_bar(draw, screen.synced_note, screen.battery, _hand_set_tag(screen))
     _draw_answer(draw, screen)
     _draw_parameter_list(draw, screen)
-    render.draw_footer(draw)
+    render.draw_footer(draw, selected=screen.selected)
     return frame
 
 
@@ -224,27 +224,7 @@ def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
 
     for row, (label, is_selectable) in enumerate(layout.ROW_PLAN):
         selected = is_selectable and label == screen.selected
-        _draw_row(draw, layout.row_top(row), label, values[label], selected)
-
-
-def _draw_row(draw: ImageDraw.ImageDraw, top: int, label: str, value: str, selected: bool) -> None:
-    ink = WHITE if selected else BLACK
-    if selected:
-        render.draw_inverted_bar(draw, (0, top, WIDTH, top + layout.ROW_HEIGHT - 2))
-
-    label_font = render.regular(layout.TINY)
-    draw.text((layout.LABEL_X, top + 4), label, font=label_font, fill=ink)
-
-    # Carets appear only on the selected row: they say which buttons do something.
-    text = f"< {value} >" if selected else value
-
-    # Whatever is left once the label has had its say.
-    label_width = draw.textlength(label, font=label_font)
-    available = layout.VALUE_RIGHT_X - layout.LABEL_X - label_width - layout.LABEL_VALUE_GAP
-
-    render.draw_right_aligned_fitted(
-        draw, layout.VALUE_RIGHT_X, top + 3, text, available, layout.ROW_VALUE_SIZES, fill=ink,
-    )
+        render.draw_value_row(draw, layout.row_top(row), label, values[label], selected)
 
 
 def render_countdown(screen: CountdownScreen):

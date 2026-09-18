@@ -92,6 +92,9 @@ COMMON_FILTERS = (
     NdFilter("ND100", 6.64),
     NdFilter("ND400", 8.64),
     NdFilter("ND1000", 10.0),
+    NdFilter("ND32000", 15.0),
+    NdFilter("ND100.000", 16.6),
+    NdFilter("ND1.000.000", 20.0),
 )
 
 
