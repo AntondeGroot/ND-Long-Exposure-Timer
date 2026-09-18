@@ -34,12 +34,19 @@ from nd_timer.ui.settings import (
     ABOUT,
     APERTURE_MAX,
     APERTURE_MIN,
+    DELAY,
     ENTRY_LABELS,
     FILTERS,
     ISO_MAX,
 )
 
 VERSION = "v0.1"
+
+# What SHOOT waits for before opening the shutter, and what it may be set to.
+# Eight seconds is long enough for a tripod to stop ringing after a finger comes
+# off it, and short enough that it is not a thing you work around.
+DELAYS = (0.0, 2.0, 5.0, 8.0, 10.0, 15.0, 20.0, 30.0)
+DEFAULT_DELAY_SECONDS = 8.0
 
 # What the dial starts on before a scenario or the photographer has said
 # otherwise: a second, which is a long exposure by the time anything is on the
@@ -49,13 +56,29 @@ DEFAULT_TIME_SECONDS = 1.0
 
 @dataclass(frozen=True)
 class Shot:
-    """A running exposure, timed from the clock it was started on."""
+    """A shot from the moment SHOOT was pressed: the wait, then the exposure.
+
+    The wait is why the two are one object. A shot is not the shutter being
+    open, it is the whole thing the button started, and cancelling during the
+    wait has to cancel the same thing that cancelling mid-exposure does.
+    """
 
     total_seconds: float
     started_at: float
+    delay_seconds: float = 0.0
+
+    @property
+    def opens_at(self) -> float:
+        """When the shutter opens, which is not when the button was pressed."""
+        return self.started_at + self.delay_seconds
+
+    def is_delaying(self, now: float) -> bool:
+        """Whether the shot has started but the shutter has not opened yet."""
+        return now < self.opens_at
 
     def elapsed(self, now: float) -> float:
-        return min(self.total_seconds, max(0.0, now - self.started_at))
+        """How long the shutter has been open, which is nothing until it is."""
+        return min(self.total_seconds, max(0.0, now - self.opens_at))
 
     def remaining(self, now: float) -> float:
         return self.total_seconds - self.elapsed(now)
@@ -77,6 +100,7 @@ class Device:
     synced_at: float | None = None
     subject_index: int = 0
     iso_max: float = 400
+    delay_seconds: float = DEFAULT_DELAY_SECONDS
     aperture_min: float = APERTURES[0]
     aperture_max: float = APERTURES[-1]
     bag: Bag = Bag()
@@ -148,12 +172,17 @@ class Device:
         return replace(self, metered=metered, synced_at=now)
 
     def pressed_shoot(self, now: float) -> Device:
-        """SHOOT starts the exposure; pressing it again cancels a running one."""
+        """SHOOT starts the shot; pressing it again cancels a running one.
+
+        The shutter does not open on the press. A finger on a button is the
+        worst vibration a tripod sees all evening, and a long exposure records
+        every bit of it, so the device waits for the thing to go still first.
+        """
         if self.shot is not None:
             return replace(self, shot=None)
         return replace(
             self,
-            shot=Shot(self.exposure_seconds, now),
+            shot=Shot(self.exposure_seconds, now, self.delay_seconds),
             dial=replace(self.dial, is_being_set=False),
         )
 
@@ -176,6 +205,7 @@ class Device:
             ISO_MAX: f"{self.iso_max:g}",
             APERTURE_MIN: f"f/{self.aperture_min:g}",
             APERTURE_MAX: f"f/{self.aperture_max:g}",
+            DELAY: _delay_label(self.delay_seconds),
             ABOUT: VERSION,
         }[label]
 
@@ -217,6 +247,7 @@ class Device:
             ISO_MAX: self._changed_iso_ceiling,
             APERTURE_MIN: self._changed_widest_aperture,
             APERTURE_MAX: self._changed_narrowest_aperture,
+            DELAY: self._changed_delay,
         }.get(ENTRY_LABELS[entry])
         return changed(direction) if changed else self
 
@@ -235,6 +266,11 @@ class Device:
         index = _stepped(_nearest(APERTURES, self.aperture_max), direction, APERTURES)
         return replace(self, aperture_max=max(APERTURES[index], self.aperture_min))
 
+    def _changed_delay(self, direction: int) -> Device:
+        """How long the tripod is given to go still before the shutter opens."""
+        index = _stepped(_nearest(DELAYS, self.delay_seconds), direction, DELAYS)
+        return replace(self, delay_seconds=DELAYS[index])
+
     def _with_dial(self, dial: Dial) -> Device:
         return replace(self, dial=dial)
 
@@ -247,6 +283,11 @@ def _stepped(index: int, direction: int, values) -> int:
     the thumb meant.
     """
     return max(0, min(index + direction, len(values) - 1))
+
+
+def _delay_label(seconds: float) -> str:
+    """What the settings row says: a delay of nothing is off rather than "0s"."""
+    return f"{seconds:g}s" if seconds else "off"
 
 
 def _nearest(values: tuple, wanted: float) -> int:

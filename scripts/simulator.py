@@ -34,13 +34,21 @@ from nd_timer.camera import MeteredExposure  # noqa: E402
 from nd_timer.device import Device  # noqa: E402
 from nd_timer.dial import LADDER_SECONDS  # noqa: E402
 from nd_timer.exposure import format_exposure  # noqa: E402
-from nd_timer.ui.screens import CountdownScreen, MainScreen, render_countdown, render_main  # noqa: E402
+from nd_timer.ui.screens import (  # noqa: E402
+    CountdownScreen,
+    DelayScreen,
+    MainScreen,
+    render_countdown,
+    render_delay,
+    render_main,
+)
 from nd_timer.ui.settings import SettingsScreen, render_settings  # noqa: E402
 
 PAGE = Path(__file__).resolve().parent / "simulator.html"
 
 RENDERERS = {
     SettingsScreen: render_settings,
+    DelayScreen: render_delay,
     CountdownScreen: render_countdown,
     MainScreen: render_main,
 }
@@ -75,6 +83,11 @@ class VirtualClock:
         self._real = time.monotonic()
         self._virtual = 0.0
 
+    @property
+    def virtual(self) -> float:
+        """The time as of the last reading, for deciding how fast to run next."""
+        return self._virtual
+
     def now(self, speed: float = 1.0) -> float:
         real = time.monotonic()
         self._virtual += (real - self._real) * self._speed
@@ -94,12 +107,16 @@ class Simulator:
         self._lock = threading.Lock()
 
     def _now(self) -> float:
-        """The clock only runs fast while the shutter is open.
+        """The clock only runs fast while the shutter is actually open.
 
-        A six-minute exposure is worth watching at 60x; the age of the sync in
-        the status bar is not, and would be a lie told sixty times over.
+        A six-minute exposure is worth watching at 60x. The age of the sync in
+        the status bar is not, and would be a lie told sixty times over - and
+        neither is the delay before the shutter opens, which at 60x would be
+        over before the screen saying so had been read.
         """
-        return self.clock.now(self.speed if self.device.shot is not None else 1.0)
+        shot = self.device.shot
+        open_shutter = shot is not None and not shot.is_delaying(self.clock.virtual)
+        return self.clock.now(self.speed if open_shutter else 1.0)
 
     def pressed(self, button: str) -> None:
         with self._lock:
