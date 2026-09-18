@@ -82,26 +82,33 @@ SETTING_MAX_WIDTH = ANSWER_MAX_WIDTH - 2 * SETTING_ARROW_WIDTH
 ROW_HEIGHT = 18
 FIRST_ROW_TOP = ANSWER_BOTTOM + 2
 
-# Six rows. Two of them are derived rather than edited: the base shutter comes
-# from the camera and the ISO/aperture shift, and the stops follow from whichever
-# filter combination is chosen. Giving the stops their own line is what lets the
-# filter names stay legible - "8+64+1000 19st" on one line has to shrink to 8pt.
+# Six rows, and only the last one is yours. The first is the shutter the camera
+# metered, which is a measurement and never moves. The four between them are the
+# answer to the time above: the ISO, the aperture and the filters that would
+# expose for it, and how far the nearest thing the bag can do lands from it.
+#
+# The miss gets a line of its own rather than sharing ND's, because "8+64+1000"
+# is already the width of the column and a filter name that shrinks to 8pt is a
+# filter name read wrong in the dark.
 SELECTABLE = True
 DERIVED = False
 
+# The scenario, named here because it is the one row the five-way can land on.
+MODE = "MODE"
+
 ROW_PLAN = (
     ("base", DERIVED),
-    ("ISO", SELECTABLE),
-    ("APER", SELECTABLE),
-    ("ND", SELECTABLE),
-    ("stops", DERIVED),
-    ("MODE", SELECTABLE),
+    ("ISO", DERIVED),
+    ("APER", DERIVED),
+    ("ND", DERIVED),
+    ("off", DERIVED),
+    (MODE, SELECTABLE),
 )
 ROW_COUNT = len(ROW_PLAN)
 
 # What the five-way can be pointing at, and the order up and down walk them. The
-# answer leads because it is what the screen is for, and because arriving at it
-# first is what makes taking it over a thing you find rather than are told.
+# time leads because it is what the photographer sets and the rest is worked back
+# from it, and because the rows below it are answers rather than controls.
 TIME = "time"
 SELECTABLE_ROWS = tuple(label for label, is_selectable in ROW_PLAN if is_selectable)
 SETTINGS = "settings"

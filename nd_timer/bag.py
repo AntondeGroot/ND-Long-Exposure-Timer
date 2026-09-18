@@ -1,7 +1,7 @@
 """The filters in the bag: which of the common ones the photographer owns.
 
-The ND list on the calculator is built from these, so a filter left out of the
-bag never turns up as a choice or in a suggestion. It starts full, because a
+The recipes are built from these, so a filter left out of the bag is never asked
+for - the device only ever names glass you actually have with you. It starts full, because a
 device that offers nothing until it is set up is one that looks broken.
 """
 

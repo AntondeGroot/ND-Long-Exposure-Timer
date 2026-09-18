@@ -1,8 +1,10 @@
-"""Setting the exposure time by hand, when the calculation is not the shot.
+"""Setting the exposure time, which is the one thing the photographer chooses.
 
-The calculator answers with the time the filters ask for. Sometimes that is not
-the time you want - the light is moving, the suggestion is close but not it, or
-you simply know this scene - so the answer itself can be taken over and dialled.
+Everything else on the panel is worked back from this: the device is in shutter
+priority, and this is the shutter. A scenario puts a time here to start from -
+CLOUDS wants minutes, waves want a fraction of a second - and from there it is
+dialled, because the light is moving, or the scene is known, or the suggestion
+is close but not it.
 
 One press of the five-way's centre on the time starts setting it, another stops.
 While it is being set the four directions do the work, and they have to cover
@@ -12,8 +14,8 @@ everything from 1/125s to an hour, which is nineteen stops:
                 stop while the time is in seconds, whole minutes once it is not
   up / down     moves one second, for landing on a time the ladder skips
 
-A hand-set time stays until a parameter moves under it, at which point the
-answer goes back to being the answer.
+A hand-set time stays until a scenario is chosen, which is the photographer
+asking for that scenario's time instead.
 """
 
 from __future__ import annotations
@@ -178,8 +180,12 @@ class Dial:
     def pressed_down(self) -> Dial:
         return self._moved_to(nudged(self.seconds, -1))
 
-    def recalculated(self, seconds: float) -> Dial:
-        """Back to the calculated answer: something underneath it has moved."""
+    def suggested(self, seconds: float) -> Dial:
+        """A time the device put here rather than the thumb: a scenario's own.
+
+        It is not hand-set, so the screen stops saying SET - the time on the
+        panel is the one the scenario asks for until it is dialled again.
+        """
         return Dial(seconds)
 
     def _moved_to(self, seconds: float) -> Dial:

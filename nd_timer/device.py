@@ -1,13 +1,20 @@
 """The device as a whole: what each press does, and what the panel shows after it.
 
-The pieces underneath each know one thing. The dial knows how a time steps, the
-navigation knows where the five-way is pointing, the bag knows which filters
-exist, the exposure module does the arithmetic. None of them knows that a left
-press means the dial while the time is being set and the ISO row otherwise.
+Shutter priority, with the filters in the loop. The photographer sets one thing -
+how long the exposure should be - and everything else is worked back from it: the
+filters to screw on, the ISO and aperture to set, and how close that gets. A
+scenario is a shortcut to a time rather than a mode of its own, so choosing
+CLOUDS puts the time in the middle of what clouds want and the recipe follows.
 
-That routing is what this is. It holds no hardware: the presses arrive as method
-calls and the clock arrives as an argument, so the same state machine drives the
-GPIO buttons on the Pi and the browser in scripts/simulator.py.
+The pieces underneath each know one thing. The dial knows how a time steps, the
+navigation knows where the five-way is pointing, the bag knows which filters are
+in it, nd_timer.recipe does the solving. None of them knows that a left press
+means the dial while the time is being set and the scenario otherwise. That
+routing is what this is.
+
+It holds no hardware: presses arrive as method calls and the clock arrives as an
+argument, so the same state machine drives the buttons on the Pi and the browser
+in scripts/simulator.py.
 """
 
 from __future__ import annotations
@@ -17,29 +24,26 @@ from dataclasses import dataclass, replace
 from nd_timer.bag import Bag
 from nd_timer.camera import MeteredExposure
 from nd_timer.dial import Dial
-from nd_timer.exposure import exposure_through_filter, filter_choices, shutter_after_shift
+from nd_timer.exposure import filter_choices
+from nd_timer.recipe import APERTURES, STANDARD_ISOS, Recipe, recipe_for
 from nd_timer.subjects import SUBJECTS
-from nd_timer.suggest import STANDARD_ISOS
 from nd_timer.ui import layout
 from nd_timer.ui.display import screen_for
 from nd_timer.ui.navigation import Navigation
-from nd_timer.ui.settings import ENTRY_LABELS, FILTERS
+from nd_timer.ui.settings import (
+    ABOUT,
+    APERTURE_MAX,
+    APERTURE_MIN,
+    ENTRY_LABELS,
+    FILTERS,
+    ISO_MAX,
+)
 
 VERSION = "v0.1"
 
-# The settings entries this knows the value of. FILTERS comes from the bag, and
-# ISO MAX is the only one left and right change rather than open.
-ISO_MAX = "ISO MAX"
-ABOUT = "ABOUT"
-
-# Whole stops. The camera offers thirds, but aperture is chosen for depth of
-# field rather than for exposure, so the extra rungs are steps past the one the
-# photographer actually wants.
-APERTURES = (1.4, 2.0, 2.8, 4.0, 5.6, 8.0, 11.0, 16.0, 22.0)
-DEFAULT_APERTURE = 8.0
-
-# What the dial starts on before anything has been metered, so a hand-set time
-# is possible with no camera attached.
+# What the dial starts on before a scenario or the photographer has said
+# otherwise: a second, which is a long exposure by the time anything is on the
+# lens and a sensible thing to be pointing at with no camera attached.
 DEFAULT_TIME_SECONDS = 1.0
 
 
@@ -71,11 +75,10 @@ class Device:
 
     metered: MeteredExposure | None = None
     synced_at: float | None = None
-    iso_index: int = 0
-    aperture_index: int = APERTURES.index(DEFAULT_APERTURE)
-    nd_index: int = 0
     subject_index: int = 0
     iso_max: float = 400
+    aperture_min: float = APERTURES[0]
+    aperture_max: float = APERTURES[-1]
     bag: Bag = Bag()
     navigation: Navigation = Navigation()
     dial: Dial = Dial(DEFAULT_TIME_SECONDS)
@@ -89,45 +92,25 @@ class Device:
         return SUBJECTS[self.subject_index]
 
     @property
-    def choices(self) -> tuple:
-        return filter_choices(self.bag.owned)
+    def exposure_seconds(self) -> float:
+        """The time the shot runs for: the one the photographer asked for."""
+        return self.dial.seconds
 
     @property
-    def choice(self):
-        return self.choices[min(self.nd_index, len(self.choices) - 1)]
-
-    @property
-    def working_iso(self) -> float:
-        return STANDARD_ISOS[self.iso_index]
-
-    @property
-    def working_aperture(self) -> float:
-        return APERTURES[self.aperture_index]
-
-    @property
-    def base_seconds(self) -> float | None:
-        """The shutter once ISO and aperture have moved off the metered values."""
+    def recipe(self) -> Recipe | None:
+        """What to put on the lens for that time, once there is a scene to work from."""
         if self.metered is None:
             return None
-        return shutter_after_shift(
+        return recipe_for(
+            wanted_seconds=self.exposure_seconds,
             metered_shutter=self.metered.shutter_seconds,
             metered_iso=self.metered.iso,
             metered_aperture=self.metered.aperture,
-            working_iso=self.working_iso,
-            working_aperture=self.working_aperture,
+            choices=filter_choices(self.bag.owned),
+            highest_iso=self.iso_max,
+            lowest_aperture=self.aperture_min,
+            highest_aperture=self.aperture_max,
         )
-
-    @property
-    def calculated_seconds(self) -> float | None:
-        base = self.base_seconds
-        return None if base is None else exposure_through_filter(base, self.choice.stops)
-
-    @property
-    def exposure_seconds(self) -> float | None:
-        """The time the device would shoot: the photographer's, or the sum's."""
-        if self.dial.is_hand_set:
-            return self.dial.seconds
-        return self.calculated_seconds
 
     # --- the presses ---------------------------------------------------------
 
@@ -157,31 +140,25 @@ class Device:
             return self._with_dial(self.dial.pressed_centre())
         pointed = self.navigation.pointed_filter
         if pointed is not None:
-            return self._with_bag(self.bag.toggled(pointed))
+            return replace(self, bag=self.bag.toggled(pointed))
         return replace(self, navigation=self.navigation.pressed_centre())
 
     def pressed_sync(self, metered: MeteredExposure, now: float) -> Device:
-        """SYNC: the camera's own exposure becomes what everything is figured from."""
-        synced = replace(
-            self,
-            metered=metered,
-            synced_at=now,
-            iso_index=self._nearest_iso(metered.iso),
-            aperture_index=_nearest(APERTURES, metered.aperture),
-        )
-        return synced._recalculated()
+        """SYNC: this is the scene everything is worked back from."""
+        return replace(self, metered=metered, synced_at=now)
 
     def pressed_shoot(self, now: float) -> Device:
         """SHOOT starts the exposure; pressing it again cancels a running one."""
         if self.shot is not None:
             return replace(self, shot=None)
-        seconds = self.exposure_seconds
-        if seconds is None:
-            return self
-        return replace(self, shot=Shot(seconds, now), dial=replace(self.dial, is_being_set=False))
+        return replace(
+            self,
+            shot=Shot(self.exposure_seconds, now),
+            dial=replace(self.dial, is_being_set=False),
+        )
 
     def ticked(self, now: float) -> Device:
-        """Back to the calculator once the shutter has closed."""
+        """Back to the calculation once the shutter has closed."""
         if self.shot is not None and self.shot.is_finished(now):
             return replace(self, shot=None)
         return self
@@ -194,64 +171,80 @@ class Device:
 
     def setting_value(self, label: str) -> str:
         """What a settings entry currently says, for the list that shows it."""
-        return {FILTERS: self.bag.summary, ISO_MAX: f"{self.iso_max:g}", ABOUT: VERSION}[label]
+        return {
+            FILTERS: self.bag.summary,
+            ISO_MAX: f"{self.iso_max:g}",
+            APERTURE_MIN: f"f/{self.aperture_min:g}",
+            APERTURE_MAX: f"f/{self.aperture_max:g}",
+            ABOUT: VERSION,
+        }[label]
 
     # --- changing a value ----------------------------------------------------
 
     def _changed_value(self, direction: int) -> Device:
-        """Left and right on a row, wherever the five-way happens to be."""
+        """Left and right, wherever the five-way happens to be.
+
+        The filter list is changed by the centre press alone, so nothing here.
+        """
         if self.navigation.on_filters_screen:
             return self
         if self.navigation.on_settings_screen:
             return self._changed_setting(direction)
-        return self._changed_row(direction)
+        if self.navigation.selected == layout.MODE:
+            return self._changed_scenario(direction)
+        return self
 
-    def _changed_row(self, direction: int) -> Device:
-        """A parameter moving hands the answer back to the calculator."""
-        moved = {
-            "ISO": lambda: replace(self, iso_index=self._stepped_iso(direction)),
-            "APER": lambda: replace(self, aperture_index=_stepped(self.aperture_index, direction, APERTURES)),
-            "ND": lambda: replace(self, nd_index=_stepped(self.nd_index, direction, self.choices)),
-            "MODE": lambda: replace(self, subject_index=_stepped(self.subject_index, direction, SUBJECTS)),
-        }.get(self.navigation.selected)
-        return moved()._recalculated() if moved else self
+    def _changed_scenario(self, direction: int) -> Device:
+        """A scenario is a time: choosing one puts the dial in the middle of it.
+
+        Geometrically in the middle, because exposure is a doubling scale - so
+        CLOUDS, which wants two to six minutes, starts at 3m 30s rather than at
+        four minutes. From there the dial is the photographer's again.
+        """
+        moved = replace(self, subject_index=_stepped(self.subject_index, direction, SUBJECTS))
+        wanted = moved.subject.sweet_spot
+        if wanted is None:
+            return moved
+        return moved._with_dial(self.dial.suggested(wanted))
 
     def _changed_setting(self, direction: int) -> Device:
-        """The only setting left and right can change; the rest are opened."""
+        """The settings left and right change; the rest are opened by the centre."""
         entry = self.navigation.settings_entry
-        if entry >= len(ENTRY_LABELS) or ENTRY_LABELS[entry] != ISO_MAX:
+        if entry >= len(ENTRY_LABELS):
             return self
-        index = _stepped(_nearest(STANDARD_ISOS, self.iso_max), direction, STANDARD_ISOS)
-        return replace(self, iso_max=STANDARD_ISOS[index], iso_index=min(self.iso_index, index))
 
-    def _with_bag(self, bag: Bag) -> Device:
-        """A filter leaving the bag takes its stacks with it, so ND is re-pinned."""
-        kept = self.choice
-        choices = filter_choices(bag.owned)
-        index = next((i for i, choice in enumerate(choices) if choice == kept), 0)
-        return replace(self, bag=bag, nd_index=index)._recalculated()
+        changed = {
+            ISO_MAX: self._changed_iso_ceiling,
+            APERTURE_MIN: self._changed_widest_aperture,
+            APERTURE_MAX: self._changed_narrowest_aperture,
+        }.get(ENTRY_LABELS[entry])
+        return changed(direction) if changed else self
+
+    def _changed_iso_ceiling(self, direction: int) -> Device:
+        index = _stepped(_nearest(STANDARD_ISOS, self.iso_max), direction, STANDARD_ISOS)
+        return replace(self, iso_max=STANDARD_ISOS[index])
+
+    def _changed_widest_aperture(self, direction: int) -> Device:
+        """How far the lens opens. It stops where the other end is, rather than
+        crossing it and leaving the device with no aperture it may use."""
+        index = _stepped(_nearest(APERTURES, self.aperture_min), direction, APERTURES)
+        return replace(self, aperture_min=min(APERTURES[index], self.aperture_max))
+
+    def _changed_narrowest_aperture(self, direction: int) -> Device:
+        """How far the lens stops down - f/22 on most, and diffraction past it."""
+        index = _stepped(_nearest(APERTURES, self.aperture_max), direction, APERTURES)
+        return replace(self, aperture_max=max(APERTURES[index], self.aperture_min))
 
     def _with_dial(self, dial: Dial) -> Device:
         return replace(self, dial=dial)
-
-    def _recalculated(self) -> Device:
-        calculated = self.calculated_seconds
-        return replace(self, dial=Dial(calculated if calculated is not None else self.dial.seconds))
-
-    def _stepped_iso(self, direction: int) -> int:
-        usable = [iso for iso in STANDARD_ISOS if iso <= self.iso_max] or [STANDARD_ISOS[0]]
-        return min(_stepped(self.iso_index, direction, STANDARD_ISOS), len(usable) - 1)
-
-    def _nearest_iso(self, iso: float) -> int:
-        return min(_nearest(STANDARD_ISOS, iso), _nearest(STANDARD_ISOS, self.iso_max))
 
 
 def _stepped(index: int, direction: int, values) -> int:
     """One step along a list of values, which has ends rather than wrapping.
 
     The selection wraps because it is a loop of places; a value does not, because
-    walking off the end of the ISOs and arriving back at 100 is never what the
-    thumb meant.
+    walking off the end of the scenarios and arriving back at WAVES is never what
+    the thumb meant.
     """
     return max(0, min(index + direction, len(values) - 1))
 

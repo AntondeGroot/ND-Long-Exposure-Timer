@@ -1,7 +1,8 @@
 """Exposure arithmetic for shooting through neutral-density filters.
 
-The device answers one question: I metered this scene without the filter, so how
-long do I expose with it on? Two rules do all the work.
+The device asks it backwards - I want to expose for this long, so what do I put
+on the lens? - but the arithmetic is the same either way, and two rules do all
+the work.
 
 Reciprocity: a stop gained on ISO or aperture is a stop given back on shutter, so
 the exposure stays correct while the photographer trades one for another.

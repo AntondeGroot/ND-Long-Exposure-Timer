@@ -17,56 +17,108 @@ This way you only need to think about the intended effect you want to create and
 no calculations or iterative backsolving required!
 
 
+It is shutter priority, with the filters in the loop. A camera in that mode balances
+the shutter you chose against the one variable it has; this one has your filter bag as
+well, and a stop of ND buys time without touching the photograph at all.
+
 - **SYNC** reads ISO, aperture and shutter speed from the camera over USB
-- Shifts ISO or aperture and the base shutter recomputes to hold the same exposure
-- Pick a filter or a stack of filters; the final time and whether it needs BULB update as you go
+- Choose the time you want, or a scenario that knows what it wants
+- The panel names the filters to screw on and the ISO and aperture to set
 
 ## What it looks like
 
 The display is a 2.13" e-paper panel mounted upright: 122 x 250 pixels. "selected" is shown by inverting the colors.
 
-### Calculator
+### The recipe
 
-The parameter list sits above the arithmetic, which reads down to its answer. The
-selected row is inverted and grows carets to show that left and right change it. At 122
+The time is at the top because it is the one thing you choose. Under it, **base** is
+the shutter the camera was reading when you pressed SYNC - a measurement, which nothing
+the device does moves. The rest is the answer to your time, read down the column: the
+ISO and aperture to set, the filters to screw on, and how close that lands. At 122
 pixels wide there is no room for a label beside its value, so each row stacks them.
 
-![Calculator screen](docs/screens/main-waterfall@3x.png)
+![The main screen](docs/screens/main-waterfall@3x.png)
 
 Past 30 seconds the shot has to run on bulb, and the panel says so - the Pi is the timer
 from that point on.
 
-![Calculator screen showing a bulb exposure](docs/screens/main-bulb@3x.png)
+![The main screen showing a bulb exposure](docs/screens/main-bulb@3x.png)
 
-Before the first SYNC there is nothing to calculate from, and the device says that
-rather than showing a confident wrong number.
+Before the first SYNC there is no scene to work back from, and the device says that
+rather than printing a recipe it cannot stand behind.
 
-![Calculator screen before syncing](docs/screens/main-not-synced@3x.png)
+![The main screen before syncing](docs/screens/main-not-synced@3x.png)
 
-### Setting the time by hand
+### When the bag cannot get there
 
-The calculation is not always the shot. Press the five-way's centre on the time and the
-answer becomes yours: left and right walk the camera's own third-stop ladder, up and down
-move a second for the times the ladder skips. Below a second the screen stops offering them
-- a second added to 1/8 is three stops, which is a jump rather than an adjustment - but the
-press still works, and is often how you leave the fast end.
+Filters come in coarse jumps, so the time asked for is often not reachable with glass
+alone. ISO in thirds is the trim that closes the gap - the ISO on screen is simply the
+one that makes your time the correct exposure for what was metered, not a change to the
+reading itself. The **off** row is what is left over: a signed number of stops, where
+positive is brighter than metered, so shoot that time anyway and the frame is over by
+that much. It says `exact` only when there is nothing left worth reading.
+
+Aperture is moved last and least, because it is the one thing on the list the photograph
+itself can see - and it moves in thirds, so when it has to move it moves by f/11 to f/13
+rather than by a whole stop.
+
+The row keeps speaking below the point where the device stops working. A third of a stop
+is the finest step a camera has, so one recipe serves every time within half a step of
+it: ask for nine minutes or for ten and the filters, the ISO and the aperture are the
+same, because nothing on the camera could tell those two apart. They are not the same
+photograph though - the second is a minute more cloud - so the row reads `exact` at one
+and `+0.1st` at the other, and the difference between the two screens is visible rather
+than implied.
+
+![The main screen with a filter bag that cannot reach](docs/screens/main-out-of-reach@3x.png)
+
+### Setting the time
+
+A scenario is a shortcut to a time rather than a mode of its own: choosing CLOUDS puts
+the dial in the middle of what clouds want and the recipe follows. From there the time
+is yours. Press the five-way's centre on it and left and right walk the camera's own
+third-stop ladder, up and down move a second for the times the ladder skips. Below a
+second the screen stops offering them - a second added to 1/8 is three stops, which is a
+jump rather than an adjustment - but the press still works, and is often how you leave
+the fast end.
 
 While the time is being set the answer is inverted and written as a clock, so a second on
 or off moves a digit rather than reflowing the whole number.
 
-![Calculator screen with the time being set](docs/screens/main-setting-time@3x.png)
+![The main screen with the time being set](docs/screens/main-setting-time@3x.png)
 
 The ladder runs from 1/125 to 15s, then 00:16 and whole minutes to an hour - well past what
 long exposure needs at the fast end, because waves want 1/8 and a dial that reaches 1/125 is
 one a self-timer can be built on later.
 
-![Calculator screen dialling a fast shutter](docs/screens/main-setting-waves@3x.png)
+![The main screen dialling a fast shutter](docs/screens/main-setting-waves@3x.png)
 
-A hand-set time says SET in the status bar, because the rows underneath still show the
-calculation it no longer agrees with. Moving ISO, aperture or ND hands the answer back to
-the calculator.
+A time dialled away from the scenario's own says SET in the status bar. The rows
+underneath always agree with the time, so the tag is not about them: it says this time is
+yours, and choosing a scenario is how you hand it back.
 
-![Calculator screen with a hand-set time](docs/screens/main-time-set@3x.png)
+![The main screen with a hand-set time](docs/screens/main-time-set@3x.png)
+
+### Settings
+
+The device can only answer out of the kit it has been told about, so that kit is what
+settings are: which filters are in the bag, how far the ISO may be pushed, and the two
+ends of the lens. A filter left out of the bag is never asked for and an aperture past
+either end is never named - the device would rather miss the time and say so on the
+**off** row than tell you to use glass you did not bring.
+
+The two ends run in thirds, like the camera's own dial, so an f/3.5-6.3 zoom can be
+described exactly rather than rounded to the nearest whole stop. It starts describing
+every lens, f/1.4 to f/22, and the whole common filter set, so it is useful before it is
+configured rather than empty.
+
+![Settings](docs/screens/settings@3x.png)
+
+The filter list is the same screen one level down. The centre press is what puts a
+filter in the bag or takes it out, so its rows go without the carets that would promise
+left and right do something.
+
+![The filter list](docs/screens/settings-filters@3x.png)
 
 ### Exposing
 
@@ -79,10 +131,13 @@ five-minute exposure the extra ticks buy nothing.
 
 ## Controls
 
+The five-way lands on three things only - the time, the scenario, and settings - because
+the four rows between them are answers rather than controls.
+
 | Control | Does |
 |---------|------|
-| Five-way up / down | move between the time and the rows; while setting the time, a second on or off |
-| Five-way left / right | change the selected value; while setting the time, step it |
+| Five-way up / down | move between the time, the scenario and settings; while setting the time, a second on or off |
+| Five-way left / right | change the scenario, which changes the time; while setting the time, step it |
 | Five-way centre | start or stop setting the time when it is selected, otherwise open the menu |
 | SYNC | read the current exposure from the camera |
 | SHOOT | start the exposure; hold to cancel a running one |
@@ -115,7 +170,8 @@ is worth watching at 60x rather than in real time.
 
 What the buttons drive is `nd_timer/device.py`, the state machine the Pi runs:
 presses arrive as method calls and the clock arrives as an argument, so the panel
-driver and gphoto2 are the only parts the simulator stands in for.
+driver and gphoto2 are the only parts the simulator stands in for. The solving
+itself is `nd_timer/recipe.py`, which is where the time becomes a filter stack.
 
 Provisioning a fresh Pi, flashing a card and driving the camera by hand are covered by
 the scripts in `scripts/`.

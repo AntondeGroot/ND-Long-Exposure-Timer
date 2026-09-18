@@ -23,7 +23,7 @@ class MainScreen:
     iso: str
     aperture: str
     nd_label: str
-    nd_stops: str
+    off_by: str
     selected: str
     base_shutter: str
     final_time: str
@@ -218,7 +218,7 @@ def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
         "ISO": screen.iso,
         "APER": screen.aperture,
         "ND": screen.nd_label,
-        "stops": screen.nd_stops,
+        "off": screen.off_by,
         "MODE": screen.mode,
     }
 
