@@ -20,16 +20,24 @@ from nd_timer.exposure import (
     format_exposure,
     needs_bulb,
 )
-from nd_timer.ui.screens import CountdownScreen, MainScreen
+from nd_timer.ui.screens import CountdownScreen, DelayScreen, MainScreen
 from nd_timer.ui.settings import ENTRY_LABELS, FILTERS, SettingsEntry, SettingsScreen
 
 NOT_SYNCED = "NOT SYNCED"
 NO_VALUE = "--"
 
+# How often the countdown is allowed to change. E-paper wears a little with
+# every refresh and takes about a second to do one, so a per-second countdown is
+# a panel that never stops redrawing - and on a five-minute exposure the extra
+# ticks buy nothing. Thirty refreshes instead of three hundred.
+COUNTDOWN_STEP_SECONDS = 10
+
 
 def screen_for(device, now: float):
     """The screen the panel would be holding, given the device and the clock."""
     if device.shot is not None:
+        if device.shot.is_delaying(now):
+            return _delay_screen(device)
         return _countdown_screen(device, now)
     if device.navigation.on_filters_screen:
         return _filters_screen(device)
@@ -62,17 +70,50 @@ def _main_screen(device, now: float) -> MainScreen:
     )
 
 
-def _countdown_screen(device, now: float) -> CountdownScreen:
+def _delay_screen(device) -> DelayScreen:
+    """The same frame for the whole delay, so the panel is drawn once and left."""
     shot = device.shot
-    return CountdownScreen(
+    return DelayScreen(
         mode=device.subject.name,
-        remaining=_clock(shot.remaining(now)),
-        elapsed=_clock(shot.elapsed(now)),
-        total=_clock(shot.total_seconds),
-        progress=shot.progress(now),
+        exposure=format_exposure(shot.total_seconds),
+        delay=f"{shot.delay_seconds:g}s",
         is_bulb=needs_bulb(shot.total_seconds),
         battery=device.battery,
     )
+
+
+def _countdown_screen(device, now: float) -> CountdownScreen:
+    """Every part of it off one stepped clock, so the frame holds still.
+
+    The number, the bar and the elapsed are all worked out from the same
+    stepped elapsed rather than from the live one. If any of them moved on its
+    own the frame would change with it, and a panel that draws when the frame
+    changes would be back to drawing every second.
+    """
+    shot = device.shot
+    elapsed = _stepped_elapsed(shot.elapsed(now), shot.total_seconds)
+    return CountdownScreen(
+        mode=device.subject.name,
+        remaining=_clock(shot.total_seconds - elapsed),
+        elapsed=_clock(elapsed),
+        total=_clock(shot.total_seconds),
+        progress=elapsed / shot.total_seconds if shot.total_seconds else 1.0,
+        is_bulb=needs_bulb(shot.total_seconds),
+        battery=device.battery,
+    )
+
+
+def _stepped_elapsed(elapsed: float, total: float) -> float:
+    """Elapsed, down to the step below it, and the whole of it once it is over.
+
+    Rounding elapsed down rounds the time left up, so the countdown never says
+    less is left than there is and never reaches zero while the shutter is open.
+    An exposure shorter than a step therefore shows its own length until it ends,
+    which is the truth: at most this long left.
+    """
+    if elapsed >= total:
+        return total
+    return elapsed - elapsed % COUNTDOWN_STEP_SECONDS
 
 
 def _settings_screen(device) -> SettingsScreen:

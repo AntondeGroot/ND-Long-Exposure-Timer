@@ -103,11 +103,12 @@ yours, and choosing a scenario is how you hand it back.
 
 ### Settings
 
-The device can only answer out of the kit it has been told about, so that kit is what
-settings are: which filters are in the bag, how far the ISO may be pushed, and the two
-ends of the lens. A filter left out of the bag is never asked for and an aperture past
-either end is never named - the device would rather miss the time and say so on the
-**off** row than tell you to use glass you did not bring.
+The device can only answer out of the kit it has been told about, so most of settings is
+that kit: which filters are in the bag, how far the ISO may be pushed, and the two ends
+of the lens. A filter left out of the bag is never asked for and an aperture past either
+end is never named - the device would rather miss the time and say so on the **off** row
+than tell you to use glass you did not bring. **DELAY** is the exception, and is about
+the tripod rather than the camera.
 
 The two ends run in thirds, like the camera's own dial, so an f/3.5-6.3 zoom can be
 described exactly rather than rounded to the nearest whole stop. It starts describing
@@ -124,10 +125,32 @@ left and right do something.
 
 ### Exposing
 
-Remaining time gets the whole column, because it is read from wherever the camera is
-standing. A progress bar and the elapsed/total sit beneath it. The countdown redraws
-every 10 seconds rather than every second: e-paper wears with every refresh, and on a
-five-minute exposure the extra ticks buy nothing.
+The shutter does not open on the press. A finger coming off a button is the worst
+vibration a tripod sees all evening, and a long exposure records every bit of it, so
+SHOOT starts a delay and the exposure is counted from the shutter rather than from the
+button. Eight seconds by default, which is long enough for the thing to stop ringing and
+short enough not to be something you work around; **DELAY** in settings takes it from
+`off` to thirty seconds.
+
+The panel says so once and then leaves it alone. Nothing on it counts down: a refresh
+takes about a second and wears the panel a little each time, so a ticking number would
+spend the delay flashing - through the very seconds the delay exists to keep still - and
+would be out of date by the time it had finished drawing itself.
+
+![The delay before the exposure](docs/screens/delay@3x.png)
+
+Nothing has been recorded yet at that point, so it is also the cheapest moment to change
+your mind - the same press that stops a running exposure calls this off.
+
+Then the exposure itself. Remaining time gets the whole column, because it is read from
+wherever the camera is standing. A progress bar and the elapsed/total sit beneath it.
+
+The countdown changes every 10 seconds rather than every second: e-paper wears with every
+refresh and takes about a second to do one, and on a five-minute exposure the extra ticks
+buy nothing. The bar and the elapsed come off that same stepped clock, so the whole frame
+holds still between steps rather than one part of it creeping. The step rounds the elapsed
+down, which rounds what is left up - better to be told a little more is coming than to
+watch it sit at zero with the shutter still open.
 
 ![Countdown screen](docs/screens/countdown-bulb@3x.png)
 
@@ -142,7 +165,7 @@ the four rows between them are answers rather than controls.
 | Five-way left / right | change the scenario, which changes the time; while setting the time, step it |
 | Five-way centre | start or stop setting the time when it is selected, otherwise open the menu |
 | SYNC | read the current exposure from the camera |
-| SHOOT | start the exposure; hold to cancel a running one |
+| SHOOT | start the shot; hold to cancel it, waiting or exposing |
 
 ## Development
 

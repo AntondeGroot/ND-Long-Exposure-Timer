@@ -22,9 +22,11 @@ from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
 from nd_timer.ui.settings import SettingsEntry, SettingsScreen, render_settings  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
+    DelayScreen,
     MainScreen,
     SplashScreen,
     render_countdown,
+    render_delay,
     render_main,
     render_splash,
 )
@@ -115,13 +117,22 @@ CASES = {
         setting_time=True, shows_nudge_hint=False, time_is_set=True,
         target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 4s", battery=82,
     ),
+    # The delay between the press and the shutter, so the tripod stops ringing
+    # before anything is recorded. Drawn once and left, which is why nothing on
+    # it counts: the panel could not keep up with a number that did.
+    "delay": DelayScreen(
+        mode="CLOUDS", exposure="3m 28s", delay="8s", is_bulb=True, battery=62,
+    ),
+    # The numbers all come off the same ten-second step, so they agree with each
+    # other: the elapsed and what is left add up to the total, and the bar is at
+    # the elapsed rather than somewhere between two of them.
     "countdown-bulb": CountdownScreen(
-        mode="CLOUDS", remaining="3:42", elapsed="1:18", total="5:00",
-        progress=0.26, is_bulb=True, battery=62,
+        mode="CLOUDS", remaining="3:40", elapsed="1:20", total="5:00",
+        progress=80 / 300, is_bulb=True, battery=62,
     ),
     "countdown-nearly-done": CountdownScreen(
-        mode="Waterfall", remaining="0:04", elapsed="0:56", total="1:00",
-        progress=0.93, is_bulb=False, battery=59,
+        mode="Waterfall", remaining="0:10", elapsed="0:50", total="1:00",
+        progress=50 / 60, is_bulb=False, battery=59,
     ),
     "settings-selected": MainScreen(
         mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st",
@@ -154,6 +165,7 @@ CASES = {
 
 RENDERERS = {
     SplashScreen: render_splash,
+    DelayScreen: render_delay,
     SettingsScreen: render_settings,
     CountdownScreen: render_countdown,
     MainScreen: render_main,

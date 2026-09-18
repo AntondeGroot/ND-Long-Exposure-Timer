@@ -51,6 +51,17 @@ class CountdownScreen:
 
 
 @dataclass(frozen=True)
+class DelayScreen:
+    """The frame between the press and the shutter. Nothing on it moves."""
+
+    mode: str
+    exposure: str
+    delay: str
+    is_bulb: bool
+    battery: int
+
+
+@dataclass(frozen=True)
 class SplashScreen:
     """Shown while the Pi is still starting up."""
 
@@ -225,6 +236,37 @@ def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
     for row, (label, is_selectable) in enumerate(layout.ROW_PLAN):
         selected = is_selectable and label == screen.selected
         render.draw_value_row(draw, layout.row_top(row), label, values[label], selected)
+
+
+def render_delay(screen: DelayScreen):
+    """Drawn once when SHOOT is pressed, and left alone until the shutter opens.
+
+    Nothing here counts down. The panel takes about a second to redraw and wears
+    a little each time, so a ticking number would spend the delay flashing -
+    through the very seconds the delay exists to keep still - and would be out
+    of date by the time it had finished drawing itself.
+
+    So it says the two things that are worth saying once: this is the exposure
+    that is coming, and this is why it has not started yet.
+    """
+    frame = render.blank_frame()
+    draw = ImageDraw.Draw(frame)
+
+    render.draw_status_bar(draw, screen.mode.upper(), screen.battery)
+
+    render.draw_fitted(
+        draw, layout.CENTRE_X, 66, screen.exposure, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES
+    )
+    badge = "BULB" if screen.is_bulb else "TIMED"
+    render.draw_centred(draw, layout.CENTRE_X, 100, badge, render.bold(layout.SMALL))
+
+    render.draw_centred(
+        draw, layout.CENTRE_X, 140, f"{screen.delay} delay before", render.regular(layout.SMALL)
+    )
+    render.draw_centred(draw, layout.CENTRE_X, 156, "exposure begins", render.regular(layout.SMALL))
+
+    render.draw_banner_footer(draw, "HOLD TO CANCEL")
+    return frame
 
 
 def render_countdown(screen: CountdownScreen):

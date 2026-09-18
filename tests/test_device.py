@@ -6,6 +6,7 @@ from nd_timer.device import Device
 from nd_timer.exposure import COMMON_FILTERS
 from nd_timer.subjects import SUBJECTS
 from nd_timer.ui import layout
+from nd_timer.ui.settings import DELAY, ENTRY_LABELS
 
 DUSK = MeteredExposure(iso=100, aperture=11.0, shutter_seconds=1 / 60)
 TYPICAL_BAG = Bag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
@@ -19,6 +20,17 @@ def wanting(seconds: float, **fields) -> Device:
     """A synced device with the dial on a time, the way a scenario would set it."""
     device = synced(**fields)
     return Device(**{**device.__dict__, "dial": device.dial.suggested(seconds)})
+
+
+def on_setting(device: Device, label: str) -> Device:
+    """The five-way inside the settings list, on the entry with that label.
+
+    Settings is one press up from the time, because the selection wraps.
+    """
+    opened = device.pressed_up().pressed_centre()
+    for _ in range(ENTRY_LABELS.index(label)):
+        opened = opened.pressed_down()
+    return opened
 
 
 def on_the_scenario(device: Device) -> Device:
@@ -152,14 +164,83 @@ def test_the_filters_in_the_bag_change_the_recipe_rather_than_the_time():
     assert without_the_one_it_chose.recipe.filters != device.recipe.filters
 
 
-def test_shoot_runs_for_the_time_on_screen_and_hands_the_screen_back_at_the_end():
-    # The countdown owns the panel while the shutter is open, and the moment it
-    # closes the device is back where it was, ready for the next frame.
+def test_shoot_waits_for_the_tripod_before_it_opens_the_shutter():
+    # A finger coming off a button is the worst vibration a tripod sees all
+    # evening, and a long exposure records every bit of it - so the press starts
+    # a delay, and the exposure is counted from the shutter rather than from the
+    # button. The default second of exposure therefore ends at 8 + 1.
     device = synced().pressed_shoot(now=10)
 
-    assert device.screen(now=10).total == "0:01"
-    assert device.ticked(now=10.5).shot is not None
-    assert device.ticked(now=12).shot is None
+    assert device.screen(now=10).delay == "8s"
+    assert device.screen(now=18.5).total == "0:01"
+    assert device.ticked(now=18.5).shot is not None
+    assert device.ticked(now=20).shot is None
+
+
+def test_a_delay_of_nothing_opens_the_shutter_on_the_press():
+    # For a remote release, or for a shot that will not wait.
+    immediate = synced(delay_seconds=0.0).pressed_shoot(now=10)
+
+    assert immediate.screen(now=10).total == "0:01"
+    assert immediate.ticked(now=11.5).shot is None
+
+
+def test_nothing_on_the_delay_screen_moves_while_the_delay_runs():
+    # The panel takes about a second to redraw and wears a little every time, so
+    # the delay is drawn once and left: a number ticking through the seconds the
+    # delay exists to keep still would be both a distraction and out of date.
+    device = synced().pressed_shoot(now=10)
+
+    assert device.screen(now=10) == device.screen(now=13.7) == device.screen(now=17.9)
+
+
+def test_the_countdown_holds_its_frame_for_ten_seconds_at_a_time():
+    # E-paper wears a little with every refresh and takes about a second to do
+    # one, so a per-second countdown is a panel that never stops redrawing. The
+    # number, the bar and the elapsed all come off the same stepped clock, so
+    # the whole frame is identical until the step moves.
+    running = wanting(300).pressed_shoot(now=0)
+    opened = running.shot.opens_at
+
+    assert running.screen(opened + 1) == running.screen(opened + 9.9)
+    assert running.screen(opened + 1) != running.screen(opened + 10.1)
+
+
+def test_the_countdown_never_says_less_time_is_left_than_there_is():
+    # The step rounds the elapsed down, which rounds what is left up: better to
+    # be told a little more is coming than to watch it sit at zero with the
+    # shutter still open.
+    running = wanting(300).pressed_shoot(now=0)
+    opened = running.shot.opens_at
+
+    screen = running.screen(opened + 9)
+
+    assert screen.remaining == "5:00"
+    assert screen.elapsed == "0:00"
+    assert screen.progress == 0
+
+
+def test_the_shot_can_be_called_off_while_it_is_still_waiting():
+    # Nothing has been recorded yet, so this is the cheapest moment to change
+    # your mind - and it is the same press that stops a running exposure.
+    waiting = synced().pressed_shoot(now=10)
+
+    assert waiting.pressed_shoot(now=12).shot is None
+
+
+def test_the_delay_is_dialled_in_the_settings_list():
+    # Eight seconds to start with: long enough for a tripod to stop ringing,
+    # short enough not to be a thing you work around.
+    on_delay = on_setting(synced(), DELAY)
+
+    assert on_delay.setting_value(DELAY) == "8s"
+
+    shortened = on_delay.pressed_left()
+    assert shortened.delay_seconds == 5.0
+
+    turned_off = shortened.pressed_left().pressed_left()
+    assert turned_off.delay_seconds == 0
+    assert turned_off.setting_value(DELAY) == "off"
 
 
 def test_shoot_pressed_again_cancels_the_running_exposure():
