@@ -34,10 +34,13 @@ def on_setting(device: Device, label: str) -> Device:
 
 
 def on_the_scenario(device: Device) -> Device:
-    """The five-way one press down from where it starts, which is MODE."""
-    moved = device.pressed_down()
-    assert moved.navigation.selected == layout.MODE
-    return moved
+    """The five-way walked down to the scenario row, wherever that is in the list."""
+    moved = device
+    for _ in range(len(device.selections)):
+        if moved.navigation.selected == layout.MODE:
+            return moved
+        moved = moved.pressed_down()
+    raise AssertionError("never reached the scenario")
 
 
 def test_choosing_a_scenario_sets_the_time_it_wants():

@@ -77,42 +77,55 @@ SETTING_ARROW_X = 4
 SETTING_ARROW_WIDTH = 14
 SETTING_MAX_WIDTH = ANSWER_MAX_WIDTH - 2 * SETTING_ARROW_WIDTH
 
+ROW_HEIGHT = 18
+
+# Between the time and the rows, one band saying who is choosing the settings.
+# It sits there because that is where the question arises: the time above is
+# asked for, the rows below are the answer, and this is who worked them out.
+TOGGLE_TOP = ANSWER_BOTTOM + 2
+TOGGLE_BOTTOM = TOGGLE_TOP + ROW_HEIGHT
+
 # The parameters below are a reference list, scanned rather than read, so one
 # line each: label left, value right.
-ROW_HEIGHT = 18
-FIRST_ROW_TOP = ANSWER_BOTTOM + 2
+FIRST_ROW_TOP = TOGGLE_BOTTOM + 2
 
-# Six rows, and only the last one is yours. The first is the shutter the camera
-# metered, which is a measurement and never moves. The four between them are the
-# answer to the time above: the ISO, the aperture and the filters that would
-# expose for it, and how far the nearest thing the bag can do lands from it.
+# Six rows. The first is the shutter the camera metered, which is a measurement
+# and never moves. The four after it are the answer to the time above: the ISO,
+# the aperture and the filters that would expose for it, and how far the nearest
+# thing the bag can do lands from it. The last is the scenario.
+#
+# Which of them the five-way can land on depends on who is choosing: on AUTO
+# none of the middle four, because they are answers; on MANUAL the ISO and the
+# aperture, because then they are not.
 #
 # The miss gets a line of its own rather than sharing ND's, because "8+64+1000"
 # is already the width of the column and a filter name that shrinks to 8pt is a
 # filter name read wrong in the dark.
-SELECTABLE = True
-DERIVED = False
-
-# The scenario, named here because it is the one row the five-way can land on.
+BASE = "base"
+ISO = "ISO"
+APERTURE = "APER"
+ND = "ND"
+OFF = "off"
 MODE = "MODE"
 
-ROW_PLAN = (
-    ("base", DERIVED),
-    ("ISO", DERIVED),
-    ("APER", DERIVED),
-    ("ND", DERIVED),
-    ("off", DERIVED),
-    (MODE, SELECTABLE),
-)
-ROW_COUNT = len(ROW_PLAN)
+ROWS = (BASE, ISO, APERTURE, ND, OFF, MODE)
 
 # What the five-way can be pointing at, and the order up and down walk them. The
 # time leads because it is what the photographer sets and the rest is worked back
-# from it, and because the rows below it are answers rather than controls.
+# from it, and because the rows below it are answers rather than controls - until
+# the toggle says they are not.
 TIME = "time"
-SELECTABLE_ROWS = tuple(label for label, is_selectable in ROW_PLAN if is_selectable)
+AUTO = "auto"
 SETTINGS = "settings"
-SELECTIONS = (TIME, *SELECTABLE_ROWS, SETTINGS)
+
+AUTO_SELECTIONS = (TIME, AUTO, MODE, SETTINGS)
+MANUAL_SELECTIONS = (TIME, AUTO, ISO, APERTURE, MODE, SETTINGS)
+
+
+def selections(is_auto: bool) -> tuple:
+    """The stops the five-way walks, which the toggle adds two of."""
+    return AUTO_SELECTIONS if is_auto else MANUAL_SELECTIONS
+
 
 CENTRE_X = WIDTH // 2
 LABEL_X = 4
@@ -125,10 +138,10 @@ LABEL_VALUE_GAP = 6
 # filters is "ND8+ND64+ND1000 +19", which is far wider than "100".
 ROW_VALUE_SIZES = (11, 10, 9, 8)
 
-# The footer is two bands: the quiet buttons share a row, and SHOOT gets its own
-# inverted bar because it is the one with consequences.
-FOOTER_TOP = 200
-SHOOT_TOP = 222
+# One band, because SHOOT is a button under your thumb rather than a thing on
+# the screen: a panel that draws it is spending its own space saying what the
+# hardware already says.
+FOOTER_TOP = 222
 
 
 # The settings list has no answer above it to make room for, so it starts just
@@ -141,7 +154,7 @@ SETTINGS_FIRST_ROW_TOP = STATUS_BAR_HEIGHT + 6
 SCROLL_HINT_HEIGHT = 4
 SCROLL_HINT_HALF_WIDTH = 4
 SCROLL_HINT_ROOM = 8
-SETTINGS_VISIBLE_ROWS = (SHOOT_TOP - SETTINGS_FIRST_ROW_TOP - SCROLL_HINT_ROOM) // ROW_HEIGHT
+SETTINGS_VISIBLE_ROWS = (FOOTER_TOP - SETTINGS_FIRST_ROW_TOP - SCROLL_HINT_ROOM) // ROW_HEIGHT
 SCROLL_HINT_UP_TOP = STATUS_BAR_HEIGHT + 2
 SCROLL_HINT_DOWN_TOP = SETTINGS_FIRST_ROW_TOP + SETTINGS_VISIBLE_ROWS * ROW_HEIGHT + 2
 

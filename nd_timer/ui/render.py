@@ -112,9 +112,9 @@ def draw_banner_footer(draw: ImageDraw.ImageDraw, text: str, selected: bool = Tr
     Where the action is a stop the five-way walks to, the bar is only inverted
     while it holds the selection - the same idiom as every row above it.
     """
-    # Same height as SHOOT's bar on the calculator screen, so the footer does not
-    # jump about as screens change.
-    top = layout.SHOOT_TOP
+    # The same band on every screen, so the footer does not jump about as they
+    # change.
+    top = layout.FOOTER_TOP
     if selected:
         draw.rectangle((0, top, WIDTH, HEIGHT), fill=BLACK)
     else:
@@ -149,25 +149,3 @@ def draw_value_row(
     draw_right_aligned_fitted(
         draw, layout.VALUE_RIGHT_X, top + 3, text, available, layout.ROW_VALUE_SIZES, fill=ink,
     )
-
-
-def draw_footer(draw: ImageDraw.ImageDraw, quiet="SETTINGS", action="SHOOT", selected: str = "") -> None:
-    """Two bands: the quiet button gets a row, the one with consequences its own.
-
-    The quiet band inverts when the five-way is pointing at it, which is how the
-    rows say "selected" too - it is a row's height, so it can carry the idiom the
-    answer is too big for. A hairline of white keeps it off the SHOOT bar.
-    """
-    top = layout.FOOTER_TOP
-    draw.line((0, top, WIDTH, top), fill=BLACK)
-
-    holds_selection = selected == layout.SETTINGS
-    if holds_selection:
-        draw_inverted_bar(draw, (0, top + 1, WIDTH, layout.SHOOT_TOP - 2))
-
-    midpoint = WIDTH // 2
-    ink = WHITE if holds_selection else BLACK
-    draw_centred(draw, midpoint, top + 4, quiet, bold(layout.SMALL), fill=ink)
-
-    draw.rectangle((0, layout.SHOOT_TOP, WIDTH, HEIGHT), fill=BLACK)
-    draw_centred(draw, midpoint, layout.SHOOT_TOP + 5, action, bold(layout.MEDIUM), fill=WHITE)
