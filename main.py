@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from nd_timer.camera import Camera, CameraError, nearest_timed_shutter  # noqa: E402
 from nd_timer.device import Device  # noqa: E402
 from nd_timer.exposure import needs_bulb  # noqa: E402
+from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH  # noqa: E402
 from nd_timer.ui.panel import to_panel_bytes  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
@@ -47,6 +48,22 @@ from nd_timer.ui.settings import SettingsScreen, render_settings  # noqa: E402
 # SPI and 17, 24, 25 for reset, busy and data/command - so they are a safe place
 # to start, not a description of your board.
 
+# BCM number, and the header pin it comes out on. Every one of them happens to
+# sit beside a ground, which is what makes a jumper enough to test a button
+# before it is soldered: touch the two together and the pin reads as pressed.
+#
+#     name     BCM   header pin   ground beside it
+#     left       5       29            30
+#     up         6       31            30
+#     centre    13       33            34
+#     down      19       35            34
+#     right     26       37            39
+#     sync      20       38            39
+#     shoot     21       40            39
+#
+# Ground is common, so any ground pin works - but pin 6 is directly below pin 4,
+# which is 5V, and 5V into a 3.3V input is a dead pin. The ones above are
+# surrounded by other GPIOs, where a slip costs nothing.
 PINS = {
     "up": 6,
     "down": 19,
@@ -111,10 +128,24 @@ class Panel:
     its life, which is why the screens above are built to hold still.
     """
 
+    # A frame of white, written straight rather than through the driver's own
+    # Clear(): after a power cut the panel holds whatever its particles were
+    # left in, and Clear does not reliably drive them out of it.
+    WHITE_FRAME = [0xFF] * (PANEL_WIDTH // 8 + (1 if PANEL_WIDTH % 8 else 0)) * PANEL_HEIGHT
+
     def __init__(self) -> None:
         module = __import__(PANEL_MODULE, fromlist=["EPD"])
         self._panel = module.EPD()
         self._panel.init()
+
+        # Start from white, twice, before anything is drawn. This device loses
+        # power mid-refresh often enough that it cannot assume it is inheriting
+        # a panel in a good state, and one pass leaves a ghost of whatever was
+        # there. Two seconds once, at startup, against a screen that otherwise
+        # stays wrong until something happens to change it.
+        for _ in range(2):
+            self._panel.display(self.WHITE_FRAME)
+
         self._showing = None
 
     def show(self, screen) -> None:
@@ -138,9 +169,11 @@ class Buttons:
     battery that is a poor trade for an interrupt nobody needs: a finger is not
     fast, and the loop already wakes twenty times a second.
 
-    So the pins are simply read, and the sampling does the debouncing. A switch
-    settles in a few milliseconds and is looked at every fifty, so a bounce has
-    almost always finished before anything sees it.
+    So the pins are simply read, and the sampling does the debouncing: a change
+    has to still be there on the next look before it counts. A switch settles in
+    a few milliseconds and is looked at every fifty, so that costs nothing real
+    - and it is what makes a bare wire touched against a ground pin usable,
+    which is how the buttons get tested before they are soldered on.
     """
 
     def __init__(self, pins: dict[str, int]) -> None:
@@ -153,17 +186,28 @@ class Buttons:
             lgpio.gpio_claim_input(self._chip, pin, lgpio.SET_PULL_UP)
 
         self._down = dict.fromkeys(self._pins, False)
+        self._seen = dict.fromkeys(self._pins, False)
         self._shoot_pressed_at: float | None = None
         self.presses: queue.Queue[str] = queue.Queue()
 
     def polled(self, now: float) -> None:
-        """Look at every pin, and put a name down for anything that changed."""
+        """Look at every pin, and put a name down for anything that changed.
+
+        A reading has to agree with the one before it to count, so a contact
+        that chatters between two looks is ignored rather than being read as a
+        flurry of presses.
+        """
         for name, pin in self._pins.items():
             # Switches go to ground, so pressed reads low.
             pressed = self._lgpio.gpio_read(self._chip, pin) == 0
-            if pressed != self._down[name]:
-                self._down[name] = pressed
-                self._noticed(name, pressed, now)
+
+            settled = pressed == self._seen[name]
+            self._seen[name] = pressed
+            if not settled or pressed == self._down[name]:
+                continue
+
+            self._down[name] = pressed
+            self._noticed(name, pressed, now)
 
     def _noticed(self, name: str, pressed: bool, now: float) -> None:
         """What a change means. Only SHOOT cares which way it went.
@@ -210,17 +254,34 @@ class Shutter:
 
         seconds = shot.total_seconds
         if needs_bulb(seconds):
-            self._running = self._camera.start_bulb_exposure(seconds)
+            try:
+                self._running = self._camera.start_bulb_exposure(seconds)
+            except CameraError as exc:
+                print(f"bulb exposure failed to start: {exc}", file=sys.stderr)
             return
 
         # The camera times this one itself, and gphoto2 blocks for as long as it
         # takes - so it waits on a thread of its own rather than stopping the
         # panel and the buttons for half a minute.
         threading.Thread(
-            target=self._camera.capture_timed,
+            target=self._captured,
             args=(nearest_timed_shutter(seconds),),
             daemon=True,
         ).start()
+
+    def _captured(self, shutter_value: str) -> None:
+        """The timed capture, with somewhere for its failure to go.
+
+        A thread that raises takes its traceback to stderr and nothing else
+        happens: the device goes on counting down a shot the camera never
+        took. There is no undoing that from here - the exposure is the
+        camera's once it starts - but it belongs in the journal rather than
+        in a stack trace.
+        """
+        try:
+            self._camera.capture_timed(shutter_value)
+        except CameraError as exc:
+            print(f"timed capture failed: {exc}", file=sys.stderr)
 
     def released(self) -> None:
         """The exposure ran its course: leave gphoto2 alone to finish.
@@ -276,7 +337,13 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
 
     buttons.polled(now)
     while not buttons.presses.empty():
-        device = applied(device, buttons.presses.get(), camera, panel, now)
+        press = buttons.presses.get()
+        device = applied(device, press, camera, panel, now)
+
+        # Into the journal, because a press leaves no other trace: the panel
+        # takes a second to catch up and says nothing about which pin caused
+        # it. Wiring seven buttons is mostly finding out which is which.
+        print(f"{press} -> {device.navigation.selected}", flush=True)
 
     # Before the tick, not after: ticked() ends a shot whose time is up, and a
     # loop that was late - a panel refresh is most of a second - would then find
