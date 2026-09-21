@@ -18,6 +18,8 @@
 #
 # Usage: ./flash-sd.sh --disk /dev/diskN [--user NAME] [--image PATH] [--keep-image]
 #        ./flash-sd.sh --list
+#
+# It refuses a disk too large to be a card unless --allow-large says otherwise.
 
 set -euo pipefail
 
@@ -25,6 +27,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DISK=""
 PI_USER="pi"
+ALLOW_LARGE=0
+
+# Bigger than any card anyone puts in a Pi Zero, and smaller than the drives
+# that get plugged into the same Mac. Cards do come larger - 512GB microSD is a
+# real product - so this is a stop rather than a ban, and --allow-large is how
+# you say you meant it. Decimal GB, because that is what diskutil reports.
+MAX_CARD_BYTES=$((256 * 1000 * 1000 * 1000))
 IMAGE=""
 KEEP_IMAGE=0
 CACHE_DIR="${TMPDIR:-/tmp}/pi-images"
@@ -68,6 +77,7 @@ while [[ $# -gt 0 ]]; do
     --user)       PI_USER="${2:?--user needs a name}"; shift ;;
     --image)      IMAGE="${2:?--image needs a path}"; shift ;;
     --keep-image) KEEP_IMAGE=1 ;;
+    --allow-large) ALLOW_LARGE=1 ;;
     --list)       list_disks; exit 0 ;;
     -h|--help)    usage ;;
     *)            die "unknown option: $1 (try --help)" ;;
@@ -90,12 +100,40 @@ INFO="$(diskutil info "$DISK" 2>/dev/null)" || die "no such disk: $DISK"
 grep -qE "Removable Media:.*(Removable|Yes)" <<<"$INFO" \
   || die "$DISK is not removable media. Refusing. Use --list to find the SD card."
 
+# A write-protected card passes every other check here - it is removable, it is
+# not the boot disk, it is the right size - and then dd fails minutes later with
+# a permission error that reads like a sudo problem. The reader has already told
+# us, in the same blob we are parsing; the usual cause is the lock slider on a
+# full-size adapter, which a microSD card cannot have been locked by itself.
+grep -qE "Media Read-Only:.*Yes" <<<"$INFO" \
+  && die "$DISK reports itself write-protected - the reader, not the filesystem, and not the mount.
+    Usually the lock slider on a full-size SD adapter. A worn card can also latch read-only for good."
+
 # Whole-system disks are never removable, but be explicit: never touch the boot disk.
 BOOT_DISK="$(diskutil info / 2>/dev/null | awk -F: '/Part of Whole/ {gsub(/ /,"",$2); print $2}')"
 [[ "$DISK" != "/dev/${BOOT_DISK}" ]] || die "$DISK is this Mac's boot disk. Refusing."
 
 DISK_NAME="$(awk -F: '/Device \/ Media Name/ {gsub(/^ +/,"",$2); print $2}' <<<"$INFO" | head -1)"
 DISK_SIZE="$(awk -F: '/Disk Size/ {gsub(/^ +/,"",$2); print $2}' <<<"$INFO" | head -1)"
+DISK_PROTOCOL="$(awk -F: '/^ *Protocol:/ {gsub(/^ +/,"",$2); print $2}' <<<"$INFO" | head -1)"
+DISK_BYTES="$(grep -oE '\([0-9]+ Bytes\)' <<<"$INFO" | head -1 | tr -cd '0-9')"
+
+# Removable is not the same as unimportant: an external SSD is removable, is not
+# the boot disk, and is the size of everything you own. Size is the only thing
+# that separates it from a card here, because a USB card reader and a USB drive
+# are the same protocol - so the Mac's own slot, which says "Secure Digital"
+# outright, is taken at its word and everything else is judged by how big it is.
+#
+# The typed ERASE below is not enough on its own. By the time you are typing it
+# you have already decided, and "500.3 GB" three lines up is exactly the sort of
+# thing a decided person reads past.
+if [[ "$DISK_PROTOCOL" != "Secure Digital" && $ALLOW_LARGE -eq 0 ]] \
+  && [[ -n "$DISK_BYTES" && "$DISK_BYTES" -gt "$MAX_CARD_BYTES" ]]; then
+  die "$DISK is ${DISK_SIZE:-an unknown size} - too big to be a Pi card, and this erases it with dd.
+    name:     ${DISK_NAME:-unknown}
+    protocol: ${DISK_PROTOCOL:-unknown}
+  If that really is your card, rerun with --allow-large."
+fi
 
 echo
 warn "About to ERASE: $DISK"
@@ -170,17 +208,70 @@ with lzma.open(sys.argv[1], "rb") as src:
 PY_EOF
 }
 
+# pv does this better, but it is not on a stock macOS - and without something
+# here the write is ten silent minutes. Ctrl-T cannot fill the gap: SIGINFO goes
+# to sudo, which does not pass it down to the dd underneath, so all it prints is
+# the shell's own load average.
+progress_meter() {
+  TOTAL_BYTES="$1" python3 -c '
+import os, sys, time
+
+total = int(os.environ.get("TOTAL_BYTES") or 0)
+out = sys.stdout.buffer
+done = 0
+start = last = time.monotonic()
+
+while True:
+    chunk = sys.stdin.buffer.read(1024 * 1024)
+    if not chunk:
+        break
+    out.write(chunk)
+    done += len(chunk)
+
+    now = time.monotonic()
+    if now - last < 1.0:
+        continue
+    last = now
+    elapsed = now - start
+    rate = done / elapsed if elapsed else 0
+    if total and rate:
+        left = int((total - done) / rate)
+        note = f"{100 * done / total:5.1f}%   {done / 1e9:4.2f} of {total / 1e9:4.2f} GB   {rate / 1e6:5.1f} MB/s   ~{left // 60}m{left % 60:02d}s left"
+    else:
+        note = f"{done / 1e9:4.2f} GB   {rate / 1e6:5.1f} MB/s   {int(elapsed)}s"
+    print("\r    " + note + "    ", end="", file=sys.stderr, flush=True)
+
+out.flush()
+print(file=sys.stderr)
+'
+}
+
 log "unmounting $DISK"
 detach_disk unmountDisk "$DISK" || die "could not unmount $DISK - close anything using it and retry"
 
 RAW_DISK="${DISK/\/dev\/disk//dev/rdisk}"   # raw device: an order of magnitude faster
 
-log "writing to $RAW_DISK - this takes several minutes"
-log "press Ctrl-T for progress (BSD dd has no status=progress)"
-if command -v pv >/dev/null && [[ "$IMAGE" == *.xz ]]; then
-  decompress_to_stdout | pv | sudo dd of="$RAW_DISK" bs=4m
+# The uncompressed size, so the meter can show a percentage rather than a
+# number that means nothing until it stops going up. xz keeps it in the stream
+# footer, which is why this costs nothing to read.
+TOTAL_BYTES=0
+if [[ "$IMAGE" == *.xz ]]; then
+  command -v xz >/dev/null \
+    && TOTAL_BYTES="$(xz --robot --list "$IMAGE" 2>/dev/null | awk '/^totals/ {print $5}')"
 else
-  decompress_to_stdout | sudo dd of="$RAW_DISK" bs=4m
+  TOTAL_BYTES="$(stat -f%z "$IMAGE" 2>/dev/null || echo 0)"
+fi
+TOTAL_BYTES="${TOTAL_BYTES:-0}"
+
+log "writing to $RAW_DISK - several minutes; the card's write speed decides how many"
+if command -v pv >/dev/null; then
+  if [[ "$TOTAL_BYTES" -gt 0 ]]; then
+    decompress_to_stdout | pv -s "$TOTAL_BYTES" | sudo dd of="$RAW_DISK" bs=4m
+  else
+    decompress_to_stdout | pv | sudo dd of="$RAW_DISK" bs=4m
+  fi
+else
+  decompress_to_stdout | progress_meter "$TOTAL_BYTES" | sudo dd of="$RAW_DISK" bs=4m
 fi
 sync
 
@@ -236,10 +327,16 @@ log "boot partition contents:"
 ls -1 "$BOOT" | sed 's/^/    /'
 
 sync
-if detach_disk eject "$DISK"; then
-  log "ejected $DISK"
+
+# Unmounted, not ejected. Unmounting flushes everything and makes the card safe
+# to pull out, while leaving the device attached so it can be mounted again -
+# and the next step, enable-gadget-network.sh, needs exactly that. An eject
+# detaches the whole device on a built-in reader, and nothing brings it back
+# but taking the card out and putting it in again.
+if detach_disk unmountDisk "$DISK"; then
+  log "unmounted $DISK - safe to pull out, and still there if you need it mounted"
 else
-  warn "the card is written and configured, but macOS would not eject it."
+  warn "the card is written and configured, but macOS would not unmount it."
   warn "run this before pulling it out: diskutil unmountDisk force $DISK"
 fi
 
@@ -247,19 +344,23 @@ fi
 
 cat <<EOF
 
-Card is ready.
+Card is written. It is NOT ready to boot yet.
 
-  1. Put it in the Pi Zero.
-  2. Connect the Mac to the Pi's micro-USB port marked USB - NOT the one marked PWR.
+  1. With the card still in this Mac, run:
+         ./scripts/enable-gadget-network.sh
+     Bookworm brings the ethernet gadget up but never gives usb0 an address, so
+     without this the Pi boots with no link and the only way back in is the card.
+
+  2. Put the card in the Pi Zero.
+  3. Connect the Mac to the Pi's micro-USB port marked USB - NOT the one marked PWR.
      That single cable powers it and carries the network link.
-  3. Wait ~90 seconds for the first boot (it resizes the filesystem and reboots).
-  4. ssh ${PI_USER}@raspberrypi.local
+  4. Wait ~90 seconds for the first boot (it resizes the filesystem and reboots).
+  5. ssh ${PI_USER}@10.55.0.1
 
-If raspberrypi.local does not resolve, check the link came up:
-    ifconfig | grep -B3 'inet 169.254'      # the gadget interface is link-local
-    ping -c3 raspberrypi.local
+Then, from the Mac:
+    ssh-copy-id -i ~/.ssh/pi_deploy_key.pub ${PI_USER}@10.55.0.1   # in a real terminal
+    ./scripts/deploy-to-pi.sh                                      # copies this tree over
 
-Then on the Pi:
-    git clone <this repo> && cd ND-Long-Exposure-Timer
+And on the Pi, once:
     sudo ./scripts/setup-pi.sh
 EOF
