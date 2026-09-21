@@ -22,6 +22,7 @@ from __future__ import annotations
 import math
 from bisect import bisect_left
 from dataclasses import dataclass
+from functools import lru_cache
 
 from nd_timer.exposure import FilterChoice, exposure_through_filter, shutter_after_shift
 
@@ -136,6 +137,12 @@ class Recipe:
         return f"{self.error_stops:+.1f}st"
 
 
+# The same question, asked again every time the panel is worked out: the answer
+# depends on the scene and the settings, and not at all on the clock. On an
+# ARMv6 a solve is about a tenth of a second, so asking it once a second was
+# most of the device's idle CPU - and every one of those asks after the first
+# had the same answer as the one before it.
+@lru_cache(maxsize=64)
 def recipe_for(
     wanted_seconds: float,
     metered_shutter: float,

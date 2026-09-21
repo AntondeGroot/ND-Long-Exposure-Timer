@@ -73,6 +73,12 @@ DEBOUNCE_SECONDS = 0.05
 # about how soon a press is noticed, not how often anything is redrawn.
 TICK_SECONDS = 0.05
 
+# How often the screen is worked out when nothing has been pressed. Building one
+# runs the solver, which on an ARMv6 is the most expensive thing here by far -
+# and the answer only moves on a press or on a ten-second step, so asking twenty
+# times a second is twenty times the work for the same picture.
+REDRAW_INTERVAL_SECONDS = 1.0
+
 RENDERERS = {
     SplashScreen: render_splash,
     MainScreen: render_main,
@@ -94,26 +100,29 @@ def _battery_percent() -> int:
 
 
 class Panel:
-    """The e-paper panel, drawn only when the frame has actually changed.
+    """The e-paper panel, drawn only when the screen has actually changed.
 
-    Every refresh costs about a second and a little of the panel's life, so the
-    screens are built to hold still - the delay screen is one frame, the
-    countdown moves in ten-second steps - and this is what turns that into
-    refreshes not happening.
+    The comparison is on the screen rather than on the pixels, because drawing
+    the frame is the expensive half: PIL laying out text on an ARMv6 is tens of
+    milliseconds, and the loop asks twenty times a second. Comparing first means
+    a screen that has not changed costs a dataclass comparison instead.
+
+    Every refresh also costs about a second of the panel's time and a little of
+    its life, which is why the screens above are built to hold still.
     """
 
     def __init__(self) -> None:
         module = __import__(PANEL_MODULE, fromlist=["EPD"])
         self._panel = module.EPD()
         self._panel.init()
-        self._showing: bytes | None = None
+        self._showing = None
 
-    def show(self, frame) -> None:
-        packed = to_panel_bytes(frame)
-        if packed == self._showing:
+    def show(self, screen) -> None:
+        if screen == self._showing:
             return
-        self._panel.display(list(packed))
-        self._showing = packed
+        frame = RENDERERS[type(screen)](screen)
+        self._panel.display(list(to_panel_bytes(frame)))
+        self._showing = screen
 
     def rest(self) -> None:
         """Sleep the panel, which keeps the image without holding it awake."""
@@ -121,37 +130,62 @@ class Panel:
 
 
 class Buttons:
-    """The seven switches, as a queue of press names the loop can drain.
+    """The seven switches, read straight from the chip.
 
-    gpiozero runs its callbacks on its own threads, so they do the least
-    possible: name the press and put it down. Everything that decides anything
-    happens on the main thread, one press at a time, which is what keeps the
-    device a state machine rather than a race.
+    gpiozero was the obvious choice and cost fifteen percent of a core doing
+    nothing at all - its lgpio backend runs a busy loop whatever you ask of it,
+    the same cost for one button as for six. On something that runs off a
+    battery that is a poor trade for an interrupt nobody needs: a finger is not
+    fast, and the loop already wakes twenty times a second.
+
+    So the pins are simply read, and the sampling does the debouncing. A switch
+    settles in a few milliseconds and is looked at every fifty, so a bounce has
+    almost always finished before anything sees it.
     """
 
     def __init__(self, pins: dict[str, int]) -> None:
-        from gpiozero import Button
+        import lgpio
 
-        self.presses: queue.Queue[str] = queue.Queue()
-        self._buttons = []
+        self._lgpio = lgpio
+        self._chip = lgpio.gpiochip_open(0)
+        self._pins = dict(pins)
+        for pin in self._pins.values():
+            lgpio.gpio_claim_input(self._chip, pin, lgpio.SET_PULL_UP)
+
+        self._down = dict.fromkeys(self._pins, False)
         self._shoot_pressed_at: float | None = None
+        self.presses: queue.Queue[str] = queue.Queue()
 
-        for name, pin in pins.items():
-            button = Button(pin, pull_up=True, bounce_time=DEBOUNCE_SECONDS)
-            if name == "shoot":
-                button.when_pressed = self._shoot_down
-                button.when_released = self._shoot_up
-            else:
-                button.when_pressed = lambda n=name: self.presses.put(n)
-            self._buttons.append(button)
+    def polled(self, now: float) -> None:
+        """Look at every pin, and put a name down for anything that changed."""
+        for name, pin in self._pins.items():
+            # Switches go to ground, so pressed reads low.
+            pressed = self._lgpio.gpio_read(self._chip, pin) == 0
+            if pressed != self._down[name]:
+                self._down[name] = pressed
+                self._noticed(name, pressed, now)
 
-    def _shoot_down(self) -> None:
-        self._shoot_pressed_at = time.monotonic()
+    def _noticed(self, name: str, pressed: bool, now: float) -> None:
+        """What a change means. Only SHOOT cares which way it went.
 
-    def _shoot_up(self) -> None:
-        """A press starts the shot; holding it calls the running one off."""
-        held_for = time.monotonic() - (self._shoot_pressed_at or time.monotonic())
+        The five-way acts on the press, for the feedback. SHOOT waits for the
+        release, because until it comes up there is no telling which of its two
+        meanings it had.
+        """
+        if name != "shoot":
+            if pressed:
+                self.presses.put(name)
+            return
+
+        if pressed:
+            self._shoot_pressed_at = now
+            return
+
+        held_for = now - (self._shoot_pressed_at or now)
         self.presses.put("cancel" if held_for >= HOLD_SECONDS else "shoot")
+
+    def close(self) -> None:
+        self._lgpio.gpiochip_close(self._chip)
 
 
 class Shutter:
@@ -212,7 +246,7 @@ def synced(device: Device, camera: Camera, panel: Panel, now: float) -> Device:
     during which nothing else happens - so the panel says what it is doing
     before the loop stops answering.
     """
-    panel.show(render_splash(SplashScreen(message="reading camera...", version="")))
+    panel.show(SplashScreen(message="reading camera...", version=""))
     try:
         return device.pressed_sync(camera.read_metered_exposure(), now)
     except CameraError as exc:
@@ -240,6 +274,7 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
     # from a cancelling afterwards.
     running = device.shot
 
+    buttons.polled(now)
     while not buttons.presses.empty():
         device = applied(device, buttons.presses.get(), camera, panel, now)
 
@@ -255,32 +290,46 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
     if running is not None and device.shot is None:
         shutter.released() if running.is_finished(now) else shutter.stopped()
 
-    screen = device.screen(now)
-    panel.show(RENDERERS[type(screen)](screen))
     return device
 
 
 def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera) -> None:
-    """Presses in, frames out, until something asks it to stop."""
+    """Presses in, frames out, until something asks it to stop.
+
+    The screen is worked out when the device has changed - which a press does,
+    and which shows up as a new object, because the device is frozen - or once
+    a second otherwise, for the things that move with the clock rather than
+    with a button.
+    """
     shutter = Shutter(camera)
+    drawn_for = None
+    drawn_at = 0.0
 
     while True:
-        device = stepped(device, buttons, panel, camera, shutter, time.monotonic())
+        now = time.monotonic()
+        device = stepped(device, buttons, panel, camera, shutter, now)
+
+        if device is not drawn_for or now - drawn_at >= REDRAW_INTERVAL_SECONDS:
+            panel.show(device.screen(now))
+            drawn_for, drawn_at = device, now
+
         time.sleep(TICK_SECONDS)
 
 
 def main() -> int:
     camera = Camera()
     panel = Panel()
+    buttons = Buttons(PINS)
 
     try:
-        run(Device(battery=_battery_percent()), Buttons(PINS), panel, camera)
+        run(Device(battery=_battery_percent()), buttons, panel, camera)
     except KeyboardInterrupt:
         # systemd stops this with SIGINT for exactly this reason: the panel
         # keeps whatever is on it, so it is left showing the last screen rather
         # than half of one.
         print("stopping", file=sys.stderr)
     finally:
+        buttons.close()
         panel.rest()
     return 0
 

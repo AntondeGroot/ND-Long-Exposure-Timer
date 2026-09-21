@@ -173,9 +173,17 @@ def _clock(seconds: float) -> str:
 
 
 def _age(seconds: float) -> str:
-    """How long ago, kept to two characters where it can be."""
+    """How long ago, kept to two characters where it can be.
+
+    In the same ten-second steps as the countdown, and for the same reason: a
+    status bar counting seconds would redraw the whole panel sixty times in the
+    minute after a sync, which is sixty refreshes spent on a number nobody is
+    reading that closely.
+    """
+    if seconds < COUNTDOWN_STEP_SECONDS:
+        return "now"
     if seconds < SECONDS_PER_MINUTE:
-        return f"{int(seconds)}s"
+        return f"{int(seconds // COUNTDOWN_STEP_SECONDS) * COUNTDOWN_STEP_SECONDS}s"
     if seconds < SECONDS_PER_HOUR:
         return f"{int(seconds // SECONDS_PER_MINUTE)}m"
     return f"{int(seconds // SECONDS_PER_HOUR)}h"

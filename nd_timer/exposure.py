@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from functools import lru_cache
 from itertools import combinations
 
 SECONDS_PER_MINUTE = 60
@@ -164,6 +165,9 @@ def needs_bulb(seconds: float) -> bool:
     return seconds > LONGEST_TIMED_EXPOSURE_SECONDS
 
 
+# Also asked once per panel: walking every combination of a full bag is three
+# hundred of them, and the bag changes about once a season.
+@lru_cache(maxsize=16)
 def filter_choices(owned: tuple[NdFilter, ...]) -> tuple[FilterChoice, ...]:
     """Every usable combination of the owned filters, as one sorted list.
 
