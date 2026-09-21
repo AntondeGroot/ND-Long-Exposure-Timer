@@ -107,6 +107,9 @@ if ssh "$HOST" "sudo -n systemctl restart ${SERVICE_NAME}" 2>/dev/null; then
   sleep 2
   ssh "$HOST" "systemctl is-active ${SERVICE_NAME}; journalctl -u ${SERVICE_NAME} -n 12 --no-pager"
 else
+  # -t, because sudo needs a terminal to ask on: without it the command comes
+  # back with "a terminal is required to read the password" and nothing happens.
   warn "passwordless sudo is not set up, so the restart is yours:"
-  echo "    ssh $HOST 'sudo systemctl restart ${SERVICE_NAME} && journalctl -u ${SERVICE_NAME} -n 20 --no-pager'"
+  echo "    ssh -t $HOST 'sudo systemctl restart ${SERVICE_NAME}'"
+  echo "    ssh $HOST 'journalctl -u ${SERVICE_NAME} -n 20 --no-pager'"
 fi

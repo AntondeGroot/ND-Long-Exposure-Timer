@@ -134,6 +134,10 @@ write_config_block() {
     echo "$MARKER_BEGIN"
     echo "# Managed by scripts/setup-pi.sh - edits inside this block are overwritten."
     echo "dtparam=spi=on"
+    echo ""
+    echo "# The UPS HAT's fuel gauge is on I2C. Without this there is no bus for"
+    echo "# it to answer on, and the battery reading has nowhere to come from."
+    echo "dtparam=i2c_arm=on"
     if [[ -n "$SHUTDOWN_PIN" ]]; then
       echo ""
       echo "# Momentary button: pulling BCM${SHUTDOWN_PIN} to ground halts the Pi cleanly."
@@ -143,7 +147,7 @@ write_config_block() {
 
     if [[ $DO_POWER_TWEAKS -eq 1 ]]; then
       echo ""
-      echo "# Battery savers for the 18650 pack. On a Zero the ACT LED is active-low,"
+      echo "# Battery savers for the UPS HAT's cell. On a Zero the ACT LED is active-low,"
       echo "# so activelow=on is what switches it OFF - the Pi 3/4 recipe (=off)"
       echo "# leaves it permanently lit, which costs current instead of saving it."
       echo "# Note this also detaches the LED from SD activity, so it stops being"
