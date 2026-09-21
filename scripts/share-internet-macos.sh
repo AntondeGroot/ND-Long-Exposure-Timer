@@ -2,6 +2,10 @@
 #
 # share-internet-macos.sh - give the Pi internet over the USB link.
 #
+# RUNS ON YOUR MAC, not on the Pi. The uplink it asks for is the Mac's own
+# internet interface - the Pi Zero has no network of its own, which is the
+# entire reason this exists.
+#
 # macOS Internet Sharing cannot be used here: it takes over the gadget interface,
 # renumbers it to 192.168.2.1 and runs a DHCP server, while the Pi holds a static
 # 10.55.0.1 with NetworkManager told to ignore usb0 - so it would never take a
@@ -35,6 +39,12 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+# Run on the Pi by mistake this would complain that en0 does not exist, which
+# is true and unhelpful: the answer is not a different interface, it is a
+# different machine.
+[[ "$(uname -s)" == "Darwin" ]] \
+  || die "this runs on your Mac, not on the Pi - it shares the Mac's connection over the USB link"
+
 [[ $EUID -eq 0 ]] || die "run with sudo: sudo $0 $*"
 
 if [[ $OFF -eq 1 ]]; then
@@ -46,7 +56,10 @@ if [[ $OFF -eq 1 ]]; then
   exit 0
 fi
 
-ifconfig "$UPLINK" >/dev/null 2>&1 || die "no such uplink interface: $UPLINK"
+# /sbin, because sudo does not always keep it on PATH - and "command not found"
+# arriving here would be reported as a missing interface, which it is not.
+/sbin/ifconfig "$UPLINK" >/dev/null 2>&1 \
+  || die "no such uplink interface: $UPLINK (try --uplink with the Mac interface that has internet)"
 UPLINK_IP="$(ipconfig getifaddr "$UPLINK" 2>/dev/null || true)"
 [[ -n "$UPLINK_IP" ]] || die "$UPLINK has no address - is it the interface with internet?"
 

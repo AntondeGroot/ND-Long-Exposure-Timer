@@ -8,24 +8,39 @@ from nd_timer.ui.settings import ABOUT, ENTRY_LABELS
 
 def test_settings_is_one_press_up_from_the_time():
     # The list wraps, so the bottom of the screen is right above the top of it -
-    # and one more press up comes back round to the last row that can change.
+    # and one more press up comes back round to the last stop before it.
     at_settings = Navigation().pressed_up()
 
     assert at_settings.selected == layout.SETTINGS
     assert at_settings.is_on_settings
-    assert at_settings.pressed_up().selected == layout.SELECTABLE_ROWS[-1]
+    assert at_settings.pressed_up().selected == layout.AUTO_SELECTIONS[-2]
 
 
-def test_down_walks_the_rows_in_reading_order_and_wraps_to_the_time():
-    # The order the eye reads the screen in: the time, each row that can change,
-    # then settings at the bottom - and one more press is back at the top.
+def test_down_walks_the_stops_in_reading_order_and_wraps_to_the_time():
+    # The order the eye reads the screen in: the time, the toggle under it, each
+    # row that can change, then settings at the bottom - and one more press is
+    # back at the top.
     navigation = Navigation()
     visited = []
-    for _ in range(len(layout.SELECTIONS) + 1):
+    for _ in range(len(layout.AUTO_SELECTIONS) + 1):
         visited.append(navigation.selected)
         navigation = navigation.pressed_down()
 
-    assert visited == [layout.TIME, *layout.SELECTABLE_ROWS, layout.SETTINGS, layout.TIME]
+    assert visited == [*layout.AUTO_SELECTIONS, layout.TIME]
+
+
+def test_the_walk_stops_on_the_iso_and_the_aperture_only_when_they_are_yours():
+    # On AUTO they are answers to the time and the five-way goes straight past
+    # them; on MANUAL they are settings, so the same presses stop on them.
+    navigation = Navigation()
+    walked = []
+    for _ in range(len(layout.MANUAL_SELECTIONS)):
+        navigation = navigation.pressed_down(layout.MANUAL_SELECTIONS)
+        walked.append(navigation.selected)
+
+    assert layout.ISO in walked and layout.APERTURE in walked
+    assert layout.ISO not in layout.AUTO_SELECTIONS
+    assert layout.APERTURE not in layout.AUTO_SELECTIONS
 
 
 def test_centre_on_settings_opens_the_screen_at_its_first_entry():

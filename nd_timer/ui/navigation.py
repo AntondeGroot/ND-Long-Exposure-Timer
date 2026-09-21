@@ -1,8 +1,13 @@
 """Where the five-way is pointing, and which screen that puts on the panel.
 
-Up and down walk one list: the time, then the rows that can be changed, then
-settings at the bottom - the order the eye reads the screen in. The list wraps,
-which is what makes settings one press *up* from the time rather than five down.
+Up and down walk one list: the time, then the toggle, then the rows that can be
+changed, then settings at the bottom - the order the eye reads the screen in.
+The list wraps, which is what makes settings one press *up* from the time rather
+than four down.
+
+Which list it is depends on who is choosing the settings, so it is passed in
+rather than known here: on AUTO the ISO and the aperture are answers and the
+five-way walks past them, on MANUAL it stops on them.
 
 Settings and the filter list inside it are lists of the same kind, each ending in
 BACK. They wrap too, so BACK is one press up from the top of either.
@@ -52,11 +57,11 @@ class Navigation:
             return None
         return COMMON_FILTERS[self.filter_entry]
 
-    def pressed_up(self) -> Navigation:
-        return self._stepped(UP)
+    def pressed_up(self, selections: tuple = layout.AUTO_SELECTIONS) -> Navigation:
+        return self._stepped(UP, selections)
 
-    def pressed_down(self) -> Navigation:
-        return self._stepped(DOWN)
+    def pressed_down(self, selections: tuple = layout.AUTO_SELECTIONS) -> Navigation:
+        return self._stepped(DOWN, selections)
 
     def pressed_centre(self) -> Navigation:
         """Open what the selection is on, or go back the way you came in."""
@@ -80,17 +85,17 @@ class Navigation:
             return replace(self, on_filters_screen=True, filter_entry=0)
         return self
 
-    def _stepped(self, direction: int) -> Navigation:
+    def _stepped(self, direction: int, selections: tuple) -> Navigation:
         if self.on_filters_screen:
             return replace(self, filter_entry=_stepped_through(self.filter_entry, direction, COMMON_FILTERS))
         if self.on_settings_screen:
             return replace(self, settings_entry=_stepped_through(self.settings_entry, direction, ENTRY_LABELS))
-        return replace(self, selected=_next_selection(self.selected, direction))
+        return replace(self, selected=_next_selection(self.selected, direction, selections))
 
 
-def _next_selection(selected: str, direction: int) -> str:
-    index = layout.SELECTIONS.index(selected) + direction
-    return layout.SELECTIONS[_wrapped(index, len(layout.SELECTIONS))]
+def _next_selection(selected: str, direction: int, selections: tuple) -> str:
+    index = selections.index(selected) + direction
+    return selections[_wrapped(index, len(selections))]
 
 
 def _stepped_through(index: int, direction: int, entries: tuple) -> int:

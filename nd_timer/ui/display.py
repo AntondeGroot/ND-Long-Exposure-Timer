@@ -56,6 +56,7 @@ def _main_screen(device, now: float) -> MainScreen:
         aperture=_recipe_value(recipe, lambda r: f"f/{r.aperture:g}"),
         nd_label=_recipe_value(recipe, lambda r: r.filters.short_label),
         off_by=_recipe_value(recipe, lambda r: r.error_label),
+        is_auto=device.is_auto,
         selected=device.navigation.selected,
         base_shutter=_metered_shutter(device),
         final_time=device.dial.label,

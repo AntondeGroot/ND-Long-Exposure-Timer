@@ -33,11 +33,15 @@ The display is a 2.13" e-paper panel mounted upright: 122 x 250 pixels. "selecte
 
 ### The recipe
 
-The time is at the top because it is the one thing you choose. Under it, **base** is
-the shutter the camera was reading when you pressed SYNC - a measurement, which nothing
-the device does moves. The rest is the answer to your time, read down the column: the
-ISO and aperture to set, the filters to screw on, and how close that lands. At 122
-pixels wide there is no room for a label beside its value, so each row stacks them.
+The time is at the top because it is the one thing you choose. Under it, a band saying
+who is choosing everything else. Then **base**, the shutter the camera was reading when
+you pressed SYNC - a measurement, which nothing the device does moves - and the answer
+to your time, read down the column: the ISO and aperture to set, the filters to screw
+on, and how close that lands. At 122 pixels wide there is no room for a label beside its
+value, so each row stacks them.
+
+Nothing on screen says SHOOT. It is a button under your thumb, and a panel that drew it
+would be spending its own space saying what the hardware already says.
 
 ![The main screen](docs/screens/main-waterfall@3x.png)
 
@@ -73,6 +77,23 @@ and `+0.1st` at the other, and the difference between the two screens is visible
 than implied.
 
 ![The main screen with a filter bag that cannot reach](docs/screens/main-out-of-reach@3x.png)
+
+### Taking the settings over
+
+**AUTO** is the device choosing: the ISO, the aperture and the filters are all worked
+back from your time. Press the five-way's centre on the band - or push it left or right
+- and it says **MANUAL**, which hands you the ISO and the aperture. The five-way then
+stops on those two rows, because on AUTO they were answers and now they are not.
+
+It starts from whatever AUTO had chosen, so nothing jumps under the press. The filters
+do not move: whatever is screwed on stays screwed on, and the ISO and the aperture are
+what you turn around it. What changes is the **off** row, which is the whole point of
+the mode - the device stops solving and starts telling you where you have got to.
+
+![The settings taken over by hand](docs/screens/main-manual@3x.png)
+
+The ceiling and the lens ends from settings still hold: MANUAL is the photographer
+choosing within the kit, not the kit being forgotten.
 
 ### Setting the time
 
@@ -156,16 +177,17 @@ watch it sit at zero with the shutter still open.
 
 ## Controls
 
-The five-way lands on three things only - the time, the scenario, and settings - because
-the four rows between them are answers rather than controls.
+On AUTO the five-way lands on four things - the time, the AUTO/MANUAL band, the scenario
+and settings - because the rows between them are answers rather than controls. On MANUAL
+it stops on the ISO and the aperture too.
 
 | Control | Does |
 |---------|------|
 | Five-way up / down | move between the time, the scenario and settings; while setting the time, a second on or off |
-| Five-way left / right | change the scenario, which changes the time; while setting the time, step it |
-| Five-way centre | start or stop setting the time when it is selected, otherwise open the menu |
+| Five-way left / right | change whatever is selected - the AUTO/MANUAL band, the scenario, or the ISO and aperture while they are yours; while setting the time, step it |
+| Five-way centre | start or stop setting the time when it is selected, toggle AUTO and MANUAL on the band, otherwise open the menu |
 | SYNC | read the current exposure from the camera |
-| SHOOT | start the shot; hold to cancel it, waiting or exposing |
+| SHOOT | a button rather than a thing on the screen: start the shot, hold to cancel it, waiting or exposing |
 
 ## Development
 

@@ -184,11 +184,35 @@ def _best_filtration(
     iso: float,
     aperture: float,
 ) -> Recipe:
-    """The stack nearest to what this ISO and aperture still need, by bisection.
+    """The stack nearest to what this ISO and aperture still need, by bisection."""
+    unfiltered = shutter_after_shift(
+        metered_shutter=metered_shutter,
+        metered_iso=metered_iso,
+        metered_aperture=metered_aperture,
+        working_iso=iso,
+        working_aperture=aperture,
+    )
+    choice = _nearest_choice(choices, math.log2(wanted_seconds / unfiltered))
+    return recipe_of(
+        wanted_seconds, metered_shutter, metered_iso, metered_aperture, choice, iso, aperture
+    )
 
-    The shift is arithmetic on the metered reading rather than a change to it:
-    this is the exposure that reading comes to once ISO and aperture have moved,
-    and it exists only to say how much filtration is left to find.
+
+def recipe_of(
+    wanted_seconds: float,
+    metered_shutter: float,
+    metered_iso: float,
+    metered_aperture: float,
+    filters: FilterChoice,
+    iso: float,
+    aperture: float,
+) -> Recipe:
+    """What a set of settings actually comes to, without choosing any of them.
+
+    This is the arithmetic on its own, for when the photographer has taken the
+    settings over: the device stops looking for a recipe and works out what the
+    one in front of it does. The shift is arithmetic on the metered reading
+    rather than a change to it.
     """
     unfiltered = shutter_after_shift(
         metered_shutter=metered_shutter,
@@ -197,12 +221,9 @@ def _best_filtration(
         working_iso=iso,
         working_aperture=aperture,
     )
-    wanted_stops = math.log2(wanted_seconds / unfiltered)
-    choice = _nearest_choice(choices, wanted_stops)
-
-    achieved = exposure_through_filter(unfiltered, choice.stops)
+    achieved = exposure_through_filter(unfiltered, filters.stops)
     return Recipe(
-        filters=choice,
+        filters=filters,
         iso=iso,
         aperture=aperture,
         wanted_seconds=wanted_seconds,

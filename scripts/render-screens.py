@@ -55,7 +55,7 @@ CASES = {
     # over, which is closer than the camera can be set and is said anyway - it
     # is how this screen differs from the one a tenth of a stop along.
     "main-waterfall": MainScreen(
-        mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st",
+        mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st", is_auto=True,
         selected="MODE", base_shutter="1/60 s", final_time="0.7 s",
         setting_time=False, shows_nudge_hint=False, time_is_set=False,
         target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 8s", battery=84,
@@ -64,7 +64,7 @@ CASES = {
     # third of a stop of aperture is what gets it there, and the ISO stays at
     # base - which is where a several-minute exposure wants it.
     "main-bulb": MainScreen(
-        mode="CLOUDS", iso="100", aperture="f/13", nd_label="8+1000", off_by="+0.1st",
+        mode="CLOUDS", iso="100", aperture="f/13", nd_label="8+1000", off_by="+0.1st", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="3m 28s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 2m", battery=71,
@@ -72,7 +72,7 @@ CASES = {
     # Before the first SYNC there is no scene to work back from, and the device
     # says so rather than printing a recipe it cannot stand behind.
     "main-not-synced": MainScreen(
-        mode="MANUAL", iso="--", aperture="--", nd_label="--", off_by="--",
+        mode="MANUAL", iso="--", aperture="--", nd_label="--", off_by="--", is_auto=True,
         selected="time", base_shutter="--", final_time="1.0 s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="", direction=0, is_bulb=False, synced_note="NOT SYNCED", battery=100,
@@ -81,7 +81,7 @@ CASES = {
     # the way down, and it still lands most of a stop short - which the row says
     # out loud rather than quietly rounding.
     "main-stacked": MainScreen(
-        mode="NO PEOPLE", iso="100", aperture="f/22", nd_label="8+64+1000", off_by="+0.9st",
+        mode="NO PEOPLE", iso="100", aperture="f/22", nd_label="8+64+1000", off_by="+0.9st", is_auto=True,
         selected="MODE", base_shutter="1/2000 s", final_time="1h",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-8min", direction=-1, is_bulb=True, synced_note="SYNCED 30s", battery=66,
@@ -89,14 +89,23 @@ CASES = {
     # The same scene with one filter in the bag. The time asked for is still the
     # time on screen: a camera in shutter priority takes the shot too.
     "main-out-of-reach": MainScreen(
-        mode="CLOUDS", iso="100", aperture="f/22", nd_label="8", off_by="+8.6st",
+        mode="CLOUDS", iso="100", aperture="f/22", nd_label="8", off_by="+8.6st", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="3m 28s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 12s", battery=58,
     ),
+    # The settings taken over by hand. The device has stopped choosing: ISO and
+    # aperture are the photographer's, the filters stay whatever is screwed on,
+    # and the off row is the whole point - it is what says where that leaves you.
+    "main-manual": MainScreen(
+        mode="CLOUDS", iso="250", aperture="f/8", nd_label="8+1000", off_by="+2.3st",
+        is_auto=False, selected="ISO", base_shutter="1/60 s", final_time="3m 28s",
+        setting_time=False, shows_nudge_hint=True, time_is_set=False,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 40s", battery=74,
+    ),
     # A time dialled away from the scenario's own: SET is what says so.
     "main-time-set": MainScreen(
-        mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact",
+        mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="2m 19s",
         setting_time=False, shows_nudge_hint=True, time_is_set=True,
         target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 30s", battery=78,
@@ -104,7 +113,7 @@ CASES = {
     # Mid-dial: left and right walk the time, up and down move a second, and the
     # clock face holds its shape while they do.
     "main-setting-time": MainScreen(
-        mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact",
+        mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="02:19",
         setting_time=True, shows_nudge_hint=True, time_is_set=True,
         target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 30s", battery=78,
@@ -112,7 +121,7 @@ CASES = {
     # The fast end of the dial: waves want a shutter the camera times itself, and
     # the ladder reaches it - the same dial a self-timer would use.
     "main-setting-waves": MainScreen(
-        mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st",
+        mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="1/8 s",
         setting_time=True, shows_nudge_hint=False, time_is_set=True,
         target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 4s", battery=82,
@@ -135,7 +144,7 @@ CASES = {
         progress=50 / 60, is_bulb=False, battery=59,
     ),
     "settings-selected": MainScreen(
-        mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st",
+        mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st", is_auto=True,
         selected="settings", base_shutter="1/60 s", final_time="1/8 s",
         setting_time=False, shows_nudge_hint=False, time_is_set=True,
         target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 4s", battery=10,

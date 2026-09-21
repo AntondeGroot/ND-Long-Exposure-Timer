@@ -24,6 +24,7 @@ class MainScreen:
     aperture: str
     nd_label: str
     off_by: str
+    is_auto: bool
     selected: str
     base_shutter: str
     final_time: str
@@ -95,9 +96,30 @@ def render_main(screen: MainScreen):
 
     render.draw_status_bar(draw, screen.synced_note, screen.battery, _hand_set_tag(screen))
     _draw_answer(draw, screen)
+    _draw_toggle(draw, screen)
     _draw_parameter_list(draw, screen)
-    render.draw_footer(draw, selected=screen.selected)
+    render.draw_banner_footer(draw, "SETTINGS", selected=screen.selected == layout.SETTINGS)
     return frame
+
+
+def _draw_toggle(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
+    """Who is choosing the settings, in a band of its own between the two halves.
+
+    It is the one thing on the screen that is neither asked for nor answered, so
+    it is centred rather than given a label and a value: there is no question to
+    put on the left of it.
+    """
+    selected = screen.selected == layout.AUTO
+    if selected:
+        render.draw_inverted_bar(draw, (0, layout.TOGGLE_TOP, WIDTH, layout.TOGGLE_BOTTOM - 2))
+
+    ink = WHITE if selected else BLACK
+    word = "AUTO" if screen.is_auto else "MANUAL"
+    render.draw_centred(
+        draw, layout.CENTRE_X, layout.TOGGLE_TOP + 3,
+        f"\u25c0 {word} \u25b6" if selected else word, render.bold(layout.SMALL), fill=ink,
+    )
+    draw.line((0, layout.TOGGLE_BOTTOM, WIDTH, layout.TOGGLE_BOTTOM), fill=BLACK)
 
 
 def _hand_set_tag(screen: MainScreen) -> str:
@@ -221,21 +243,22 @@ def _behind(ink: int) -> int:
 def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
     """The working: one line per value, scanned rather than read.
 
-    Derived rows are drawn the same as the rest but never take the selection, so
-    the buttons only ever land on something they can actually change.
+    A row is drawn as selected when the five-way is on it, and the five-way only
+    stops on rows it can change - which is the toggle's doing, not this one's.
     """
     values = {
-        "base": screen.base_shutter,
-        "ISO": screen.iso,
-        "APER": screen.aperture,
-        "ND": screen.nd_label,
-        "off": screen.off_by,
-        "MODE": screen.mode,
+        layout.BASE: screen.base_shutter,
+        layout.ISO: screen.iso,
+        layout.APERTURE: screen.aperture,
+        layout.ND: screen.nd_label,
+        layout.OFF: screen.off_by,
+        layout.MODE: screen.mode,
     }
 
-    for row, (label, is_selectable) in enumerate(layout.ROW_PLAN):
-        selected = is_selectable and label == screen.selected
-        render.draw_value_row(draw, layout.row_top(row), label, values[label], selected)
+    for row, label in enumerate(layout.ROWS):
+        render.draw_value_row(
+            draw, layout.row_top(row), label, values[label], label == screen.selected
+        )
 
 
 def render_delay(screen: DelayScreen):
