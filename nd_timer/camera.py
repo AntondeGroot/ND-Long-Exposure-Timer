@@ -38,6 +38,33 @@ class MeteredExposure:
     shutter_seconds: float
 
 
+# The speeds a camera will time itself, in thirds, as it prints them. It runs
+# three rungs past nd_timer.dial's ladder: that one stops at 15s because the
+# device's own dial becomes a clock after it, but the camera keeps going to 30
+# before bulb is the only option left. Snapping to the wrong end of that gap is
+# most of a stop.
+TIMED_SHUTTERS = (
+    1 / 125, 1 / 100, 1 / 80, 1 / 60, 1 / 50, 1 / 40, 1 / 30, 1 / 25,
+    1 / 20, 1 / 15, 1 / 13, 1 / 10, 1 / 8, 1 / 6, 1 / 5, 1 / 4, 1 / 3,
+    0.4, 0.5, 0.6, 0.8,
+    1.0, 1.3, 1.6, 2.0, 2.5, 3.2,
+    4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 15.0, 20.0, 25.0, 30.0,
+)
+
+
+def nearest_timed_shutter(seconds: float) -> str:
+    """The nearest speed the camera can be set to, written the way it writes it.
+
+    gphoto2 will only accept one of the camera's own choices, so the exposure
+    arithmetic's exact answer has to be snapped to a rung before it is sent.
+    Fractions have no unit on the dial: "1/60", not "1/60 s".
+    """
+    nearest = min(TIMED_SHUTTERS, key=lambda rung: abs(rung - seconds))
+    if nearest >= 1:
+        return f"{round(nearest)}"
+    return f"1/{round(1 / nearest)}"
+
+
 def parse_shutter_speed(text: str) -> float:
     """Read a shutter speed the way a camera writes it, in seconds.
 
