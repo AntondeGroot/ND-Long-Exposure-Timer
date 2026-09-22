@@ -1,6 +1,13 @@
 """Tests for turning a cell voltage into something worth drawing."""
 
-from nd_timer.battery import EMPTY_VOLTS, FULL_VOLTS, STEP_PERCENT, Battery, percent_from
+from nd_timer.battery import (
+    CHARGING_ABOVE_MILLIAMPS,
+    EMPTY_VOLTS,
+    FULL_VOLTS,
+    STEP_PERCENT,
+    Battery,
+    percent_from,
+)
 
 
 def test_the_ends_of_the_cell_are_the_ends_of_the_scale():
@@ -44,3 +51,51 @@ def test_the_reading_is_smoothed_rather_than_followed():
     settled = battery.percent()
 
     assert 0 < settled < 100, "one low reading should not empty the battery"
+
+
+def test_current_out_of_the_cell_reads_negative():
+    # The shunt register is signed and the sign is the direction. Running off the
+    # cell reads about minus thirteen milliamps on this board; if that came back
+    # positive the panel would show a bolt on a battery that is going flat.
+    battery = Battery()
+    battery._word = lambda register: 0xFFFF - 12  # a small two's-complement negative
+
+    assert battery.milliamps() < 0
+
+
+def test_a_cell_being_charged_is_reported_as_charging():
+    battery = Battery()
+    battery.volts = lambda: 3.9
+    battery.milliamps = lambda: 250.0
+
+    charge = battery.charge()
+
+    assert charge.charging
+    assert charge.percent == percent_from(3.9)
+
+
+def test_a_cell_merely_held_at_float_is_not_reported_as_charging():
+    # A charger topping off trickles a few milliamps either way. Calling that
+    # charging would leave a bolt on the screen for the rest of the day.
+    battery = Battery()
+    battery.volts = lambda: 4.2
+
+    for idle in (CHARGING_ABOVE_MILLIAMPS - 1, 0.0, -5.0):
+        battery.milliamps = lambda idle=idle: idle
+        assert not battery.charge().charging
+
+
+def test_a_battery_nothing_answers_for_is_not_charging_either():
+    absent = Battery(bus="/dev/i2c-does-not-exist")
+
+    assert absent.milliamps() is None
+    assert absent.charge() is None
+
+
+def test_a_readable_cell_with_an_unreadable_shunt_is_not_called_charging():
+    # Half an answer is not evidence of a charger. The level still draws.
+    battery = Battery()
+    battery.volts = lambda: 3.9
+    battery.milliamps = lambda: None
+
+    assert battery.charge().charging is False

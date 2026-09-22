@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import fcntl
 import os
+from dataclasses import dataclass
 
 I2C_BUS = "/dev/i2c-1"
 INA219_ADDRESS = 0x43
@@ -24,6 +25,16 @@ INA219_ADDRESS = 0x43
 I2C_SLAVE = 0x0703
 
 BUS_VOLTAGE_REGISTER = 0x02
+SHUNT_VOLTAGE_REGISTER = 0x01
+
+# The shunt on this board is a tenth of an ohm, so ten millivolts across it is a
+# hundred milliamps. The sign is the direction: into the cell is charging.
+SHUNT_OHMS = 0.1
+
+# Below this the cell is neither charging nor running anything much - a charger
+# holding it at float reads a few milliamps either way, and calling that
+# "charging" would leave a bolt on the screen for ever.
+CHARGING_ABOVE_MILLIAMPS = 20.0
 
 # A single lithium cell: full at 4.2, and by 3.0 the protection circuit is about
 # to cut in. Waveshare's own examples for this board use the same two numbers.
@@ -37,6 +48,14 @@ STEP_PERCENT = 5
 # How much of each new reading to believe. The cell's voltage moves slowly and
 # the noise does not, so most of the weight stays on what was already known.
 SMOOTHING = 0.25
+
+
+@dataclass(frozen=True)
+class Charge:
+    """What the status bar needs to know about the cell."""
+
+    percent: int
+    charging: bool
 
 
 def percent_from(volts: float) -> int:
@@ -59,8 +78,8 @@ class Battery:
         self._address = address
         self._smoothed: float | None = None
 
-    def volts(self) -> float | None:
-        """The cell voltage, or None if the chip did not answer."""
+    def _word(self, register: int) -> int | None:
+        """One sixteen-bit register, or None if the chip did not answer."""
         try:
             handle = os.open(self._bus, os.O_RDWR)
         except OSError:
@@ -68,15 +87,30 @@ class Battery:
 
         try:
             fcntl.ioctl(handle, I2C_SLAVE, self._address)
-            os.write(handle, bytes([BUS_VOLTAGE_REGISTER]))
+            os.write(handle, bytes([register]))
             high, low = os.read(handle, 2)
         except OSError:
             return None
         finally:
             os.close(handle)
 
+        return (high << 8) | low
+
+    def volts(self) -> float | None:
+        """The cell voltage, or None if the chip did not answer."""
+        raw = self._word(BUS_VOLTAGE_REGISTER)
+        if raw is None:
+            return None
         # The reading is in the top thirteen bits, four millivolts to a count.
-        return (((high << 8) | low) >> 3) * 0.004
+        return (raw >> 3) * 0.004
+
+    def milliamps(self) -> float | None:
+        """Current through the shunt. Positive is into the cell: charging."""
+        raw = self._word(SHUNT_VOLTAGE_REGISTER)
+        if raw is None:
+            return None
+        signed = raw - 65536 if raw > 32767 else raw
+        return (signed * 0.01) / SHUNT_OHMS
 
     def percent(self) -> int | None:
         """What to draw in the corner of the status bar."""
@@ -88,3 +122,12 @@ class Battery:
             self._smoothed + SMOOTHING * (volts - self._smoothed)
         )
         return percent_from(self._smoothed)
+
+    def charge(self) -> Charge | None:
+        """The level and whether it is going up, or None if nothing answered."""
+        percent = self.percent()
+        if percent is None:
+            return None
+
+        current = self.milliamps()
+        return Charge(percent, charging=current is not None and current > CHARGING_ABOVE_MILLIAMPS)

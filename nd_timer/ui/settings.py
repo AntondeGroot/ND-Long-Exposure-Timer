@@ -59,6 +59,7 @@ class SettingsScreen:
     entries: tuple[SettingsEntry, ...]
     selected: int
     battery: int | None
+    charging: bool = False
     title: str = "SETTINGS"
     left_right_change_values: bool = True
 
@@ -71,7 +72,7 @@ def render_settings(screen: SettingsScreen):
     frame = render.blank_frame()
     draw = ImageDraw.Draw(frame)
 
-    render.draw_status_bar(draw, screen.title, screen.battery)
+    render.draw_status_bar(draw, screen.title, screen.battery, charging=screen.charging)
     _draw_entries(draw, screen)
     render.draw_banner_footer(draw, "BACK", selected=screen.is_on_back)
     return frame

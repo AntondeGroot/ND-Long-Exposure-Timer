@@ -416,9 +416,11 @@ def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera) -> None:
 
         if now - read_battery_at >= BATTERY_INTERVAL_SECONDS:
             read_battery_at = now
-            charge = battery.percent()
-            if charge != device.battery:
-                device = replace(device, battery=charge)
+            charge = battery.charge()
+            level = charge.percent if charge else None
+            charging = charge.charging if charge else False
+            if (level, charging) != (device.battery, device.charging):
+                device = replace(device, battery=level, charging=charging)
 
         if device is not drawn_for or now - drawn_at >= REDRAW_INTERVAL_SECONDS:
             panel.show(device.screen(now))

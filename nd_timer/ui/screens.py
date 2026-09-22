@@ -36,6 +36,7 @@ class MainScreen:
     is_bulb: bool
     synced_note: str
     battery: int | None
+    charging: bool = False
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,7 @@ class CountdownScreen:
     progress: float
     is_bulb: bool
     battery: int | None
+    charging: bool = False
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,7 @@ class DelayScreen:
     delay: str
     is_bulb: bool
     battery: int | None
+    charging: bool = False
 
 
 @dataclass(frozen=True)
@@ -94,7 +97,9 @@ def render_main(screen: MainScreen):
     frame = render.blank_frame()
     draw = ImageDraw.Draw(frame)
 
-    render.draw_status_bar(draw, screen.synced_note, screen.battery, _hand_set_tag(screen))
+    render.draw_status_bar(
+        draw, screen.synced_note, screen.battery, _hand_set_tag(screen), screen.charging
+    )
     _draw_answer(draw, screen)
     _draw_toggle(draw, screen)
     _draw_parameter_list(draw, screen)
@@ -275,7 +280,7 @@ def render_delay(screen: DelayScreen):
     frame = render.blank_frame()
     draw = ImageDraw.Draw(frame)
 
-    render.draw_status_bar(draw, screen.mode.upper(), screen.battery)
+    render.draw_status_bar(draw, screen.mode.upper(), screen.battery, charging=screen.charging)
 
     render.draw_fitted(
         draw, layout.CENTRE_X, 66, screen.exposure, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES
@@ -296,7 +301,7 @@ def render_countdown(screen: CountdownScreen):
     frame = render.blank_frame()
     draw = ImageDraw.Draw(frame)
 
-    render.draw_status_bar(draw, screen.mode.upper(), screen.battery)
+    render.draw_status_bar(draw, screen.mode.upper(), screen.battery, charging=screen.charging)
 
     badge = "BULB" if screen.is_bulb else "TIMED"
     render.draw_centred(draw, layout.CENTRE_X, 26, badge, render.bold(layout.SMALL))

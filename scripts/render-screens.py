@@ -143,6 +143,15 @@ CASES = {
         setting_time=False, shows_nudge_hint=False, time_is_set=False,
         target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 20s", battery=None,
     ),
+    # On the charger, at the level where the fill edge runs through the bolt -
+    # the one case that decides how the bolt has to be drawn.
+    "main-charging": MainScreen(
+        mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st",
+        is_auto=True, selected="MODE", base_shutter="1/60 s", final_time="0.7 s",
+        setting_time=False, shows_nudge_hint=False, time_is_set=False,
+        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 20s", battery=50,
+        charging=True,
+    ),
     # The camera refused. The countdown is gone rather than running against a
     # shutter that never opened, and the bar says which kind of refusal it was.
     "main-no-camera": MainScreen(

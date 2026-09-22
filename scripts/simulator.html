@@ -80,6 +80,21 @@
     </fieldset>
 
     <fieldset>
+      <legend>Battery</legend>
+      <label>Level
+        <select id="battery">
+          <option value="">unknown</option>
+          <option value="100">100%</option>
+          <option value="85">85%</option>
+          <option value="50">50%</option>
+          <option value="20">20%</option>
+          <option value="0">flat</option>
+        </select>
+      </label>
+      <label>Charging <input type="checkbox" id="charging"></label>
+    </fieldset>
+
+    <fieldset>
       <legend>Exposure clock</legend>
       <label>Speed while shooting
         <select id="speed">
@@ -171,6 +186,16 @@ function fill(select, choices, current) {
   select.addEventListener('change', sendCamera);
 }
 
+function sendBattery() {
+  const level = document.getElementById('battery').value;
+  const charging = document.getElementById('charging').checked ? 1 : 0;
+  post(`/battery?percent=${level}&charging=${charging}`);
+}
+
+for (const id of ['battery', 'charging']) {
+  document.getElementById(id).addEventListener('change', sendBattery);
+}
+
 document.getElementById('speed').addEventListener('change', (event) => {
   post('/speed?speed=' + event.target.value);
 });
@@ -184,6 +209,9 @@ document.getElementById('speed').addEventListener('change', (event) => {
   // whatever the simulator thinks will disagree with it after any reload, and
   // then every toggle is measured from the wrong place.
   document.getElementById('connected').checked = state.camera.connected;
+  document.getElementById('battery').value =
+    state.battery.percent === null ? '' : String(state.battery.percent);
+  document.getElementById('charging').checked = state.battery.charging;
   follow(state);
   post('/speed?speed=' + document.getElementById('speed').value);
 })();

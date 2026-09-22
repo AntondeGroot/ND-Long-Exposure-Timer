@@ -132,6 +132,11 @@ class Device:
     # because nothing has been read yet is the same lie as drawing an empty one.
     battery: int | None = None
 
+    # Whether the cell is being charged, so the status bar can say so. False
+    # when nothing is answering: a bolt on a battery we cannot read would be
+    # claiming more than the hatched outline beside it admits.
+    charging: bool = False
+
     # --- what the numbers currently are -------------------------------------
 
     @property

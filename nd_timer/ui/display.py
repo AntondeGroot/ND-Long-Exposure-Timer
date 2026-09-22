@@ -68,6 +68,7 @@ def _main_screen(device, now: float) -> MainScreen:
         is_bulb=needs_bulb(seconds),
         synced_note=_synced_note(device, now),
         battery=device.battery,
+        charging=device.charging,
     )
 
 
@@ -80,6 +81,7 @@ def _delay_screen(device) -> DelayScreen:
         delay=f"{shot.delay_seconds:g}s",
         is_bulb=needs_bulb(shot.total_seconds),
         battery=device.battery,
+        charging=device.charging,
     )
 
 
@@ -101,6 +103,7 @@ def _countdown_screen(device, now: float) -> CountdownScreen:
         progress=elapsed / shot.total_seconds if shot.total_seconds else 1.0,
         is_bulb=needs_bulb(shot.total_seconds),
         battery=device.battery,
+        charging=device.charging,
     )
 
 
@@ -122,6 +125,7 @@ def _settings_screen(device) -> SettingsScreen:
         entries=tuple(SettingsEntry(label, device.setting_value(label)) for label in ENTRY_LABELS),
         selected=device.navigation.settings_entry,
         battery=device.battery,
+        charging=device.charging,
     )
 
 
@@ -133,6 +137,7 @@ def _filters_screen(device) -> SettingsScreen:
         ),
         selected=device.navigation.filter_entry,
         battery=device.battery,
+        charging=device.charging,
         title=FILTERS,
         left_right_change_values=False,
     )

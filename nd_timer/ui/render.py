@@ -80,8 +80,28 @@ def draw_inverted_bar(draw: ImageDraw.ImageDraw, box) -> None:
     draw.rectangle(box, fill=BLACK)
 
 
+# A bolt, five across and six down, spelled out a pixel at a time - at this size
+# a polygon rounds its own points away and comes out a blob.
+BOLT_ROWS = (
+    "..##.",
+    ".##..",
+    "#####",
+    "..##.",
+    ".##..",
+    "##...",
+)
+BOLT = tuple(
+    (x, y) for y, row in enumerate(BOLT_ROWS) for x, on in enumerate(row) if on == "#"
+)
+BOLT_WIDTH = len(BOLT_ROWS[0])
+
+
 def draw_status_bar(
-    draw: ImageDraw.ImageDraw, left: str, battery: int | None, tag: str = ""
+    draw: ImageDraw.ImageDraw,
+    left: str,
+    battery: int | None,
+    tag: str = "",
+    charging: bool = False,
 ) -> None:
     """The sync note, an optional tag and the battery. A title would not fit too."""
     draw.text((2, 2), left, font=regular(layout.TINY), fill=BLACK)
@@ -98,8 +118,35 @@ def draw_status_bar(
         fill_width = int((body[2] - body[0] - 2) * max(0, min(100, battery)) / 100)
         if fill_width:
             draw.rectangle((body[0] + 1, body[1] + 1, body[0] + fill_width, body[3] - 1), fill=BLACK)
+        if charging:
+            _draw_bolt(draw, body)
 
     draw.line((0, layout.STATUS_BAR_HEIGHT, WIDTH, layout.STATUS_BAR_HEIGHT), fill=BLACK)
+
+
+def _draw_bolt(draw: ImageDraw.ImageDraw, body) -> None:
+    """Charging, said once rather than animated.
+
+    An animation would refresh the panel every second for as long as the cable
+    is in, and e-paper wears out by the refresh - we spend thirty-two on a whole
+    exposure. A bolt costs one, when the direction changes.
+
+    It is always black on white: the fill is cleared from right around it first.
+    Drawing it straight onto the fill would need it white over the black part
+    and black over the rest, and at the level where the edge runs through the
+    bolt itself the two halves do not line up and it stops reading as anything.
+    Six rows, not seven, so that clearance fits inside the outline.
+    """
+    left = body[0] + 1 + (body[2] - body[0] - 2 - BOLT_WIDTH) // 2
+    top = body[1] + 2
+    bolt = {(left + across, top + down) for across, down in BOLT}
+    for x, y in sorted(bolt):
+        for near_x in (x - 1, x, x + 1):
+            for near_y in (y - 1, y, y + 1):
+                if (near_x, near_y) not in bolt:
+                    draw.point((near_x, near_y), fill=WHITE)
+    for point in bolt:
+        draw.point(point, fill=BLACK)
 
 
 def _draw_unknown_charge(draw: ImageDraw.ImageDraw, body) -> None:
