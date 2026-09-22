@@ -132,48 +132,27 @@ class Panel:
     def __init__(self) -> None:
         module = __import__(PANEL_MODULE, fromlist=["EPD"])
         self._panel = module.EPD()
+        self._panel.init()
 
         # Start from white, twice, before anything is drawn. This device loses
         # power mid-refresh often enough that it cannot assume it is inheriting
         # a panel in a good state, and one pass leaves a ghost of whatever was
         # there. Two seconds once, at startup, against a screen that otherwise
         # stays wrong until something happens to change it.
-        self._refresh([self.WHITE_FRAME, self.WHITE_FRAME])
+        for _ in range(2):
+            self._panel.display(self.WHITE_FRAME)
 
         self._showing = None
-
-    def _refresh(self, frames) -> None:
-        """Wake the panel, write the frames, and put it back to sleep.
-
-        The sleep is not a power saving: it is what keeps the image. The
-        controller holds a bias voltage on the pixels while it is awake, and
-        left that way the image bleeds out of them - a frame that was drawn
-        crisply fades to a flat grey over the following minutes, which looks
-        exactly like a broken device and is how this was found.
-
-        E-paper needs no current to hold what it is showing, so the panel is
-        only ever awake for the second it takes to write. Waking costs a reset
-        and a lookup table, which is cheap next to the refresh it precedes and
-        is paid only when the screen has actually changed.
-        """
-        self._panel.init()
-        for frame in frames:
-            self._panel.display(frame)
-        self._panel.sleep()
 
     def show(self, screen) -> None:
         if screen == self._showing:
             return
         frame = RENDERERS[type(screen)](screen)
-        self._refresh([list(to_panel_bytes(frame))])
+        self._panel.display(list(to_panel_bytes(frame)))
         self._showing = screen
 
     def rest(self) -> None:
-        """Sleep the panel on the way out.
-
-        Every refresh already leaves it asleep, so this is only for the case
-        where we are stopped before the first one.
-        """
+        """Sleep the panel, which keeps the image without holding it awake."""
         self._panel.sleep()
 
 
