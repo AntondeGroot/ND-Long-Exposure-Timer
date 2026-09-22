@@ -160,7 +160,14 @@ def _recipe_value(recipe, written) -> str:
 
 
 def _synced_note(device, now: float) -> str:
-    """How long ago SYNC was pressed: a stale sync is a wrong answer."""
+    """How long ago SYNC was pressed: a stale sync is a wrong answer.
+
+    A fault takes the line instead. It is the only bad news the device has, and
+    the status bar is where the eye already goes for state - better there than
+    nowhere, which is where it went before.
+    """
+    if device.fault is not None:
+        return device.fault
     if device.synced_at is None:
         return NOT_SYNCED
     return f"SYNCED {_age(now - device.synced_at)}"
@@ -173,9 +180,17 @@ def _clock(seconds: float) -> str:
 
 
 def _age(seconds: float) -> str:
-    """How long ago, kept to two characters where it can be."""
+    """How long ago, kept to two characters where it can be.
+
+    In the same ten-second steps as the countdown, and for the same reason: a
+    status bar counting seconds would redraw the whole panel sixty times in the
+    minute after a sync, which is sixty refreshes spent on a number nobody is
+    reading that closely.
+    """
+    if seconds < COUNTDOWN_STEP_SECONDS:
+        return "now"
     if seconds < SECONDS_PER_MINUTE:
-        return f"{int(seconds)}s"
+        return f"{int(seconds // COUNTDOWN_STEP_SECONDS) * COUNTDOWN_STEP_SECONDS}s"
     if seconds < SECONDS_PER_HOUR:
         return f"{int(seconds // SECONDS_PER_MINUTE)}m"
     return f"{int(seconds // SECONDS_PER_HOUR)}h"

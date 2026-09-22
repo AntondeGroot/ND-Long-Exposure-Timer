@@ -223,6 +223,30 @@ def test_the_countdown_never_says_less_time_is_left_than_there_is():
     assert screen.progress == 0
 
 
+def test_a_camera_that_refuses_stops_the_countdown_rather_than_running_it():
+    # The worst thing this device could show is a confident countdown against a
+    # shutter that never opened: it is the one screen you walk away from.
+    running = synced().pressed_shoot(now=10)
+    assert running.shot is not None
+
+    failed = running.faulted("NO CAMERA")
+
+    assert failed.shot is None
+    assert failed.screen(now=11).synced_note == "NO CAMERA"
+
+
+def test_a_fault_holds_the_status_bar_until_the_camera_is_asked_again():
+    # It stays put while you read it and while you walk back to the tripod -
+    # every press would clear it too soon. Asking the camera again is what
+    # settles whether it is still true.
+    failed = synced().faulted("NO CAMERA")
+
+    assert failed.pressed_down().screen(now=1).synced_note == "NO CAMERA"
+
+    assert failed.pressed_sync(DUSK, now=20).fault is None
+    assert failed.pressed_shoot(now=20).fault is None
+
+
 def test_the_shot_can_be_called_off_while_it_is_still_waiting():
     # Nothing has been recorded yet, so this is the cheapest moment to change
     # your mind - and it is the same press that stops a running exposure.

@@ -127,6 +127,7 @@ class Device:
     navigation: Navigation = Navigation()
     dial: Dial = Dial(DEFAULT_TIME_SECONDS)
     shot: Shot | None = None
+    fault: str | None = None
     battery: int = 100
 
     # --- what the numbers currently are -------------------------------------
@@ -216,7 +217,7 @@ class Device:
 
     def pressed_sync(self, metered: MeteredExposure, now: float) -> Device:
         """SYNC: this is the scene everything is worked back from."""
-        return replace(self, metered=metered, synced_at=now)
+        return replace(self, metered=metered, synced_at=now, fault=None)
 
     def pressed_shoot(self, now: float) -> Device:
         """SHOOT starts the shot; pressing it again cancels a running one.
@@ -231,7 +232,17 @@ class Device:
             self,
             shot=Shot(self.exposure_seconds, now, self.delay_seconds),
             dial=replace(self.dial, is_being_set=False),
+            fault=None,
         )
+
+    def faulted(self, message: str) -> Device:
+        """The camera did not do what it was asked, so nothing is exposing.
+
+        The shot goes with it. A countdown running against a shutter that never
+        opened is the most misleading thing this device could show: it is the
+        one screen a photographer walks away from.
+        """
+        return replace(self, fault=message, shot=None)
 
     def ticked(self, now: float) -> Device:
         """Back to the calculation once the shutter has closed."""
