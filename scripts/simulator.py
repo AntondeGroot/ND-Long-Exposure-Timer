@@ -108,21 +108,31 @@ class FakeCamera:
         self.metered = DEFAULT_CAMERA
         self.connected = True
         self.doing: str | None = None
+        # What gphoto2 would have said. On the Pi this goes to the journal; here
+        # the browser is the only place to look, so it is kept for the page.
+        self.last_error: str | None = None
+
+    def _refused(self) -> CameraError:
+        self.last_error = "Could not detect any camera"
+        return CameraError(self.last_error)
 
     def read_metered_exposure(self) -> MeteredExposure:
         if not self.connected:
-            raise CameraError("Could not detect any camera")
+            raise self._refused()
+        self.last_error = None
         return self.metered
 
     def start_bulb_exposure(self, seconds: float):
         if not self.connected:
-            raise CameraError("Could not detect any camera")
+            raise self._refused()
+        self.last_error = None
         self.doing = f"bulb, {format_exposure(seconds)}"
         return _RunningExposure(self)
 
     def capture_timed(self, shutter_value: str) -> None:
         if not self.connected:
-            raise CameraError("Could not detect any camera")
+            raise self._refused()
+        self.last_error = None
         self.doing = f"timed, {shutter_value}"
 
 
@@ -244,6 +254,7 @@ class Simulator:
                 },
                 "doing": self.camera.doing,
                 "fault": device.fault,
+                "error": self.camera.last_error,
                 "choices": {
                     "iso": [[iso, f"{iso:g}"] for iso in ISO_CHOICES],
                     "aperture": [[f, f"f/{f:g}"] for f in APERTURE_CHOICES],

@@ -44,6 +44,7 @@
   label { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0; color: var(--dim); }
   select { font: inherit; background: #1c1a18; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
   .note { color: var(--dim); font-size: 11px; margin-top: 6px; }
+  .error { color: #c98b7d; }
   .keys { color: var(--dim); font-size: 12px; max-width: 560px; text-align: center; }
   .keys kbd { background: #1c1a18; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; color: var(--ink); }
 </style>
@@ -75,6 +76,7 @@
       <label>Shutter <select id="shutter"></select></label>
       <label>Connected <input type="checkbox" id="connected" checked></label>
       <div class="note" id="doing">idle</div>
+      <div class="note error" id="error"></div>
     </fieldset>
 
     <fieldset>
@@ -117,6 +119,13 @@ function follow(state) {
   if (doing) {
     doing.textContent = state.camera && !state.camera.connected ? 'unplugged'
       : state.doing ? `exposing: ${state.doing}` : 'idle';
+  }
+
+  // The panel only has room for the kind of failure. This is the sentence
+  // behind it - what the journal would hold on the device itself.
+  const error = document.getElementById('error');
+  if (error) {
+    error.textContent = state.error ? `gphoto2: ${state.error}` : '';
   }
   if (state.shooting && !polling) polling = setInterval(redraw, 400);
   if (!state.shooting && polling) { clearInterval(polling); polling = null; }
