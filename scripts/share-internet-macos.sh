@@ -82,12 +82,13 @@ pfctl -a "$ANCHOR_NAME" -s nat 2>/dev/null | sed 's/^/    /'
 
 cat <<EOF
 
-NAT is up. On the Pi, add a default route through this Mac:
+NAT is up. A card set up by enable-gadget-network.sh already routes through this
+Mac - usb0-static.service adds the default route - so there is nothing to do on
+the Pi.
+
+On an older card that predates that, add it by hand:
 
     sudo ip route add default via 10.55.0.2 dev usb0
-
-To make it permanent there, the usb0-static.service already owns the interface,
-so adding the route to that unit is the tidy place for it.
 
 Turn this off again with:  sudo $0 --off
 Note: this does not survive a reboot of the Mac.

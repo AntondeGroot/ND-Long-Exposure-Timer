@@ -168,6 +168,15 @@ write_config_block() {
 log "writing the managed block in $CONFIG_TXT (backup: ${CONFIG_TXT}.nd-timer.bak)"
 write_config_block
 
+# dtparam=i2c_arm=on turns the controller on; /dev/i2c-1 only appears once
+# i2c-dev is loaded on top of it, and nothing loads that by itself - Pi OS
+# leaves it to raspi-config, which nobody runs on a headless card. Without it
+# the bus is enabled and unreachable, which looks exactly like a HAT that is
+# not answering.
+log "loading i2c-dev, now and at every boot"
+echo "i2c-dev" > /etc/modules-load.d/nd-timer.conf
+modprobe i2c-dev 2>/dev/null || warn "could not load i2c-dev now; it will load at the next boot"
+
 # ---------------------------------------------------------------- python env
 
 VENV_DIR="$APP_DIR/.venv"
@@ -272,6 +281,10 @@ log "verifying"
 [[ -e /dev/spidev0.0 ]] \
   && log "SPI: /dev/spidev0.0 present" \
   || warn "SPI: /dev/spidev0.0 missing - it appears after a reboot"
+
+[[ -e /dev/i2c-1 ]] \
+  && log "I2C: /dev/i2c-1 present (the UPS HAT's gauge lives here)" \
+  || warn "I2C: /dev/i2c-1 missing - it appears after a reboot"
 
 # On a wifi-less Zero the USB gadget link is the only way in, so say plainly
 # whether it survived. flash-sd.sh owns these lines; this only reports on them.
