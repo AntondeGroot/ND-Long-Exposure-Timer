@@ -4,8 +4,15 @@
 The Pi's only USB port cannot carry both the camera and an ssh session, and
 e-paper takes a second to redraw, so trying the thing out on the hardware is slow
 and awkward. Everything except the panel driver and gphoto2 is plain Python, so
-the same state machine runs here with a browser for the buttons and a PNG for the
-panel - the frame served is the exact 122 x 250 buffer the panel would hold.
+it runs here with a browser for the buttons and a PNG for the panel - the frame
+served is the exact 122 x 250 buffer the panel would hold.
+
+It runs main.py's own loop rather than a copy of it. The press routing, the
+shutter timing, what happens when the camera refuses - all of that is the code
+that runs on the Pi, with three stand-ins underneath: buttons that arrive over
+HTTP, a panel that remembers its last screen, and a camera that can be unplugged
+from the page. A simulator that reimplements the device drifts from it; this one
+cannot.
 
     ./scripts/simulator.py            # then open http://localhost:8000
 
@@ -19,6 +26,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import queue
 import sys
 import threading
 import time
@@ -30,7 +38,8 @@ from urllib.parse import parse_qs, urlparse
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
-from nd_timer.camera import MeteredExposure  # noqa: E402
+import main as runtime  # noqa: E402  (main.py, the loop the Pi runs)
+from nd_timer.camera import CameraError, MeteredExposure  # noqa: E402
 from nd_timer.device import Device  # noqa: E402
 from nd_timer.dial import LADDER_SECONDS  # noqa: E402
 from nd_timer.exposure import format_exposure  # noqa: E402
@@ -61,15 +70,6 @@ ISO_CHOICES = (100, 200, 400, 800, 1600)
 
 DEFAULT_CAMERA = MeteredExposure(iso=100, aperture=11.0, shutter_seconds=1 / 60)
 
-PRESSES = {
-    "up": lambda device, _: device.pressed_up(),
-    "down": lambda device, _: device.pressed_down(),
-    "left": lambda device, _: device.pressed_left(),
-    "right": lambda device, _: device.pressed_right(),
-    "centre": lambda device, _: device.pressed_centre(),
-}
-
-
 class VirtualClock:
     """Wall-clock time that can be run fast, so a long exposure can be watched.
 
@@ -96,12 +96,91 @@ class VirtualClock:
         return self._virtual
 
 
+class FakeCamera:
+    """The camera, or the absence of one.
+
+    Unplugging it is a setting here rather than an accident, because what the
+    device does when the camera refuses is worth being able to look at: the
+    countdown has to not start, and the status bar has to say so.
+    """
+
+    def __init__(self) -> None:
+        self.metered = DEFAULT_CAMERA
+        self.connected = True
+        self.doing: str | None = None
+        # What gphoto2 would have said. On the Pi this goes to the journal; here
+        # the browser is the only place to look, so it is kept for the page.
+        self.last_error: str | None = None
+
+    def _refused(self) -> CameraError:
+        self.last_error = "Could not detect any camera"
+        return CameraError(self.last_error)
+
+    def read_metered_exposure(self) -> MeteredExposure:
+        if not self.connected:
+            raise self._refused()
+        self.last_error = None
+        return self.metered
+
+    def start_bulb_exposure(self, seconds: float):
+        if not self.connected:
+            raise self._refused()
+        self.last_error = None
+        self.doing = f"bulb, {format_exposure(seconds)}"
+        return _RunningExposure(self)
+
+    def capture_timed(self, shutter_value: str) -> None:
+        if not self.connected:
+            raise self._refused()
+        self.last_error = None
+        self.doing = f"timed, {shutter_value}"
+
+
+class _RunningExposure:
+    """What start_bulb_exposure hands back: something that can be called off."""
+
+    def __init__(self, camera: FakeCamera) -> None:
+        self._camera = camera
+
+    def cancel(self) -> None:
+        self._camera.doing = None
+
+
+class FakeButtons:
+    """The five-way, arriving over HTTP instead of down seven wires."""
+
+    def __init__(self) -> None:
+        self.presses: queue.Queue[str] = queue.Queue()
+
+    def polled(self, now: float) -> None:
+        """Nothing to read: the presses are put here by the web handler."""
+
+
+class FakePanel:
+    """The panel, which here is the last screen it was asked to show."""
+
+    def __init__(self) -> None:
+        self.showing = None
+
+    def show(self, screen) -> None:
+        self.showing = screen
+
+
 class Simulator:
-    """The device, the fake camera in front of it, and the clock they share."""
+    """The device, the fake camera in front of it, and the clock they share.
+
+    It runs main.py's own loop rather than a copy of it. Everything that is not
+    hardware - the press routing, the shutter timing, what happens when the
+    camera refuses - is then the code that runs on the Pi, and the browser is
+    looking at the real thing with three stand-ins underneath it.
+    """
 
     def __init__(self, speed: float) -> None:
         self.device = Device()
-        self.camera = DEFAULT_CAMERA
+        self.camera = FakeCamera()
+        self.buttons = FakeButtons()
+        self.panel = FakePanel()
+        self.shutter = runtime.Shutter(self.camera)
         self.speed = speed
         self.clock = VirtualClock()
         self._lock = threading.Lock()
@@ -119,18 +198,31 @@ class Simulator:
         return self.clock.now(self.speed if open_shutter else 1.0)
 
     def pressed(self, button: str) -> None:
+        self.buttons.presses.put(button)
+        self.stepped()
+
+    def stepped(self) -> None:
+        """One turn of the device's own loop, and then the drawing it leaves out.
+
+        run() on the Pi decides when to draw, and skips it unless the device
+        changed or a second has passed - which is a CPU concern on an ARMv6 and
+        not one here, where a frame is only built when the browser asks for it.
+        The panel still has to be set, though: without it the last thing shown
+        is whatever synced() put up while it was blocking.
+        """
         with self._lock:
             now = self._now()
-            if button == "sync":
-                self.device = self.device.pressed_sync(self.camera, now)
-            elif button == "shoot":
-                self.device = self.device.pressed_shoot(now)
-            elif button in PRESSES:
-                self.device = PRESSES[button](self.device, now)
+            self.device = runtime.stepped(
+                self.device, self.buttons, self.panel, self.camera, self.shutter, now
+            )
+            self.panel.show(self.device.screen(now))
 
-    def set_camera(self, iso: float, aperture: float, shutter: float) -> None:
+    def set_camera(self, iso: float, aperture: float, shutter: float, connected: bool) -> None:
         with self._lock:
-            self.camera = MeteredExposure(iso=iso, aperture=aperture, shutter_seconds=shutter)
+            self.camera.metered = MeteredExposure(
+                iso=iso, aperture=aperture, shutter_seconds=shutter
+            )
+            self.camera.connected = connected
 
     def set_speed(self, speed: float) -> None:
         with self._lock:
@@ -138,10 +230,10 @@ class Simulator:
 
     def frame(self) -> bytes:
         """The panel's current contents, as the PNG the browser shows."""
-        with self._lock:
-            now = self._now()
-            self.device = self.device.ticked(now)
-            screen = self.device.screen(now)
+        self.stepped()
+        screen = self.panel.showing
+        if screen is None:
+            screen = self.device.screen(self._now())
 
         image = RENDERERS[type(screen)](screen)
         buffer = io.BytesIO()
@@ -155,10 +247,14 @@ class Simulator:
             return {
                 "shooting": device.shot is not None,
                 "camera": {
-                    "iso": self.camera.iso,
-                    "aperture": self.camera.aperture,
-                    "shutter": self.camera.shutter_seconds,
+                    "iso": self.camera.metered.iso,
+                    "aperture": self.camera.metered.aperture,
+                    "shutter": self.camera.metered.shutter_seconds,
+                    "connected": self.camera.connected,
                 },
+                "doing": self.camera.doing,
+                "fault": device.fault,
+                "error": self.camera.last_error,
                 "choices": {
                     "iso": [[iso, f"{iso:g}"] for iso in ISO_CHOICES],
                     "aperture": [[f, f"f/{f:g}"] for f in APERTURE_CHOICES],
@@ -191,6 +287,7 @@ class Handler(BaseHTTPRequestHandler):
                 iso=float(query["iso"][0]),
                 aperture=float(query["aperture"][0]),
                 shutter=float(query["shutter"][0]),
+                connected=query.get("connected", ["1"])[0] == "1",
             )
         elif route == "/speed":
             self.simulator.set_speed(float(query["speed"][0]))
