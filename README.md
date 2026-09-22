@@ -163,6 +163,13 @@ would be out of date by the time it had finished drawing itself.
 Nothing has been recorded yet at that point, so it is also the cheapest moment to change
 your mind - the same press that stops a running exposure calls this off.
 
+When the camera refuses - unplugged, asleep, or busy with something else - the countdown
+does not start. A device counting down a shutter that never opened is the one screen a
+photographer walks away from, so the status bar takes the news instead and says which
+kind of refusal it was. The words gphoto2 used are in the journal.
+
+![The camera did not answer](docs/screens/main-no-camera@3x.png)
+
 Then the exposure itself. Remaining time gets the whole column, because it is read from
 wherever the camera is standing. A progress bar and the elapsed/total sit beneath it.
 

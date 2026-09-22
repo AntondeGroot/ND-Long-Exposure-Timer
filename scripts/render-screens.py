@@ -135,6 +135,14 @@ CASES = {
     # The numbers all come off the same ten-second step, so they agree with each
     # other: the elapsed and what is left add up to the total, and the bar is at
     # the elapsed rather than somewhere between two of them.
+    # The camera refused. The countdown is gone rather than running against a
+    # shutter that never opened, and the bar says which kind of refusal it was.
+    "main-no-camera": MainScreen(
+        mode="CLOUDS", iso="--", aperture="--", nd_label="--", off_by="--",
+        is_auto=True, selected="time", base_shutter="--", final_time="3m 28s",
+        setting_time=False, shows_nudge_hint=True, time_is_set=False,
+        target="2-6min", direction=0, is_bulb=True, synced_note="NO CAMERA", battery=64,
+    ),
     "countdown-bulb": CountdownScreen(
         mode="CLOUDS", remaining="3:40", elapsed="1:20", total="5:00",
         progress=80 / 300, is_bulb=True, battery=62,

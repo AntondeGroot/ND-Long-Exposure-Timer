@@ -245,20 +245,29 @@ class Shutter:
         self._camera = camera
         self._running = None
         self._open_for = None
+        # Set by the thread that takes a camera-timed exposure, read by the
+        # loop: the device cannot be changed from a thread that does not own it.
+        self.failure: str | None = None
 
-    def opened_for(self, shot) -> None:
-        """Open the shutter for a shot whose delay has just run out."""
+    def opened_for(self, shot) -> str | None:
+        """Open the shutter for a shot whose delay has just run out.
+
+        Returns what went wrong, or None. The caller needs to know: a shot the
+        camera refused is not a shot, and the countdown has to stop.
+        """
         if self._open_for is shot:
-            return
+            return self.failure
+
         self._open_for = shot
+        self.failure = None
 
         seconds = shot.total_seconds
         if needs_bulb(seconds):
             try:
                 self._running = self._camera.start_bulb_exposure(seconds)
             except CameraError as exc:
-                print(f"bulb exposure failed to start: {exc}", file=sys.stderr)
-            return
+                self.failure = str(exc)
+            return self.failure
 
         # The camera times this one itself, and gphoto2 blocks for as long as it
         # takes - so it waits on a thread of its own rather than stopping the
@@ -268,6 +277,7 @@ class Shutter:
             args=(nearest_timed_shutter(seconds),),
             daemon=True,
         ).start()
+        return None
 
     def _captured(self, shutter_value: str) -> None:
         """The timed capture, with somewhere for its failure to go.
@@ -281,7 +291,7 @@ class Shutter:
         try:
             self._camera.capture_timed(shutter_value)
         except CameraError as exc:
-            print(f"timed capture failed: {exc}", file=sys.stderr)
+            self.failure = str(exc)
 
     def released(self) -> None:
         """The exposure ran its course: leave gphoto2 alone to finish.
@@ -300,6 +310,33 @@ class Shutter:
         self.released()
 
 
+# What a hundred pixels of status bar can usefully say about a camera that did
+# not cooperate. gphoto2's own messages are sentences that put the useful part
+# last - "ERROR: could not claim the USB device" truncates to "COULD NOT",
+# which says nothing - so the bar names the kind of problem and the journal
+# keeps the words.
+CAMERA_FAULTS = (
+    ("detect", "NO CAMERA"),        # nothing plugged in, or it is asleep
+    ("claim", "CAM BUSY"),          # something else holds the USB session
+    ("lock", "CAM BUSY"),
+    ("busy", "CAM BUSY"),
+    ("not installed", "NO GPHOTO2"),
+    ("did not answer", "CAM TIMEOUT"),
+    ("timed out", "CAM TIMEOUT"),
+    ("bulb", "BULB FAILED"),
+)
+CAMERA_FAULT_OTHERWISE = "CAMERA ERR"
+
+
+def _shortened(failure: str) -> str:
+    """Which kind of camera problem this is, in a status bar's worth of words."""
+    said = failure.lower()
+    for token, shown in CAMERA_FAULTS:
+        if token in said:
+            return shown
+    return CAMERA_FAULT_OTHERWISE
+
+
 def synced(device: Device, camera: Camera, panel: Panel, now: float) -> Device:
     """SYNC, with the panel told first.
 
@@ -312,7 +349,7 @@ def synced(device: Device, camera: Camera, panel: Panel, now: float) -> Device:
         return device.pressed_sync(camera.read_metered_exposure(), now)
     except CameraError as exc:
         print(f"sync failed: {exc}", file=sys.stderr)
-        return device
+        return device.faulted(_shortened(str(exc)))
 
 
 def applied(device: Device, press: str, camera: Camera, panel: Panel, now: float) -> Device:
@@ -350,7 +387,10 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
     # nothing to open the shutter for and skip the exposure entirely.
     shot = device.shot
     if shot is not None and not shot.is_delaying(now):
-        shutter.opened_for(shot)
+        failure = shutter.opened_for(shot) or shutter.failure
+        if failure:
+            print(f"exposure failed: {failure}", file=sys.stderr)
+            return device.faulted(_shortened(failure))
 
     device = device.ticked(now)
 
