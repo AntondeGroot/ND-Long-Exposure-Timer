@@ -80,7 +80,9 @@ def draw_inverted_bar(draw: ImageDraw.ImageDraw, box) -> None:
     draw.rectangle(box, fill=BLACK)
 
 
-def draw_status_bar(draw: ImageDraw.ImageDraw, left: str, battery: int, tag: str = "") -> None:
+def draw_status_bar(
+    draw: ImageDraw.ImageDraw, left: str, battery: int | None, tag: str = ""
+) -> None:
     """The sync note, an optional tag and the battery. A title would not fit too."""
     draw.text((2, 2), left, font=regular(layout.TINY), fill=BLACK)
     _draw_status_tag(draw, tag)
@@ -89,11 +91,28 @@ def draw_status_bar(draw: ImageDraw.ImageDraw, left: str, battery: int, tag: str
     body = (WIDTH - 26, 3, WIDTH - 8, 12)
     draw.rectangle(body, outline=BLACK)
     draw.rectangle((WIDTH - 8, 6, WIDTH - 6, 9), fill=BLACK)
-    fill_width = int((body[2] - body[0] - 2) * max(0, min(100, battery)) / 100)
-    if fill_width:
-        draw.rectangle((body[0] + 1, body[1] + 1, body[0] + fill_width, body[3] - 1), fill=BLACK)
+
+    if battery is None:
+        _draw_unknown_charge(draw, body)
+    else:
+        fill_width = int((body[2] - body[0] - 2) * max(0, min(100, battery)) / 100)
+        if fill_width:
+            draw.rectangle((body[0] + 1, body[1] + 1, body[0] + fill_width, body[3] - 1), fill=BLACK)
 
     draw.line((0, layout.STATUS_BAR_HEIGHT, WIDTH, layout.STATUS_BAR_HEIGHT), fill=BLACK)
+
+
+def _draw_unknown_charge(draw: ImageDraw.ImageDraw, body) -> None:
+    """Hatched, because an unknown battery must not look like a flat one.
+
+    There is no gauge answering - no UPS fitted, or the bus is not up - and an
+    empty outline would say the cell is dead, which is a worse lie on a device
+    you take out at dusk than admitting the number is not known.
+    """
+    for x in range(body[0] + 1, body[2]):
+        for y in range(body[1] + 1, body[3]):
+            if (x + y) % 2 == 0:
+                draw.point((x, y), fill=BLACK)
 
 
 def _draw_status_tag(draw: ImageDraw.ImageDraw, tag: str) -> None:

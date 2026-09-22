@@ -135,6 +135,14 @@ CASES = {
     # The numbers all come off the same ten-second step, so they agree with each
     # other: the elapsed and what is left add up to the total, and the bar is at
     # the elapsed rather than somewhere between two of them.
+    # No UPS fitted, or the I2C bus never came up. The battery is hatched rather
+    # than empty: one says the number is not known, the other says go home.
+    "main-no-battery": MainScreen(
+        mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st",
+        is_auto=True, selected="MODE", base_shutter="1/60 s", final_time="0.7 s",
+        setting_time=False, shows_nudge_hint=False, time_is_set=False,
+        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 20s", battery=None,
+    ),
     # The camera refused. The countdown is gone rather than running against a
     # shutter that never opened, and the bar says which kind of refusal it was.
     "main-no-camera": MainScreen(

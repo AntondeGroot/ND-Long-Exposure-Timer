@@ -58,7 +58,7 @@ class SettingsScreen:
 
     entries: tuple[SettingsEntry, ...]
     selected: int
-    battery: int
+    battery: int | None
     title: str = "SETTINGS"
     left_right_change_values: bool = True
 

@@ -55,6 +55,24 @@ rather than printing a recipe it cannot stand behind.
 
 ![The main screen before syncing](docs/screens/main-not-synced@3x.png)
 
+### The battery
+
+The UPS HAT carries an INA219, which measures volts and amps rather than charge -
+there is no gauge on the board modelling the cell - so the percentage is inferred
+from cell voltage. That is a cruder thing than it looks: a lithium cell sits near
+3.7V for most of its life and then falls off a cliff, and it sags under load and
+recovers after.
+
+So it is treated as an estimate. The reading is smoothed and reported in steps of
+five, which keeps a wandering last digit from costing a panel refresh, and stops
+the device claiming 73% when it knows no such thing.
+
+When nothing answers on the bus - no UPS fitted, or I2C never enabled - the
+battery is drawn hatched rather than empty. An empty outline says the cell is
+dead and sends you home; hatching says the number is not known.
+
+![A device with no battery gauge](docs/screens/main-no-battery@3x.png)
+
 ### When the bag cannot get there
 
 Filters come in coarse jumps, so the time asked for is often not reachable with glass

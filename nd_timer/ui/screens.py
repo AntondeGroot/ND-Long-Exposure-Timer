@@ -35,7 +35,7 @@ class MainScreen:
     direction: int
     is_bulb: bool
     synced_note: str
-    battery: int
+    battery: int | None
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,7 @@ class CountdownScreen:
     total: str
     progress: float
     is_bulb: bool
-    battery: int
+    battery: int | None
 
 
 @dataclass(frozen=True)
@@ -59,7 +59,7 @@ class DelayScreen:
     exposure: str
     delay: str
     is_bulb: bool
-    battery: int
+    battery: int | None
 
 
 @dataclass(frozen=True)

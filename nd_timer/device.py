@@ -128,7 +128,9 @@ class Device:
     dial: Dial = Dial(DEFAULT_TIME_SECONDS)
     shot: Shot | None = None
     fault: str | None = None
-    battery: int = 100
+    # None until something answers on the I2C bus: claiming a full battery
+    # because nothing has been read yet is the same lie as drawing an empty one.
+    battery: int | None = None
 
     # --- what the numbers currently are -------------------------------------
 
