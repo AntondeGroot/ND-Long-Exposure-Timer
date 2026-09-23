@@ -317,30 +317,56 @@ PY_EOF
 
 cat <<EOF
 
-Setup complete. Reboot to pick up SPI, the shutdown overlay and the new groups:
+========================================================================
+  Setup complete - but the device is not running yet. Three steps left.
+========================================================================
 
-    sudo reboot
+1. REBOOT. SPI, I2C and the new group memberships only take effect now,
+   and nothing below works before it:
 
-After the reboot:
-  * display test:   ${VENV_DIR}/bin/python ${WAVESHARE_DIR}/RaspberryPi_JetsonNano/python/examples/epd_2in13_V4_test.py
-                    (pick the example matching your panel revision - V2/V3/V4)
-  * camera:         gphoto2 --auto-detect
-  * buttons:        pinout        # confirm your wiring against the BCM numbering
-  * service:        sudo systemctl status ${SERVICE_NAME}
-  * logs:           journalctl -u ${SERVICE_NAME} -f
+       sudo reboot
 
-Note: gadget mode and the camera both want the micro-USB data port. Once the
-display and buttons are wired, drop the USB link and work over the display, or
-keep a mini-HDMI cable handy.
+2. From your MAC, once it is back up, install the code and start it:
 
-Power button: a LATCHING switch cuts power with no warning to the OS, which can
-corrupt the SD card mid-write. Either run "sudo halt" and wait for the activity
-LED to stop before flipping it, or make the root filesystem read-only so a hard
-cut is harmless:
+       ./scripts/deploy-to-pi.sh
+       ssh -t ${PI_USER:-pi}@10.55.0.1 'sudo systemctl enable --now ${SERVICE_NAME}'
+
+   deploy-to-pi.sh is the one to rerun after every later change. The
+   service only has to be enabled by hand this once.
+
+3. Check it came up:
+
+       ssh ${PI_USER:-pi}@10.55.0.1 'systemctl status ${SERVICE_NAME}'
+       ssh ${PI_USER:-pi}@10.55.0.1 'journalctl -u ${SERVICE_NAME} -f'
+
+------------------------------------------------------------------------
+  If something is wrong
+------------------------------------------------------------------------
+
+  display:   ${VENV_DIR}/bin/python scripts/panel-orientation.py
+             Solid frames prove the wiring; the letter F proves the
+             orientation. Run it with the service stopped.
+  camera:    gphoto2 --auto-detect
+  buttons:   pinout          # check your wiring against the BCM numbering
+  SPI/I2C:   ls /dev/spidev0.0 /dev/i2c-1    # both appear only after the reboot
+
+------------------------------------------------------------------------
+  Two things that will bite you
+------------------------------------------------------------------------
+
+Gadget mode and the camera both want the one micro-USB data port, so you
+cannot have ssh and gphoto2 at the same time. Use scripts/usb-mode.sh to
+switch, and note that host mode cuts the only way in - it arms an automatic
+revert for exactly that reason.
+
+A LATCHING power switch cuts power with no warning to the OS, which can
+corrupt the card mid-write and leaves the e-paper holding a half-drawn
+frame. Either run "sudo halt" and wait for the activity LED to stop, or make
+the root filesystem read-only so a hard cut is harmless:
 
     sudo raspi-config nonint enable_overlayfs   # then reboot
 
-(Wire a separate MOMENTARY button and rerun with --shutdown-pin 3 if you want a
+(Wire a separate MOMENTARY button and rerun with --shutdown-pin 3 for a
 clean software shutdown instead.)
 
 To undo the config.txt changes: restore ${CONFIG_TXT}.nd-timer.bak
