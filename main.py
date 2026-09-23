@@ -18,10 +18,12 @@ import queue
 import sys
 import threading
 import time
+from dataclasses import replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from nd_timer.battery import Battery  # noqa: E402
 from nd_timer.camera import Camera, CameraError, nearest_timed_shutter  # noqa: E402
 from nd_timer.device import Device  # noqa: E402
 from nd_timer.exposure import needs_bulb  # noqa: E402
@@ -90,6 +92,11 @@ DEBOUNCE_SECONDS = 0.05
 # about how soon a press is noticed, not how often anything is redrawn.
 TICK_SECONDS = 0.05
 
+# How often the cell is asked. It is a slow thing - a five-minute exposure moves
+# it by a percent or two - and every read is an I2C transaction, so once a minute
+# says everything there is to say.
+BATTERY_INTERVAL_SECONDS = 60
+
 # How often the screen is worked out when nothing has been pressed. Building one
 # runs the solver, which on an ARMv6 is the most expensive thing here by far -
 # and the answer only moves on a press or on a ten-second step, so asking twenty
@@ -103,17 +110,6 @@ RENDERERS = {
     CountdownScreen: render_countdown,
     SettingsScreen: render_settings,
 }
-
-
-def _battery_percent() -> int:
-    """What the UPS HAT has left.
-
-    TODO: needs the HAT's model. They are mostly an I2C fuel gauge, but the
-    address and the register layout differ per board, so there is nothing
-    honest to write here until that is known. The status bar draws whatever
-    this returns.
-    """
-    return 100
 
 
 class Panel:
@@ -409,12 +405,22 @@ def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera) -> None:
     with a button.
     """
     shutter = Shutter(camera)
+    battery = Battery()
     drawn_for = None
     drawn_at = 0.0
+    read_battery_at = -BATTERY_INTERVAL_SECONDS
 
     while True:
         now = time.monotonic()
         device = stepped(device, buttons, panel, camera, shutter, now)
+
+        if now - read_battery_at >= BATTERY_INTERVAL_SECONDS:
+            read_battery_at = now
+            charge = battery.charge()
+            level = charge.percent if charge else None
+            charging = charge.charging if charge else False
+            if (level, charging) != (device.battery, device.charging):
+                device = replace(device, battery=level, charging=charging)
 
         if device is not drawn_for or now - drawn_at >= REDRAW_INTERVAL_SECONDS:
             panel.show(device.screen(now))
@@ -429,7 +435,7 @@ def main() -> int:
     buttons = Buttons(PINS)
 
     try:
-        run(Device(battery=_battery_percent()), buttons, panel, camera)
+        run(Device(), buttons, panel, camera)
     except KeyboardInterrupt:
         # systemd stops this with SIGINT for exactly this reason: the panel
         # keeps whatever is on it, so it is left showing the last screen rather

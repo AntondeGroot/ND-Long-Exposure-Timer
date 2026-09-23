@@ -39,6 +39,7 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 import main as runtime  # noqa: E402  (main.py, the loop the Pi runs)
+from dataclasses import replace  # noqa: E402
 from nd_timer.camera import CameraError, MeteredExposure  # noqa: E402
 from nd_timer.device import Device  # noqa: E402
 from nd_timer.dial import LADDER_SECONDS  # noqa: E402
@@ -61,6 +62,10 @@ RENDERERS = {
     CountdownScreen: render_countdown,
     MainScreen: render_main,
 }
+
+# Where the gauge starts. Not the unknown the device defaults to: that is right
+# on a Pi with nothing answering on the bus, but here it would only look broken.
+SIMULATED_BATTERY = 85
 
 # What the fake camera can be set to. The shutter speeds are the camera's own
 # ladder, plus the fast end a metered scene in daylight actually lands on.
@@ -176,7 +181,7 @@ class Simulator:
     """
 
     def __init__(self, speed: float) -> None:
-        self.device = Device()
+        self.device = Device(battery=SIMULATED_BATTERY)
         self.camera = FakeCamera()
         self.buttons = FakeButtons()
         self.panel = FakePanel()
@@ -224,6 +229,18 @@ class Simulator:
             )
             self.camera.connected = connected
 
+    def set_battery(self, percent: int | None, charging: bool) -> None:
+        """Stand in for the UPS, which is not on the desk with the browser.
+
+        There is no INA219 here, so the gauge is set by hand instead of read.
+        It is worth having: the hatched unknown, a flat cell and the charging
+        bolt are three things the status bar draws that are otherwise only
+        visible by unplugging hardware.
+        """
+        with self._lock:
+            self.device = replace(self.device, battery=percent, charging=charging)
+            self.panel.show(self.device.screen(self._now()))
+
     def set_speed(self, speed: float) -> None:
         with self._lock:
             self.speed = speed
@@ -252,6 +269,7 @@ class Simulator:
                     "shutter": self.camera.metered.shutter_seconds,
                     "connected": self.camera.connected,
                 },
+                "battery": {"percent": device.battery, "charging": device.charging},
                 "doing": self.camera.doing,
                 "fault": device.fault,
                 "error": self.camera.last_error,
@@ -288,6 +306,12 @@ class Handler(BaseHTTPRequestHandler):
                 aperture=float(query["aperture"][0]),
                 shutter=float(query["shutter"][0]),
                 connected=query.get("connected", ["1"])[0] == "1",
+            )
+        elif route == "/battery":
+            level = query.get("percent", [""])[0]
+            self.simulator.set_battery(
+                percent=int(level) if level else None,
+                charging=query.get("charging", ["0"])[0] == "1",
             )
         elif route == "/speed":
             self.simulator.set_speed(float(query["speed"][0]))

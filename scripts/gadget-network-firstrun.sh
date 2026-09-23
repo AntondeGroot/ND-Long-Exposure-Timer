@@ -10,6 +10,7 @@
 set +e   # a failure here must never leave the Pi unbootable
 
 PI_ADDR="10.55.0.1/24"
+MAC_ADDR="10.55.0.2"
 
 BOOT=/boot/firmware
 [ -d "$BOOT" ] || BOOT=/boot
@@ -41,6 +42,13 @@ RemainAfterExit=yes
 ExecStartPre=/bin/sh -c 'for i in \$(seq 1 30); do [ -d /sys/class/net/usb0 ] && exit 0; sleep 1; done; echo "usb0 never appeared"; exit 1'
 ExecStart=/sbin/ip link set usb0 up
 ExecStart=/sbin/ip addr replace ${PI_ADDR} dev usb0
+# A default route out through the Mac, for the one thing this Pi cannot do
+# without: apt and pip during setup-pi.sh. It only carries traffic while the
+# Mac is actually sharing its connection (scripts/share-internet-macos.sh);
+# the rest of the time it is a route to nowhere, which costs nothing on a
+# machine that has no other network. The metric keeps it out of the way of
+# anything better that turns up later.
+ExecStart=/sbin/ip route replace default via ${MAC_ADDR} dev usb0 metric 500
 
 [Install]
 WantedBy=multi-user.target

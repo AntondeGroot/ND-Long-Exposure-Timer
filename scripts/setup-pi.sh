@@ -94,11 +94,25 @@ log "user: $TARGET_USER   app dir: $APP_DIR   config: $CONFIG_TXT"
 
 export DEBIAN_FRONTEND=noninteractive
 
+# The Pi has no network of its own: everything here comes down a USB gadget link
+# that is NATed by a laptop, and that link stutters. Apt's default is to give up
+# on a stalled item and then thrash, which floods the screen with
+#   W: Tried to start delayed item ... but failed
+# and can end with packages missing. Retry rather than fail, ask for one file at
+# a time instead of pipelining several, and allow a slow mirror longer than the
+# default before calling it dead.
+APT_OPTS=(
+  -o Acquire::Retries=5
+  -o Acquire::http::Pipeline-Depth=0
+  -o Acquire::http::Timeout=60
+  -o Acquire::ftp::Timeout=60
+)
+
 log "updating package lists"
-apt-get update
+apt-get "${APT_OPTS[@]}" update
 
 log "installing base packages"
-apt-get install -y \
+apt-get "${APT_OPTS[@]}" install -y \
   git curl ca-certificates \
   python3 python3-venv python3-pip python3-dev \
   python3-pil python3-numpy python3-spidev python3-gpiozero \
@@ -107,7 +121,7 @@ apt-get install -y \
 
 # lgpio is the gpiozero backend that works on current Pi OS; on older releases
 # it does not exist and RPi.GPIO is the right pin factory instead.
-apt-get install -y python3-lgpio || apt-get install -y python3-rpi.gpio || \
+apt-get "${APT_OPTS[@]}" install -y python3-lgpio || apt-get "${APT_OPTS[@]}" install -y python3-rpi.gpio || \
   warn "no GPIO backend package found; pip will have to provide one"
 
 # ---------------------------------------------------------------- interfaces
@@ -167,6 +181,15 @@ write_config_block() {
 
 log "writing the managed block in $CONFIG_TXT (backup: ${CONFIG_TXT}.nd-timer.bak)"
 write_config_block
+
+# dtparam=i2c_arm=on turns the controller on; /dev/i2c-1 only appears once
+# i2c-dev is loaded on top of it, and nothing loads that by itself - Pi OS
+# leaves it to raspi-config, which nobody runs on a headless card. Without it
+# the bus is enabled and unreachable, which looks exactly like a HAT that is
+# not answering.
+log "loading i2c-dev, now and at every boot"
+echo "i2c-dev" > /etc/modules-load.d/nd-timer.conf
+modprobe i2c-dev 2>/dev/null || warn "could not load i2c-dev now; it will load at the next boot"
 
 # ---------------------------------------------------------------- python env
 
@@ -273,6 +296,10 @@ log "verifying"
   && log "SPI: /dev/spidev0.0 present" \
   || warn "SPI: /dev/spidev0.0 missing - it appears after a reboot"
 
+[[ -e /dev/i2c-1 ]] \
+  && log "I2C: /dev/i2c-1 present (the UPS HAT's gauge lives here)" \
+  || warn "I2C: /dev/i2c-1 missing - it appears after a reboot"
+
 # On a wifi-less Zero the USB gadget link is the only way in, so say plainly
 # whether it survived. flash-sd.sh owns these lines; this only reports on them.
 CMDLINE="$(dirname "$CONFIG_TXT")/cmdline.txt"
@@ -304,30 +331,56 @@ PY_EOF
 
 cat <<EOF
 
-Setup complete. Reboot to pick up SPI, the shutdown overlay and the new groups:
+========================================================================
+  Setup complete - but the device is not running yet. Three steps left.
+========================================================================
 
-    sudo reboot
+1. REBOOT. SPI, I2C and the new group memberships only take effect now,
+   and nothing below works before it:
 
-After the reboot:
-  * display test:   ${VENV_DIR}/bin/python ${WAVESHARE_DIR}/RaspberryPi_JetsonNano/python/examples/epd_2in13_V4_test.py
-                    (pick the example matching your panel revision - V2/V3/V4)
-  * camera:         gphoto2 --auto-detect
-  * buttons:        pinout        # confirm your wiring against the BCM numbering
-  * service:        sudo systemctl status ${SERVICE_NAME}
-  * logs:           journalctl -u ${SERVICE_NAME} -f
+       sudo reboot
 
-Note: gadget mode and the camera both want the micro-USB data port. Once the
-display and buttons are wired, drop the USB link and work over the display, or
-keep a mini-HDMI cable handy.
+2. From your MAC, once it is back up, install the code and start it:
 
-Power button: a LATCHING switch cuts power with no warning to the OS, which can
-corrupt the SD card mid-write. Either run "sudo halt" and wait for the activity
-LED to stop before flipping it, or make the root filesystem read-only so a hard
-cut is harmless:
+       ./scripts/deploy-to-pi.sh
+       ssh -t ${PI_USER:-pi}@10.55.0.1 'sudo systemctl enable --now ${SERVICE_NAME}'
+
+   deploy-to-pi.sh is the one to rerun after every later change. The
+   service only has to be enabled by hand this once.
+
+3. Check it came up:
+
+       ssh ${PI_USER:-pi}@10.55.0.1 'systemctl status ${SERVICE_NAME}'
+       ssh ${PI_USER:-pi}@10.55.0.1 'journalctl -u ${SERVICE_NAME} -f'
+
+------------------------------------------------------------------------
+  If something is wrong
+------------------------------------------------------------------------
+
+  display:   ${VENV_DIR}/bin/python scripts/panel-orientation.py
+             Solid frames prove the wiring; the letter F proves the
+             orientation. Run it with the service stopped.
+  camera:    gphoto2 --auto-detect
+  buttons:   pinout          # check your wiring against the BCM numbering
+  SPI/I2C:   ls /dev/spidev0.0 /dev/i2c-1    # both appear only after the reboot
+
+------------------------------------------------------------------------
+  Two things that will bite you
+------------------------------------------------------------------------
+
+Gadget mode and the camera both want the one micro-USB data port, so you
+cannot have ssh and gphoto2 at the same time. Use scripts/usb-mode.sh to
+switch, and note that host mode cuts the only way in - it arms an automatic
+revert for exactly that reason.
+
+A LATCHING power switch cuts power with no warning to the OS, which can
+corrupt the card mid-write and leaves the e-paper holding a half-drawn
+frame. Either run "sudo halt" and wait for the activity LED to stop, or make
+the root filesystem read-only so a hard cut is harmless:
 
     sudo raspi-config nonint enable_overlayfs   # then reboot
 
-(Wire a separate MOMENTARY button and rerun with --shutdown-pin 3 if you want a
+(Wire a separate MOMENTARY button and rerun with --shutdown-pin 3 for a
 clean software shutdown instead.)
 
 To undo the config.txt changes: restore ${CONFIG_TXT}.nd-timer.bak

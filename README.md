@@ -55,6 +55,24 @@ rather than printing a recipe it cannot stand behind.
 
 ![The main screen before syncing](docs/screens/main-not-synced@3x.png)
 
+### The battery
+
+The UPS HAT carries an INA219, which measures volts and amps rather than charge -
+there is no gauge on the board modelling the cell - so the percentage is inferred
+from cell voltage. That is a cruder thing than it looks: a lithium cell sits near
+3.7V for most of its life and then falls off a cliff, and it sags under load and
+recovers after.
+
+So it is treated as an estimate. The reading is smoothed and reported in steps of
+five, which keeps a wandering last digit from costing a panel refresh, and stops
+the device claiming 73% when it knows no such thing.
+
+When nothing answers on the bus - no UPS fitted, or I2C never enabled - the
+battery is drawn hatched rather than empty. An empty outline says the cell is
+dead and sends you home; hatching says the number is not known.
+
+![A device with no battery gauge](docs/screens/main-no-battery@3x.png)
+
 ### When the bag cannot get there
 
 Filters come in coarse jumps, so the time asked for is often not reachable with glass
@@ -227,8 +245,101 @@ presses arrive as method calls and the clock arrives as an argument, so the pane
 driver and gphoto2 are the only parts the simulator stands in for. The solving
 itself is `nd_timer/recipe.py`, which is where the time becomes a filter stack.
 
-Provisioning a fresh Pi, flashing a card and driving the camera by hand are covered by
-the scripts in `scripts/`.
+## Installing on a Pi
+
+From a blank SD card to a running device. Every step is a script, and the notes say why
+each exists - most of them exist to work around something that is not obvious until it
+has cost you an evening.
+
+### 1. Flash the card, on the Mac
+
+```bash
+sudo ./scripts/flash-sd.sh ~/Downloads/raspios-lite.img.xz
+```
+
+It asks for a password for the `pi` account and writes it as a SHA-512 hash, because Pi
+OS ships no default user at all - without this you cannot log in, and the Pi will tell
+you so over ssh while refusing every key you own. It also enables sshd and puts the USB
+port into gadget mode, so a Zero with no wifi is reachable over the same cable that
+powers it.
+
+The script refuses to write to anything that looks like a real disk rather than a card,
+and will not touch a write-protected one.
+
+### 2. Get a key onto it
+
+Boot the Pi with the cable in the **middle** micro-USB port, the one marked `USB`. The
+outer one is `PWR IN` and carries power but no data: the Pi boots happily and never
+appears on the network. It comes up as `10.55.0.1`.
+
+```bash
+ssh-copy-id -i ~/.ssh/pi_deploy_key.pub pi@10.55.0.1
+```
+
+This needs the password from step 1, so it is typed by hand exactly once. Everything
+after it is key-based.
+
+### 3. Lend the Pi your internet, on the Mac
+
+```bash
+sudo ./scripts/share-internet-macos.sh
+```
+
+The next step installs packages and a Zero has no network of its own. macOS Internet
+Sharing cannot be used here: it takes over the gadget interface, renumbers it and runs a
+DHCP server the Pi would never take a lease from, so this does the same job with `pf`
+and keeps the addressing we already have.
+
+### 4. Copy the code over, on the Mac
+
+```bash
+./scripts/deploy-to-pi.sh
+```
+
+It will warn that the service does not exist yet. That is expected - it is not installed
+until the next step.
+
+### 5. Provision the Pi
+
+```bash
+ssh -t pi@10.55.0.1 'cd ~/ND-Long-Exposure-Timer && sudo ./scripts/setup-pi.sh'
+```
+
+Expect 15-30 minutes; it is a full apt install on an ARMv6. It builds the venv, installs
+the Python and GPIO stack, enables **SPI** for the panel and **I2C** for the battery
+gauge, and installs the systemd unit. The `-t` matters: `sudo` needs a real terminal to
+prompt for a password.
+
+Reboot afterwards. `/dev/spidev0.0` and `/dev/i2c-1` only appear then, and without them
+the panel and the gauge are both dead.
+
+### 6. Start it, on the Mac
+
+```bash
+./scripts/deploy-to-pi.sh
+ssh -t pi@10.55.0.1 'sudo systemctl enable --now nd-timer'
+```
+
+From here `deploy-to-pi.sh` is the only one you rerun; the service is enabled once and
+restarts itself on each deploy.
+
+### When the panel looks wrong
+
+```bash
+ssh pi@10.55.0.1 'cd ~/ND-Long-Exposure-Timer && ./.venv/bin/python scripts/panel-orientation.py'
+```
+
+Run it with the service stopped, since the service holds the SPI bus. Solid black and
+white frames contain no fonts, no layout and nothing of ours, so anything other than a
+uniform block means the bytes are not arriving - the wiring, not the code. The letter F
+that follows is asymmetric in both axes, so where its arms land says whether the image
+is mirrored or flipped, which a solid frame cannot tell you.
+
+A panel that flashes through a refresh and then settles back to the *old* image is
+showing stale RAM: commands are arriving and image data is not, which is the DC line's
+job and nothing else's.
+
+Flashing a fresh card fixes none of this. It is worth doing only to rule software out.
 
 # Bill of Materials
 - five way button\
