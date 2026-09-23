@@ -94,11 +94,25 @@ log "user: $TARGET_USER   app dir: $APP_DIR   config: $CONFIG_TXT"
 
 export DEBIAN_FRONTEND=noninteractive
 
+# The Pi has no network of its own: everything here comes down a USB gadget link
+# that is NATed by a laptop, and that link stutters. Apt's default is to give up
+# on a stalled item and then thrash, which floods the screen with
+#   W: Tried to start delayed item ... but failed
+# and can end with packages missing. Retry rather than fail, ask for one file at
+# a time instead of pipelining several, and allow a slow mirror longer than the
+# default before calling it dead.
+APT_OPTS=(
+  -o Acquire::Retries=5
+  -o Acquire::http::Pipeline-Depth=0
+  -o Acquire::http::Timeout=60
+  -o Acquire::ftp::Timeout=60
+)
+
 log "updating package lists"
-apt-get update
+apt-get "${APT_OPTS[@]}" update
 
 log "installing base packages"
-apt-get install -y \
+apt-get "${APT_OPTS[@]}" install -y \
   git curl ca-certificates \
   python3 python3-venv python3-pip python3-dev \
   python3-pil python3-numpy python3-spidev python3-gpiozero \
@@ -107,7 +121,7 @@ apt-get install -y \
 
 # lgpio is the gpiozero backend that works on current Pi OS; on older releases
 # it does not exist and RPi.GPIO is the right pin factory instead.
-apt-get install -y python3-lgpio || apt-get install -y python3-rpi.gpio || \
+apt-get "${APT_OPTS[@]}" install -y python3-lgpio || apt-get "${APT_OPTS[@]}" install -y python3-rpi.gpio || \
   warn "no GPIO backend package found; pip will have to provide one"
 
 # ---------------------------------------------------------------- interfaces
