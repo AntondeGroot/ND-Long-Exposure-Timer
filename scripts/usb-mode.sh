@@ -32,6 +32,11 @@ log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[!]\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[1;31m[x]\033[0m %s\n' "$*" >&2; exit 1; }
 
+# Everything below this line assumes the Pi. Run on the Mac, these commands
+# either do not exist or aim at the wrong machine - a reboot meant for the timer
+# restarts the laptop - so refuse outright instead of half-running.
+[[ "$(uname -s)" == "Linux" ]] || die "run this on the Pi, not here (this is $(uname -s))"
+
 CONFIG="/boot/firmware/config.txt"
 [[ -f "$CONFIG" ]] || CONFIG="/boot/config.txt"
 
@@ -196,5 +201,5 @@ if [[ $DO_REBOOT -eq 1 ]]; then
   log "rebooting"
   systemctl --no-block reboot
 else
-  log "reboot to apply: sudo reboot"
+  log "reboot to apply: sudo systemctl reboot"
 fi

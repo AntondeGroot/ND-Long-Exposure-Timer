@@ -7,6 +7,8 @@
 #   - GPIO/Python stack (gpiozero, spidev, Pillow) in a venv
 #   - Waveshare e-Paper driver library
 #   - gphoto2 for camera control (delegates to install-gphoto2.sh)
+#   - the boot splash (delegates to install-boot-splash.sh)
+#   - a faster boot (delegates to speed-up-boot.sh)
 #   - optional clean-shutdown GPIO pin (momentary buttons only, see --shutdown-pin)
 #   - battery-friendly tweaks (activity LED off, splash off)
 #   - a systemd unit so the timer starts on boot
@@ -20,6 +22,8 @@
 #                      button. A latching switch that cuts power cannot use this:
 #                      the OS gets no warning, so there is nothing to halt.
 #   --no-gphoto2       skip the camera stack
+#   --no-splash        skip the boot splash service
+#   --no-boot-speedup  leave the stock boot services alone
 #   --no-power-tweaks  leave config.txt power settings alone
 #   -y, --yes          no prompts
 #
@@ -34,6 +38,8 @@ TARGET_USER="${SUDO_USER:-${USER:-pi}}"
 APP_DIR="$(dirname "$SCRIPT_DIR")"
 SHUTDOWN_PIN=""
 DO_GPHOTO2=1
+DO_SPLASH=1
+DO_BOOT_SPEEDUP=1
 DO_POWER_TWEAKS=1
 ASSUME_YES=0
 
@@ -54,6 +60,8 @@ while [[ $# -gt 0 ]]; do
     --app-dir)          APP_DIR="${2:?--app-dir needs a path}"; shift ;;
     --shutdown-pin)     SHUTDOWN_PIN="${2:?--shutdown-pin needs a BCM pin}"; shift ;;
     --no-gphoto2)       DO_GPHOTO2=0 ;;
+    --no-splash)        DO_SPLASH=0 ;;
+    --no-boot-speedup)  DO_BOOT_SPEEDUP=0 ;;
     --no-power-tweaks)  DO_POWER_TWEAKS=0 ;;
     -y|--yes)           ASSUME_YES=1 ;;
     -h|--help)          usage ;;
@@ -249,6 +257,44 @@ if [[ $DO_GPHOTO2 -eq 1 ]]; then
   fi
 fi
 
+# ----------------------------------------------------------- boot splash
+
+# A Pi Zero takes most of a minute to reach the application. Without this the
+# panel is blank for that whole time, which reads as a device that did not
+# switch on - so it belongs in provisioning rather than in a command someone has
+# to remember to type after every reflash.
+if [[ $DO_SPLASH -eq 1 ]]; then
+  if [[ -x "$SCRIPT_DIR/install-boot-splash.sh" ]]; then
+    log "handing off to install-boot-splash.sh"
+    "$SCRIPT_DIR/install-boot-splash.sh" --user "$TARGET_USER"
+  else
+    warn "install-boot-splash.sh not found next to this script; no splash on boot"
+  fi
+fi
+
+# ------------------------------------------------------------- boot speed
+
+# Measured on a stock card here: 1m44s to a login, with sysinit.target waiting
+# on cloud-init until 59s and NetworkManager taking another 21s on the critical
+# path. The device is switched on in the field and wanted immediately, so that
+# is not a detail - it is most of the time the panel sits blank, and most of the
+# wait before ssh answers.
+#
+# Only the safe set. --aggressive also drops avahi, and with it
+# raspberrypi.local, which is a way back in when the USB link misbehaves; that
+# stays a decision rather than a default.
+#
+# This has to run here rather than at flash time: it disables cloud-init, which
+# a freshly flashed card still needs for its own first boot.
+if [[ $DO_BOOT_SPEEDUP -eq 1 ]]; then
+  if [[ -x "$SCRIPT_DIR/speed-up-boot.sh" ]]; then
+    log "handing off to speed-up-boot.sh"
+    "$SCRIPT_DIR/speed-up-boot.sh"
+  else
+    warn "speed-up-boot.sh not found next to this script; leaving boot services alone"
+  fi
+fi
+
 # ---------------------------------------------------------------- systemd unit
 
 UNIT_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
@@ -261,7 +307,15 @@ log "installing $UNIT_PATH"
 cat > "$UNIT_PATH" <<UNIT_EOF
 [Unit]
 Description=ND Long Exposure Timer
-After=multi-user.target
+# Not multi-user.target. The app needs SPI (a kernel device), the filesystem
+# holding the venv, and the account it runs as - and nothing else. Waiting for
+# multi-user meant waiting for networking it never uses: measured at 76s on a
+# Pi Zero, to start something that takes 3.4s.
+#
+# Safe because the runtime measures time with time.monotonic(). NTP corrects the
+# clock about 80s into boot, jumping it by hours; a wall-clock runtime started
+# before that could see a running exposure's elapsed time leap mid-shot.
+After=local-fs.target
 
 [Service]
 Type=simple
@@ -275,7 +329,9 @@ KillSignal=SIGINT
 TimeoutStopSec=20
 
 [Install]
-WantedBy=multi-user.target
+# basic.target, not multi-user.target: it is reached far earlier and is all this
+# needs. The splash is ordered the same way.
+WantedBy=basic.target
 UNIT_EOF
 
 systemctl daemon-reload
@@ -338,7 +394,7 @@ cat <<EOF
 1. REBOOT. SPI, I2C and the new group memberships only take effect now,
    and nothing below works before it:
 
-       sudo reboot
+       sudo systemctl reboot
 
 2. From your MAC, once it is back up, install the code and start it:
 
@@ -375,7 +431,7 @@ revert for exactly that reason.
 
 A LATCHING power switch cuts power with no warning to the OS, which can
 corrupt the card mid-write and leaves the e-paper holding a half-drawn
-frame. Either run "sudo halt" and wait for the activity LED to stop, or make
+frame. Either run "sudo systemctl halt" and wait for the activity LED to stop, or make
 the root filesystem read-only so a hard cut is harmless:
 
     sudo raspi-config nonint enable_overlayfs   # then reboot
