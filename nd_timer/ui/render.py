@@ -17,7 +17,19 @@ from nd_timer.ui.layout import BLACK, HEIGHT, WHITE, WIDTH
 
 @lru_cache(maxsize=8)
 def _font(path: str, size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(path, size)
+    """The font, laid out the same way on every machine.
+
+    layout_engine is passed rather than left to Pillow, which picks RAQM when
+    libraqm is present and BASIC when it is not. The Linux wheels bundle raqm
+    and the macOS ones do not, so the same Pillow version shaped the same text
+    two different ways - identical code, identical font file, different pixels,
+    and twenty golden-image tests that passed on a laptop and failed in CI.
+
+    BASIC is the right one to pin: this panel draws digits and uppercase Latin,
+    so there is nothing for a complex-script shaper to do that BASIC does not
+    already do, and it is the engine every committed screen was rendered with.
+    """
+    return ImageFont.truetype(path, size, layout_engine=ImageFont.Layout.BASIC)
 
 
 def regular(size: int) -> ImageFont.FreeTypeFont:
