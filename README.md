@@ -321,8 +321,25 @@ ssh -t pi@10.55.0.1 'cd ~/ND-Long-Exposure-Timer && sudo ./scripts/setup-pi.sh'
 
 Expect 15-30 minutes; it is a full apt install on an ARMv6. It builds the venv, installs
 the Python and GPIO stack, enables **SPI** for the panel and **I2C** for the battery
-gauge, and installs the systemd unit. The `-t` matters: `sudo` needs a real terminal to
-prompt for a password.
+gauge, installs the systemd unit, and hands off to `install-gphoto2.sh` and
+`install-boot-splash.sh`. The `-t` matters: `sudo` needs a real terminal to prompt for a
+password.
+
+It also hands off to `speed-up-boot.sh`. A stock card here took **1m44s** to a login,
+with `sysinit.target` waiting on cloud-init until 59s and NetworkManager another 21s on
+the critical path. cloud-init configures machines from a cloud provider's metadata
+service; this is a camera timer. Only the safe set is applied - `--aggressive` also drops
+avahi, and with it `raspberrypi.local`, which is a way back in when the USB link
+misbehaves.
+
+That step has to happen here rather than at flash time, because a freshly flashed card
+still needs cloud-init for its own first boot: Pi OS seeds it from the boot partition.
+
+The splash matters more than it sounds for the same reason: a blank panel for a minute
+and a half reads as a device that did not switch on. If a card was provisioned before
+either was part of setup, `sudo ./scripts/install-boot-splash.sh` and
+`sudo ./scripts/speed-up-boot.sh` add them on their own; `--restore` and `--remove` undo
+them.
 
 Reboot afterwards. `/dev/spidev0.0` and `/dev/i2c-1` only appear then, and without them
 the panel and the gauge are both dead.

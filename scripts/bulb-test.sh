@@ -42,6 +42,11 @@ led_blink() {
 }
 die() { printf '\033[1;31m[x]\033[0m %s\n' "$*" >&2; exit 1; }
 
+# Everything below this line assumes the Pi. Run on the Mac, these commands
+# either do not exist or aim at the wrong machine - a reboot meant for the timer
+# restarts the laptop - so refuse outright instead of half-running.
+[[ "$(uname -s)" == "Linux" ]] || die "run this on the Pi, not here (this is $(uname -s))"
+
 [[ "$EXPOSURE" =~ ^[0-9]+$ ]] || die "exposure must be a whole number of seconds"
 
 case "$ACTION" in

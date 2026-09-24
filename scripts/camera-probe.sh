@@ -24,6 +24,11 @@ ACTION=""
 log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 die()  { printf '\033[1;31m[x]\033[0m %s\n' "$*" >&2; exit 1; }
 
+# Everything below this line assumes the Pi. Run on the Mac, these commands
+# either do not exist or aim at the wrong machine - a reboot meant for the timer
+# restarts the laptop - so refuse outright instead of half-running.
+[[ "$(uname -s)" == "Linux" ]] || die "run this on the Pi, not here (this is $(uname -s))"
+
 REVERT_WHEN_DONE=0
 # Not "[[ ... ]] && VAR=1": as a bare statement that returns 1 when false, which
 # set -e treats as a fatal error.
