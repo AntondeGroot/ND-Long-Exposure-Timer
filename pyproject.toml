@@ -45,14 +45,14 @@ source = ["nd_timer"]
 
 [tool.coverage.report]
 # TODO: raise towards 90, the target in ChecklistForProjects. Pinned just below
-# the measured 83.63% so the gate is green today and can only ratchet upward - a
-# floor set above current fails CI on arrival and blocks unrelated work.
+# the measured 84.65% so the gate is green today and can only ratchet upward - a
+# floor set above current fails CI on arrival and blocks unrelated work. Move it
+# up whenever the measured figure does; that is the whole point of a ratchet.
 #
-# The number is branch coverage, not statement coverage, which is why it reads
-# lower than it would elsewhere: statements alone are 86%. The cheapest points
-# are nd_timer/ui/panel.py, which is untested despite being the code that turns a
-# drawn frame into the bytes the panel receives.
-fail_under = 83
+# The number is branch coverage rather than statement coverage, which is why it
+# reads lower than it would elsewhere. The cheapest remaining ground is
+# nd_timer/boot_splash.py at 0%, then subjects.py at 84%.
+fail_under = 84
 show_missing = true
 exclude_also = [
     "if TYPE_CHECKING:",
