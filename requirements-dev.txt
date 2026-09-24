@@ -1,0 +1,10 @@
+# Everything CI and a development machine need. Not what the Pi runs: the device
+# gets its Python stack from apt in scripts/setup-pi.sh, because building Pillow
+# and numpy from source on an ARMv6 takes hours.
+#
+# Pinned exactly rather than with >=, so a new release cannot turn CI red on a
+# branch that changed nothing. Ruff especially: a minor version can add rules.
+pillow==11.3.0
+pytest==8.4.2
+pytest-cov==7.1.0
+ruff==0.16.8
