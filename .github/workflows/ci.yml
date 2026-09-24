@@ -1,0 +1,59 @@
+# The gate for every pull request. Two jobs rather than one so a red cross says
+# which gate failed without opening the log, and so both can be required
+# separately in the repository ruleset.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# The workflow only reads the repository; say so rather than inheriting whatever
+# the org default happens to be.
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run's answer irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The Pi runs 3.13. Testing anything else would be testing a machine we do not
+  # ship to. Note that a development Mac may be on an older Python - if these
+  # disagree, this is the version that counts.
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      # --output-format=github puts each violation on the diff as an annotation
+      # rather than only in the log. No --exit-zero anywhere: a warning is a
+      # failure, which is the whole point of a zero-warning policy.
+      - name: ruff
+        run: ruff check --output-format=github .
+
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      # Coverage settings, including the fail_under floor, live in pyproject.toml
+      # so that running pytest locally gates exactly as CI does.
+      - name: pytest
+        run: pytest -q --cov

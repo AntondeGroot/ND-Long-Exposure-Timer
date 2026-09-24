@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from PIL import ImageDraw
 
 from nd_timer.ui import layout, render
-from nd_timer.ui.layout import BLACK, HEIGHT, WHITE, WIDTH
+from nd_timer.ui.layout import BLACK, WHITE, WIDTH
 
 
 @dataclass(frozen=True)

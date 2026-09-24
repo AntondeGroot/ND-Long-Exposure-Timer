@@ -19,7 +19,6 @@ sys.path.insert(0, str(REPO))
 
 from nd_timer.bag import Bag  # noqa: E402
 from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
-from nd_timer.ui.settings import SettingsEntry, SettingsScreen, render_settings  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
     DelayScreen,
@@ -30,6 +29,7 @@ from nd_timer.ui.screens import (  # noqa: E402
     render_main,
     render_splash,
 )
+from nd_timer.ui.settings import SettingsEntry, SettingsScreen, render_settings  # noqa: E402
 
 # A typical bag: a light filter for water, a medium one and a big stopper.
 TYPICAL_BAG = Bag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))

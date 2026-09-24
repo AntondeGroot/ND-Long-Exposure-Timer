@@ -81,8 +81,8 @@ def sha512_crypt(password, salt, rounds=DEFAULT_ROUNDS):
         ctx += c if i & 1 else p
         c = hashlib.sha512(ctx).digest()
 
-    prefix = "$6$" if rounds == DEFAULT_ROUNDS else "$6$rounds=%d$" % rounds
-    return "%s%s$%s" % (prefix, sa.decode("ascii"), _encode(c))
+    prefix = "$6$" if rounds == DEFAULT_ROUNDS else f"$6$rounds={rounds}$"
+    return f"{prefix}{sa.decode('ascii')}${_encode(c)}"
 
 
 def make_salt(length=16):
@@ -110,9 +110,9 @@ def self_test():
         actual = sha512_crypt(password, salt, rounds)
         ok = actual == expected
         failures += not ok
-        print("%s rounds=%-6d %s" % ("ok     " if ok else "FAILED ", rounds, salt))
+        print(f"{'ok     ' if ok else 'FAILED '} rounds={rounds:<6d} {salt}")
         if not ok:
-            print("    expected %s\n    actual   %s" % (expected, actual))
+            print(f"    expected {expected}\n    actual   {actual}")
 
     # A round trip through the system's own crypt, where it is trustworthy.
     try:
@@ -133,7 +133,7 @@ def self_test():
 def main():
     if "--self-test" in sys.argv:
         failures = self_test()
-        print("\n%s" % ("all vectors passed" if not failures else "%d FAILURES" % failures))
+        print(f"\n{'all vectors passed' if not failures else f'{failures} FAILURES'}")
         return 1 if failures else 0
 
     password = sys.stdin.buffer.read()

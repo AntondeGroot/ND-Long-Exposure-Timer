@@ -261,7 +261,7 @@ def _bulb_arguments(seconds: float) -> list[str]:
     return [
         "--set-config", "capturetarget=1",   # keep the frame on the camera's card
         "--set-config", "bulb=1",            # open
-        "--wait-event", f"{int(round(seconds))}s",
+        "--wait-event", f"{round(seconds)}s",
         "--set-config", "bulb=0",            # close
         "--wait-event", f"{POST_EXPOSURE_SETTLE_SECONDS}s",
     ]

@@ -95,7 +95,7 @@ def wiring():
 
 def test_it_reports_the_pin_each_button_was_pressed_on(capsys, wiring):
     # The whole job: press them in the order it asks, get the block back.
-    module, status = run_finder(FakeChip([wiring[name] for name in
+    _, status = run_finder(FakeChip([wiring[name] for name in
                                           ("up", "down", "left", "right", "centre", "sync", "shoot")]))
     printed = capsys.readouterr().out
 

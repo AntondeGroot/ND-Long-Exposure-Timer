@@ -180,7 +180,7 @@ def _synced_note(device, now: float) -> str:
 
 def _clock(seconds: float) -> str:
     """m:ss, which is how a countdown is read at a glance."""
-    minutes, remainder = divmod(int(round(seconds)), SECONDS_PER_MINUTE)
+    minutes, remainder = divmod(round(seconds), SECONDS_PER_MINUTE)
     return f"{minutes}:{remainder:02d}"
 
 

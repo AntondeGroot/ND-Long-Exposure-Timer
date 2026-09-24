@@ -38,8 +38,9 @@ from urllib.parse import parse_qs, urlparse
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
-import main as runtime  # noqa: E402  (main.py, the loop the Pi runs)
 from dataclasses import replace  # noqa: E402
+
+import main as runtime  # noqa: E402  (main.py, the loop the Pi runs)
 from nd_timer.camera import CameraError, MeteredExposure  # noqa: E402
 from nd_timer.device import Device  # noqa: E402
 from nd_timer.dial import LADDER_SECONDS  # noqa: E402
