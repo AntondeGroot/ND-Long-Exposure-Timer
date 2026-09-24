@@ -2,8 +2,9 @@
 
 Settings are the things that are true of the bag rather than of the shot - which
 filters are in it, how far the ISO may be pushed and how wide and how far down
-the lens goes when the device goes looking for a recipe. They change rarely enough to be worth a screen of their own, and the
-calculator is the better for not carrying them.
+the lens goes when the device goes looking for a recipe. They change rarely
+enough to be worth a screen of their own, and the calculator is the better for
+not carrying them.
 
 The filter list is the same screen one level down, under its own title, so it is
 drawn here too.

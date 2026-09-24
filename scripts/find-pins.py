@@ -105,7 +105,7 @@ def watch(chip: int, rest: dict[int, int]) -> int:
     keep the only copy of something that took a soldering iron to find out - and
     this link has dropped often enough to lose one.
     """
-    print(f"ground a wire to name its pin. ctrl-c when done.")
+    print("ground a wire to name its pin. ctrl-c when done.")
     print(f"keeping a copy in {WATCH_LOG}\n")
 
     order = []

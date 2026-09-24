@@ -19,7 +19,7 @@ in scripts/simulator.py.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 from nd_timer.bag import Bag
 from nd_timer.camera import MeteredExposure
@@ -122,10 +122,10 @@ class Device:
     delay_seconds: float = DEFAULT_DELAY_SECONDS
     aperture_min: float = APERTURES[0]
     aperture_max: float = APERTURES[-1]
-    bag: Bag = Bag()
+    bag: Bag = field(default_factory=Bag)
     by_hand: ByHand | None = None
-    navigation: Navigation = Navigation()
-    dial: Dial = Dial(DEFAULT_TIME_SECONDS)
+    navigation: Navigation = field(default_factory=Navigation)
+    dial: Dial = field(default_factory=lambda: Dial(DEFAULT_TIME_SECONDS))
     shot: Shot | None = None
     fault: str | None = None
     # None until something answers on the I2C bus: claiming a full battery

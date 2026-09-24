@@ -1,0 +1,60 @@
+# Lint and coverage configuration. Test configuration stays in pytest.ini.
+#
+# There is no package to build here: the Pi runs main.py by path and imports
+# nd_timer from the repository root, so this file exists only to hold tool
+# settings that CI and a developer's machine must agree on.
+
+[tool.ruff]
+# 120 rather than the default 88. Measured, not chosen: at 100 the existing code
+# has 30 violations and at 88 far more, which would mean a mass reformat. At 120
+# there are 3, so the cap is enforceable today and still stops the genuinely long
+# lines. Tighten it when the three are gone.
+line-length = 120
+
+# The Pi runs 3.13. Anything newer that ruff would suggest has nowhere to run.
+target-version = "py313"
+
+extend-exclude = [".venv", "docs"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors - includes E402, which is load-bearing here:
+            # main.py and the scripts import after adjusting sys.path, and those
+            # suppressions are real. 12 lines rely on them.
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes - unused imports and names
+    "I",    # import sorting
+    "UP",   # pyupgrade - syntax that 3.13 makes redundant
+    "B",    # bugbear - likely bugs rather than style
+    "C4",   # comprehension and literal shortcuts
+    "SIM",  # simplifiable constructs
+    "RUF",  # ruff's own rules, including unused-noqa
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["nd_timer", "main"]
+
+[tool.coverage.run]
+branch = true
+
+# main.py is deliberately absent: it imports the vendor panel driver and lgpio at
+# module scope, so it cannot even be imported anywhere but the Pi. The logic
+# worth testing lives in nd_timer, which is why the runtime is a thin shell
+# around it - the simulator drives that same shell on a laptop.
+source = ["nd_timer"]
+
+[tool.coverage.report]
+# TODO: raise towards 90, the target in ChecklistForProjects. Pinned just below
+# the measured 83.63% so the gate is green today and can only ratchet upward - a
+# floor set above current fails CI on arrival and blocks unrelated work.
+#
+# The number is branch coverage, not statement coverage, which is why it reads
+# lower than it would elsewhere: statements alone are 86%. The cheapest points
+# are nd_timer/ui/panel.py, which is untested despite being the code that turns a
+# drawn frame into the bytes the panel receives.
+fail_under = 83
+show_missing = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

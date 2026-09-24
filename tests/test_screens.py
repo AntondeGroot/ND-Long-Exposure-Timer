@@ -9,8 +9,7 @@ from pathlib import Path
 
 import pytest
 from PIL import Image
-
-from scripts_support import CASES, render  # noqa: F401
+from scripts_support import CASES, render
 
 GOLDEN_DIR = Path(__file__).resolve().parent.parent / "docs" / "screens"
 

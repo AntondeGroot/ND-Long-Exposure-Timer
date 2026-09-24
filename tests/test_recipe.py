@@ -9,7 +9,7 @@ OWNED = (NdFilter("ND8", 3.0), NdFilter("ND64", 6.0), NdFilter("ND1000", 10.0))
 CHOICES = filter_choices(OWNED)
 
 # A scene metered at 1/60, f/11, ISO 100 - the light this device is for.
-DUSK = dict(metered_shutter=1 / 60, metered_iso=100, metered_aperture=11)
+DUSK = {"metered_shutter": 1 / 60, "metered_iso": 100, "metered_aperture": 11}
 
 
 def test_it_names_the_stack_that_exposes_for_the_time_that_was_asked_for():
@@ -95,7 +95,7 @@ def test_two_times_that_share_a_recipe_do_not_both_read_as_exact():
     # change between them. They are not the same exposure though - the second is
     # a minute more cloud - so the row says which of the two it lands on rather
     # than calling both of them exact and hiding the difference.
-    afternoon = dict(metered_shutter=1 / 250, metered_iso=100, metered_aperture=11)
+    afternoon = {"metered_shutter": 1 / 250, "metered_iso": 100, "metered_aperture": 11}
 
     nine = recipe_for(9 * 60, choices=CHOICES, **afternoon)
     ten = recipe_for(10 * 60, choices=CHOICES, **afternoon)

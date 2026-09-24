@@ -23,13 +23,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from nd_timer.battery import Battery  # noqa: E402
-from nd_timer.camera import Camera, CameraError, nearest_timed_shutter  # noqa: E402
-from nd_timer.device import Device  # noqa: E402
-from nd_timer.exposure import needs_bulb  # noqa: E402
-from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH  # noqa: E402
-from nd_timer.ui.panel import to_panel_bytes  # noqa: E402
-from nd_timer.ui.screens import (  # noqa: E402
+from nd_timer.battery import Battery
+from nd_timer.camera import Camera, CameraError, nearest_timed_shutter
+from nd_timer.device import Device
+from nd_timer.exposure import needs_bulb
+from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH
+from nd_timer.ui.panel import to_panel_bytes
+from nd_timer.ui.screens import (
     CountdownScreen,
     DelayScreen,
     MainScreen,
@@ -39,7 +39,7 @@ from nd_timer.ui.screens import (  # noqa: E402
     render_main,
     render_splash,
 )
-from nd_timer.ui.settings import SettingsScreen, render_settings  # noqa: E402
+from nd_timer.ui.settings import SettingsScreen, render_settings
 
 # ---------------------------------------------------------------------- PINS
 #
