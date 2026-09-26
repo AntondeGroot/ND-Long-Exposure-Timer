@@ -80,6 +80,15 @@ PINS = {
 
 PANEL_MODULE = "waveshare_epd.epd2in13_V4"
 
+# The lamp in the power button. The firmware lights it from config.txt
+# (gpio=22=op,dh, written by setup-pi.sh --status-led-pin), about a second after
+# the switch is flipped and long before Linux - so it, not the panel, is what
+# says the device is starting. This code only puts it out again.
+#
+# Free of the panel (17, 25, 18, 24), SPI (8, 10, 11), I2C (2, 3) and all seven
+# buttons; physical pin 15.
+STATUS_LED_PIN = 22
+
 # Long enough not to fire on a firm press, short enough to feel like a decision.
 # It is what the countdown's "HOLD TO CANCEL" has been promising all along.
 HOLD_SECONDS = 1.2
@@ -226,6 +235,51 @@ class Buttons:
 
     def close(self) -> None:
         self._lgpio.gpiochip_close(self._chip)
+
+
+class StatusLed:
+    """The lamp in the power button: lit means starting, dark means ready.
+
+    Nothing here turns it on. The firmware does that from config.txt before the
+    kernel exists, which is the whole point - a power switch that cuts the rail
+    leaves no software running to indicate anything, and the panel cannot be
+    written until Linux is up.
+
+    Driven low rather than released, because an input floats, and a floating
+    gate on the driver transistor is not off. The lamp is optional hardware, so
+    a device without it says so once and carries on.
+    """
+
+    def __init__(self, pin: int) -> None:
+        self._lgpio = None
+        self._pin = pin
+
+        try:
+            import lgpio
+
+            chip = lgpio.gpiochip_open(0)
+            # Claimed high, matching what the firmware already set: claiming it
+            # low here would blink the lamp off and on again on the way past.
+            lgpio.gpio_claim_output(chip, pin, 1)
+        except Exception as exc:
+            print(f"status led on pin {pin} unavailable: {exc}", file=sys.stderr)
+            return
+
+        self._lgpio = lgpio
+        self._chip = chip
+
+    def ready(self) -> None:
+        """Put the lamp out. Idempotent: the loop calls it on every frame."""
+        if self._lgpio is None:
+            return
+        self._lgpio.gpio_write(self._chip, self._pin, 0)
+        self._lgpio = None
+
+    def close(self) -> None:
+        if self._lgpio is None:
+            return
+        self._lgpio.gpiochip_close(self._chip)
+        self._lgpio = None
 
 
 class Shutter:
@@ -396,7 +450,8 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
     return device
 
 
-def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera) -> None:
+def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
+        led: StatusLed | None = None) -> None:
     """Presses in, frames out, until something asks it to stop.
 
     The screen is worked out when the device has changed - which a press does,
@@ -425,17 +480,22 @@ def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera) -> None:
         if device is not drawn_for or now - drawn_at >= REDRAW_INTERVAL_SECONDS:
             panel.show(device.screen(now))
             drawn_for, drawn_at = device, now
+            # There is now something real on the panel, which is the only honest
+            # moment to stop claiming to be starting.
+            if led is not None:
+                led.ready()
 
         time.sleep(TICK_SECONDS)
 
 
 def main() -> int:
     camera = Camera()
+    led = StatusLed(STATUS_LED_PIN)
     panel = Panel()
     buttons = Buttons(PINS)
 
     try:
-        run(Device(), buttons, panel, camera)
+        run(Device(), buttons, panel, camera, led)
     except KeyboardInterrupt:
         # systemd stops this with SIGINT for exactly this reason: the panel
         # keeps whatever is on it, so it is left showing the last screen rather
@@ -444,6 +504,7 @@ def main() -> int:
     finally:
         buttons.close()
         panel.rest()
+        led.close()
     return 0
 
 

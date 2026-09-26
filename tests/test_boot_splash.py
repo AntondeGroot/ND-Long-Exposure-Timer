@@ -6,8 +6,6 @@ the bytes it pushes, and the one import it must never acquire.
 """
 
 import ast
-import sys
-import types
 from pathlib import Path
 
 import pytest
@@ -34,13 +32,15 @@ class FakeEPD:
 
 
 @pytest.fixture
-def panel(monkeypatch):
-    """boot_splash wired to a fake driver instead of the real hardware."""
+def panel(monkeypatch, tmp_path):
+    """boot_splash wired to a fake panel instead of the real hardware.
+
+    SPI_DEVICE is pointed at something that exists because the unit now starts
+    before udev has necessarily made the real node, so main() waits for it.
+    """
     epd = FakeEPD()
-    module = types.ModuleType("fake_panel")
-    module.EPD = lambda: epd
-    monkeypatch.setitem(sys.modules, "fake_panel", module)
-    monkeypatch.setattr(boot_splash, "PANEL_MODULE", "fake_panel")
+    monkeypatch.setattr(boot_splash, "open_panel", lambda: epd)
+    monkeypatch.setattr(boot_splash, "SPI_DEVICE", tmp_path)
     return epd
 
 
@@ -64,13 +64,17 @@ def test_a_missing_buffer_is_reported_rather_than_left_to_fail_later(monkeypatch
     assert "render-screens.py" in complaint
 
 
-def test_a_driver_that_is_not_installed_is_reported(monkeypatch, splash, capsys):
-    # Off the Pi - or before setup-pi.sh has run - the vendor driver is absent.
+def test_a_transport_that_is_not_installed_is_reported(monkeypatch, splash, tmp_path, capsys):
+    # Off the Pi - or before setup-pi.sh has run - lgpio and spidev are absent.
     # That is a normal state, not a crash worth a traceback in the boot log.
-    monkeypatch.setattr(boot_splash, "PANEL_MODULE", "waveshare_epd.does_not_exist")
+    def no_lgpio():
+        raise ImportError("No module named 'lgpio'")
+
+    monkeypatch.setattr(boot_splash, "open_panel", no_lgpio)
+    monkeypatch.setattr(boot_splash, "SPI_DEVICE", tmp_path)
 
     assert boot_splash.main() == 1
-    assert "does_not_exist" in capsys.readouterr().err
+    assert "lgpio" in capsys.readouterr().err
 
 
 def test_the_packed_buffer_reaches_the_panel_byte_for_byte(panel, splash):
@@ -105,3 +109,27 @@ def test_it_does_not_import_pillow():
     assert not [name for name in imported if name.split(".")[0] == "PIL"], (
         f"boot_splash must not import Pillow; it imports {sorted(imported)}"
     )
+
+
+def test_a_failure_part_way_through_lets_the_pins_go(monkeypatch, splash, tmp_path, capsys):
+    # The boot this pins: the splash claimed RESET, DC and POWER, then died, and
+    # held them for five seconds while the application initialised the panel
+    # behind it. The screen filled with random pixels. Whatever goes wrong, the
+    # pins have to be released rather than left asserted.
+    class FailingPanel:
+        def __init__(self) -> None:
+            self.abandoned = False
+
+        def init(self) -> None:
+            raise RuntimeError("BUSY still high after 15.0s")
+
+        def abandon(self) -> None:
+            self.abandoned = True
+
+    failing = FailingPanel()
+    monkeypatch.setattr(boot_splash, "open_panel", lambda: failing)
+    monkeypatch.setattr(boot_splash, "SPI_DEVICE", tmp_path)
+
+    assert boot_splash.main() == 1
+    assert failing.abandoned, "the pins were left claimed"
+    assert "BUSY still high" in capsys.readouterr().err

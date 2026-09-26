@@ -77,27 +77,54 @@ Description=Show the ND timer splash on the e-paper panel
 # shutdown.
 #
 # Deliberately NOT Before=basic.target. It is a oneshot, so ordering the whole
-# basic.target behind it makes every other service wait for a panel refresh -
-# measured at 11.6s, which is a cosmetic frame delaying the application it exists
-# to paper over. Without it the splash still starts as soon as local-fs is up and
-# draws while the rest of the boot carries on beside it.
+# basic.target behind it makes every other service wait for a panel refresh,
+# which is a cosmetic frame delaying the application it exists to paper over.
+# Without it the splash draws while the rest of the boot carries on beside it.
+#
+# Nor After=local-fs.target, which is what used to hold this back: that target
+# waits for every fstab mount, and on this card the /boot/firmware fsck alone
+# takes it to 26s - so the splash started at 40s and put its frame up at 52s, by
+# which time the boot it exists to cover is over. All it truly needs is the root
+# filesystem, which systemd is already running from, so it is ordered on that
+# and on the journal socket (so its own output is not lost) and nothing else.
+#
+# /dev/spidev0.0 is therefore not guaranteed to exist yet, which is why the wait
+# for it lives in boot_splash.py. As a ConditionPathExists it would silently skip
+# the splash on exactly the fast boots this ordering is meant to produce.
 DefaultDependencies=no
 Conflicts=shutdown.target
-After=local-fs.target
+After=-.mount systemd-journald.socket
 Before=shutdown.target
-ConditionPathExists=/dev/spidev0.0
 ConditionPathExists=${APP_DIR}/assets/splash.bin
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-User=${SERVICE_USER}
+# Deliberately root, where every other unit in this project runs as ${SERVICE_USER}.
+# /dev/gpiochip0 and /dev/spidev0.0 are created root-only and handed to the gpio
+# and spi groups by udev's coldplug pass, which on this card lands around 41s. So
+# as ${SERVICE_USER} this unit cannot run before 41s however it is ordered -
+# measured: it waited 16s for the chip and then died on the bus. root has both
+# from the moment the nodes exist, which is the only way to be early.
+#
+# What runs as root is one oneshot that pushes a fixed buffer down SPI and exits.
+# The application keeps its own user.
 WorkingDirectory=${APP_DIR}
 ExecStart=${PYTHON} -m nd_timer.boot_splash
 # The panel keeps its image with no power, so a failure here costs the splash and
-# nothing else. It must never hold up the boot it exists to paper over.
-TimeoutStartSec=20
+# nothing else. It must never hold up the boot it exists to paper over - and it
+# cannot, because nothing is ordered after it.
+#
+# So this is generous on purpose. At 20s it had 1.45s of margin against a unit
+# measured at 18.55s, and a oneshot that hits its timeout is logged as a failure
+# rather than the harmless skip the paragraph above promises. It now also covers
+# boot_splash.py's own 20s wait for /dev/spidev0.0.
+TimeoutStartSec=60
 StandardOutput=journal
+# Without this, a traceback from the driver reaches the journal as its first
+# line only - "Exception in thread Thread-1:" and nothing else - and a oneshot
+# reports success anyway, so the failure is invisible.
+StandardError=journal
 
 [Install]
 WantedBy=basic.target
