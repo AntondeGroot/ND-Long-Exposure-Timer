@@ -372,6 +372,122 @@ job and nothing else's.
 
 Flashing a fresh card fixes none of this. It is worth doing only to rule software out.
 
+## Wiring the power button
+
+The 16mm button does two jobs and they are wired separately: three terminals switch the
+power, two more light the ring. The ring is the only thing on this device that can say
+"starting" - the panel cannot be written until Linux is up, about seventeen seconds in,
+and a latching switch cuts the rail so nothing runs at power-off to leave a message
+either. See `docs/boot-time.md` for how that conclusion was arrived at.
+
+### What the ring is for
+
+`config.txt` carries `gpio=22=op,dh`, written by `setup-pi.sh --status-led-pin 22`. The
+**firmware** applies that about a second after the switch is flipped - before the kernel,
+let alone the application - so the ring lights almost immediately. `main.py` then drives
+the pin low once the first real screen is on the panel.
+
+**Lit means starting. Dark means ready.** Which also keeps the enclosure dark while the
+shutter is open, the same reason the Pi's own ACT LED is disabled.
+
+### The ring needs a transistor
+
+It is a 5V ring, and a GPIO is 3.3V logic that should not be asked for more than about
+16mA. So the GPIO switches a transistor and the transistor switches the ring:
+
+```
+     5V (header pin 2) ──────── LED ring "+"
+                                     │
+                               LED ring "-"
+                                     │
+                                     C
+        GPIO22 ──── 1k ──── B  [ BC337 ]
+       (pin 15)                      E
+                                     │
+                        GND (header pin 6) ──┘
+```
+
+| Part | Value | Why |
+|------|-------|-----|
+| NPN transistor | BC337 or 2N3904 | Switches the 5V ring from a 3.3V pin. Either is far over-rated for ~20mA, which is what you want. |
+| Base resistor | 1kΩ | ~2.5mA into the base. With any hFE over about 40 the transistor is fully on, and the GPIO stays well inside its limit. |
+| Series resistor | 220-330Ω, **only if the ring has no built-in resistor** | Most 16mm rings sold as "5V" already have one. Putting a second one in series dims it; leaving one out of a bare LED destroys it. |
+
+**Check the transistor's pinout before soldering, on the part you actually have.** This is
+the mistake to make, and it cannot be answered from the part number alone: a 2N3904 in
+TO-92 is Emitter-Base-Collector left to right with the flat face towards you, a BC547 is
+Collector-Base-Emitter - the reverse - and BC337 datasheets disagree with each other
+depending on who made it. Getting it backwards gives a ring that never lights and a
+transistor that gets warm.
+
+Two minutes with a multimeter settles it. On the diode range, the **base** is the one pin
+that reads a junction to both of the others (about 0.7V). On an NPN the base is the
+positive probe for both of those readings; the pin that reads slightly *higher* from the
+base is the emitter.
+
+### Order of work
+
+1. **Identify the button's terminals** before anything is soldered. The two LED terminals
+   are usually marked `+` and `-`; the switch terminals are `COM`, `NO` and `NC`. Put a
+   multimeter on continuity across `COM` and `NO` and press the button: closed when
+   latched in, open when out. That is the pair the power goes through.
+2. **Test the ring on the bench**, 5V through a 330Ω resistor, before it is in the
+   circuit. It tells you the polarity and whether it already has a resistor of its own -
+   if it is bright through 330Ω it does not, if it is dim it does.
+3. **Solder the button first**, while it is loose and you can turn it over. Tin each wire,
+   heat the terminal rather than the solder, and heat-shrink each joint: these are the
+   joints that take the strain of the switch being pressed.
+4. **Build the transistor on a scrap of perfboard**, not in mid-air. Three wires leave it:
+   5V, GND, and the GPIO. A dead bug of components hanging off a button will fail in a
+   camera bag.
+5. **Tap the header last.** GPIO22 is physical pin 15, 5V is pin 2, GND is pin 6. Both
+   HATs sit on that header, so take these from the stacking header's pass-through pins or
+   from a spare set - do not unsolder anything on the UPS HAT to get at them.
+
+### Checking it
+
+With the ring wired and nothing else changed:
+
+```bash
+# Lit from about a second after switch-on, until the first screen is drawn.
+ssh nd-timer 'journalctl -u nd-timer -b | grep -i "status led"'
+```
+
+No output means the pin was claimed and the ring is being driven. A line saying
+`status led on pin 22 unavailable:` means the app could not claim it - the ring will stay
+lit, which is harmless but wrong, and the message says why.
+
+To see the pin state directly, `raspi-gpio get 22` (from the `raspi-gpio` package). Note
+the application holds that pin while it runs, so a second process reading it gets
+`GPIO busy`.
+
+### Not built yet: switching the power in software
+
+The latching switch cuts the rail, so the Pi is never told it is about to lose power. That
+is why there is no "shutting down" frame on the panel, and why the panel holds a stale
+screen from the last session.
+
+A soft latch fixes it: a momentary button starts the Pi, a P-channel MOSFET holds the rail
+up, and the Pi drops it when it has finished writing to the panel. Two of the momentary
+buttons in the parts list are already spare.
+
+```
+        UPS 5V out ──┬──────── S │P-FET│ D ──── Pi 5V
+                     │           (AO3401 / IRLML6402)
+                   100k
+                     │
+        gate ────────┴──┬──── 10k ──── momentary button ──── GND
+                        │
+                        └──── C  BC847
+                                 E → GND
+                                 B ← 10k ← hold GPIO (gpio=N=op,dh)
+```
+
+The hold line also gets `gpio=N=op,dh`, so the firmware asserts it about a second in and
+you let go of the button then - a hold-to-start of roughly a second, which is normal for
+this kind of circuit. The latching switch then becomes a master isolator for storage
+rather than the on/off control.
+
 # Bill of Materials
 - five way button\
   <img width="200" alt="17849727845893738776011421435184" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
