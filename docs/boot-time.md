@@ -16,6 +16,8 @@ or `scripts/speed-up-boot.sh --measure`, which prints the same three views.
 | 2026-09-24 (reboot) | **1m5.2s** | 11.2s | 54.0s | Same card, nothing changed but `StandardError=journal`. `multi-user.target` at 43.3s. **Boot-to-boot variance is about 7s in userspace, so a single measurement means little** - compare medians, not runs. |
 | 2026-09-24 (early splash) | **52.5s** | 11.1s | 41.4s | First boot on the new ordering. `multi-user.target` at 41.3s. The splash started at **24.8s** instead of 40.4s - and failed, so its 18s is not in this number. |
 | 2026-09-25 (splash as root) | **52.6s** | 11.2s | 41.5s | The splash works: 9.10s as a unit, 5.75s inside `main()`, frame on the panel at ~28.5s. `multi-user.target` 41.4s. |
+| 2026-09-25 (hardware trimmed) | **53.1s** | 10.9s | 42.2s | `--no-unused-hardware` applied: ~15 fewer modules, **no measurable change**. Inside the boot-to-boot variance. |
+| 2026-09-26 (firmware trimmed) | **49.7s** | **3.09s** | 46.6s | Initramfs dropped, probes off, `quiet`. Kernel phase 10.9s -> 3.09s. Splash frame on the panel at **~20.7s**, was ~28.5s. |
 
 ## What we changed
 
@@ -272,3 +274,235 @@ one ARMv6 core is saturated between 12s and 25s - udev, journald and the fsck ar
 in flight - so the job is runnable but not run. If that is it, the frame cannot move
 much earlier without taking work *away* from that window, which points back at the
 `/boot/firmware` mount and `usb0-static` rather than at the splash.
+
+## The kernel's 11.2s is mostly hardware this device has not got, 2026-09-25
+
+Asked whether a slim kernel would help. It would, but it is the wrong tool: the
+cost is not the size of the kernel, it is what gets probed and loaded. The largest
+gaps between consecutive kernel messages on this card:
+
+```
++7.08s  bcm2835-codec: Loaded V4L2 encode_image
++1.05s  rpi-gpiomem: initialised 1 regions
++0.53s  videodev: Linux video capture interface
++0.42s  snd_bcm2835: module is from the staging directory
++0.35s  bcm2835_mmal_vchiq
++0.30s  bcm2835_isp
++0.27s  bcm2835-codec: Loaded V4L2 decode
++0.24s  vc4-drm soc:gpu: bound 20c00000.v3d
+```
+
+A V4L2 image encoder, an ISP, an HDMI input and a DRM stack, on a timer whose
+camera is a DSLR on USB and which has no screen or speaker. `lsmod` carries about
+forty modules for them. Four lines in `config.txt` are responsible:
+
+```
+camera_auto_detect=1        -> bcm2835_codec, bcm2835_isp, mmal_vchiq, v4l2, videodev, videobuf2_*, mc
+display_auto_detect=1       -> drm, drm_kms_helper, cec, backlight
+dtoverlay=vc4-kms-v3d       -> vc4, the DRM stack, snd_soc_hdmi_codec
+dtparam=audio=on            -> snd_bcm2835, snd_pcm, snd_soc_core, snd_timer
+```
+
+`speed-up-boot.sh --no-unused-hardware` now comments those out in place - in place
+rather than overridden, because a `dtoverlay=` earlier in the file wins whatever
+follows it - marked with `#nd-timer-off# ` so anyone reading the file in a card
+reader can see what did it. `--restore` strips the marker back off; the round trip
+is byte-exact. It costs the HDMI console, which is why it is behind its own flag
+rather than in the default set.
+
+Not measured yet. Cross-compiling a trimmed kernel remains an option afterwards,
+but it means redoing it on every kernel update, and it would be trimming code that
+is mostly not what costs the time.
+
+### Where the wait actually is now
+
+`nd-timer.service` does not start until **43.9s** - it waits for
+`multi-user.target` (41.4s), and as `pi` it could not start before udev has chowned
+the GPIO and SPI nodes anyway (~32-41s). So the splash at ~28s is papering over a
+45s wait for the real screen, and the ordering of the application is the next
+thing worth attacking after the hardware trim.
+
+### And a better idea than drawing faster
+
+E-paper is bistable, which the splash already relies on. So the frame that says the
+device is starting does not have to be written after power-on: write it as the last
+thing before power-off and it is on the panel at t=0, for free. Two catches - there
+is no `gpio-shutdown` configured on this card, so a yanked power cable never gets
+to write it (`setup-pi.sh --shutdown-pin 3` exists for that), and the application is
+stopped with SIGINT, which is where the drawing would go. The boot splash stays as
+the recovery path for an unclean shutdown.
+
+Note the ACT LED is deliberately off (`act_led_trigger=none`, `act_led_activelow=on`)
+- presumably light discipline for long exposures - so it is not available as an
+instant "starting" indicator.
+
+## The trim bought nothing, and the reason matters, 2026-09-25
+
+`--no-unused-hardware` worked - all five lines commented, modules down from ~58 to
+42 - and the boot did not move: 53.1s against 52.6s, well inside variance. Those
+module loads were never on the critical path; they happened alongside work that
+gated the boot anyway.
+
+Two corrections to what I assumed earlier:
+
+- **Removing an *enable* is not a *disable*.** `bcm2835_codec`, `bcm2835_isp`,
+  `snd_bcm2835` and friends still load, with use-count 0, because those devices come
+  from the base device tree rather than from `camera_auto_detect`. Stopping them
+  needs `dtparam=audio=off` and `modprobe.d` blacklists - which, given the above, is
+  not worth doing.
+- **The 7s "variance" is not noise about nothing.** It is page cache and card luck,
+  which is the same finding as everything below.
+
+### What actually gates the boot: the card
+
+```
+4k direct reads     ~1040 IOPS (0.96 ms each)
+16k                 10.8 MB/s
+sequential          17.6 MB/s
+read during boot    174 MB          <- at 10-17 MB/s, that is 10-17s of pure I/O
+card                SK32G
+```
+
+And the shape of the boot agrees: `init.scope` - the scope holding PID 1 - does not
+start until **22.8s**, so ~11s is kernel and ~12s is systemd's own startup, before
+one service has run. Both are reading from this card. `dev-mmcblk0p2.device` being
+the largest entry in `blame` is the same fact from another angle.
+
+**So software tuning has reached diminishing returns.** 1m44s -> ~53s came from
+cloud-init, NetworkManager, the swap resize and the unit ordering. What is left is
+I/O: 174MB read at ~1000 IOPS. The levers that remain are a faster card (an A2-rated
+card is 3-5x on random reads, where this is slow), or reading less - which means a
+materially smaller root filesystem, not a shorter unit list.
+
+### Which makes the shutdown frame the real answer
+
+The original complaint was "show me it is starting", and no amount of this gets the
+panel painted before ~11s, because that is when the kernel hands over. Writing the
+frame *before power-off* answers it completely: the panel is bistable, so the image
+is there at t=0, with no boot cost at all. That is the next thing to build, and it
+makes the boot's absolute length a separate, lower-stakes question.
+
+## What two published write-ups add, 2026-09-26
+
+Read KittenLabs' "Extreme Pi Boot Optimization" (Zero 2 W, 12s -> 3.5s, every claim
+measured with a power profiler and an SD-card mux) and Himesh's "Fast boot with
+Raspberry Pi" (Pi 3B, ~60s -> 1.9s by systemd-analyze).
+
+**We have been measuring the wrong window.** `systemd-analyze`'s "kernel" figure
+starts when the kernel starts. The firmware stage - `start.elf`, reading config.txt,
+probing HDMI and the HAT EEPROM, loading the kernel and DTB off the FAT partition -
+is invisible to it. So every number in this document understates what you see when
+you flick the switch, and that stage is where two of KittenLabs' larger wins are:
+
+| Their finding | Measured | Our state |
+|---|---|---|
+| `hdmi_ignore_edid=0xa5000080`, `hdmi_blanking=2` | ~1.5s | neither set |
+| `force_eeprom_read=0`, `disable_poe_fan=1`, `ignore_lcd=1` | ~0.5s | none set; we do have a HAT, which may have no ID EEPROM to find |
+| remove the initramfs (`auto_initramfs=1`) | ~0.28s | `auto_initramfs=1` is set; whether a file exists to load is unverified |
+| custom 8.5MB kernel vs stock 25MB | ~1.5s | stock |
+| uncompressed rather than gzipped kernel | net positive | stock (compressed) |
+| `dtoverlay=sdtweak,overclock_50=100` | **no difference** | not set - and now will not be |
+
+**A correction to this document.** Earlier it says a slim kernel "would be trimming
+code that is mostly not what costs the time". That was wrong. KittenLabs' 1.5s comes
+from reading and decompressing 16MB less, which is exactly the constraint measured
+here (17.6 MB/s, ~1000 IOPS). And ARM1176 decompresses far slower than their A53, so
+the uncompressed-kernel trick probably pays better on this board than on theirs.
+
+Himesh confirms two things already on our list, with numbers: not remounting /boot
+saved him 0.2s (ours is worse - `systemd-fsck` on the boot partition is 2.35s, on the
+critical chain at 27.9s), and `quiet` in cmdline.txt, which matters here because every
+kernel message goes to a 115200 serial console.
+
+**Their targets are not ours.** KittenLabs boots to "take a picture and shut down";
+Himesh disabled networking, ssh and NTP. This device runs a Python app with PIL from
+a venv on ARMv6. Low 20s looks like the realistic floor for this approach - about
+what a stock Zero 2 W gives without any of it.
+
+**The method is worth copying though:** measure power-on to the event you care about.
+For us that is power-on to frame-on-panel, wall-clock, which nothing on the Pi can
+report - and which the shutdown frame reduces to zero regardless.
+
+Sources: https://kittenlabs.de/blog/2024/09/01/extreme-pi-boot-optimization/ and
+http://himeshp.blogspot.com/2018/08/fast-boot-with-raspberry-pi.html
+
+## The answer was never the panel, 2026-09-26
+
+The power switch is a latching 16mm button (3 pole, 1NO1NC) that makes and breaks
+the rail - so at power-off nothing runs, and the shutdown-frame idea above cannot
+work as it stands. Two consequences that reframe the whole exercise:
+
+- **After a hard cut the panel is not blank, it is stale.** It holds the last screen
+  drawn (`main.py` says as much: "after a power cut the panel holds whatever its
+  particles were left in"). A stale screen looks like a live one, which is worse
+  than blank for telling whether the device is starting.
+- **The panel cannot indicate a state change until Linux is up**, which is ~25s on
+  this hardware no matter what is trimmed.
+
+So the indicator is the lamp in the power button, not the panel. `config.txt` takes
+`gpio=22=op,dh`, which the *firmware* applies about a second after the switch is
+flipped - before the kernel, let alone the application. `setup-pi.sh
+--status-led-pin N` writes it, and `main.py`'s `StatusLed` drives the pin low once
+the first real screen is on the panel. **Lit means starting, dark means ready**, and
+the useful feedback arrives at roughly t=1s instead of t=28s.
+
+Also noted while wiring this up: `setup-pi.sh`'s own comment recommends pin 3 for
+`gpio-shutdown` because it doubles as wake-from-halt - but pin 3 is I2C SCL, which
+the UPS HAT's fuel gauge is on. The help text now says not to use it here.
+
+`Panel.__init__` does two full white refreshes (~4.6s of panel time) to clear
+ghosting, which also means the application wipes the boot splash when it starts. The
+splash therefore only ever covers the window before the app, which is worth
+remembering when judging what it is worth.
+
+## The firmware stage was worth 7.8 seconds, 2026-09-26
+
+`--trim-firmware` applied. The kernel phase went from 10.9s to **3.09s** - the
+largest single win of the whole exercise, and it was in the window `systemd-analyze`
+cannot see, which is why it took two published write-ups to find.
+
+Almost all of it is the initramfs: the firmware was reading `kernel.img` (7.8MB) plus
+`initramfs` (14.3MB) before the kernel started, at a point where the SD clock is
+still low. Dropping it leaves 7.8MB.
+
+Everything downstream moved with it:
+
+| | before | after |
+|---|---|---|
+| kernel phase | 10.9s | **3.09s** |
+| `init.scope` (PID 1) | 22.8s | **16.3s** |
+| first service execs | 25.0s | **17.3s** |
+| splash frame on the panel | ~28.5s | **~20.7s** |
+| application starts | 43.8s | 40.3s |
+| total | 53.1s | 49.7s |
+
+### The trap it set, and the fix
+
+Dropping the initramfs broke the panel, and not obviously: `spi_bcm2835` and `spidev`
+are *modules*, the initramfs was what loaded them, and without it they waited for
+udev's coldplug pass. Two boots ran with `wait for spi: 20.05s` and then gave up -
+the splash failed, and all you saw was the application's white refreshes and then its
+main screen.
+
+The fix is `modules-load=spi_bcm2835,spidev` in cmdline.txt, appended to the
+`dwc2,g_ether` that was already there. The kernel handles that itself, earlier than
+udev and earlier than the initramfs managed. `wait for spi` is now 0.12s.
+
+Worth keeping as a general shape: **the initramfs is doing work you cannot see until
+you remove it.** Anything else that quietly depended on it will fail the same way -
+late, and looking like a different problem.
+
+Also, the splash's own failure was clean: it gave up before claiming a pin, so
+nothing touched the panel. That is the `abandon()` design from 2026-09-24 earning its
+keep on a failure nobody predicted.
+
+### One cosmetic thing left in the journal
+
+```
+xCreatePipe: Can't set permissions (436) for .../.lgd-nfy0, Read-only file system
+```
+
+lgpio makes a notification pipe in the working directory, and at 17.3s the root
+filesystem is still read-only - `systemd-remount-fs` runs later. Harmless (nothing
+here uses lgpio notifications) but noisy; `Environment=LG_WD=/run` on the unit would
+put the pipe on a tmpfs that is writable that early.
