@@ -21,6 +21,12 @@
 #   --shutdown-pin N   install gpio-shutdown on BCM pin N. Only for a MOMENTARY
 #                      button. A latching switch that cuts power cannot use this:
 #                      the OS gets no warning, so there is nothing to halt.
+#                      NOT pin 3 on this build: that is I2C SCL, which the UPS
+#                      HAT's fuel gauge needs. Pin 3's wake-from-halt is not
+#                      worth hanging the battery reading for.
+#   --status-led-pin N the lamp in the power button, on BCM pin N. The firmware
+#                      lights it before the kernel starts; the app puts it out
+#                      when the first screen is drawn. Lit means starting.
 #   --no-gphoto2       skip the camera stack
 #   --no-splash        skip the boot splash service
 #   --no-boot-speedup  leave the stock boot services alone
@@ -37,6 +43,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_USER="${SUDO_USER:-${USER:-pi}}"
 APP_DIR="$(dirname "$SCRIPT_DIR")"
 SHUTDOWN_PIN=""
+STATUS_LED_PIN=""
 DO_GPHOTO2=1
 DO_SPLASH=1
 DO_BOOT_SPEEDUP=1
@@ -52,13 +59,14 @@ log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[!]\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[1;31m[x]\033[0m %s\n' "$*" >&2; exit 1; }
 
-usage() { sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
+usage() { sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --user)             TARGET_USER="${2:?--user needs a name}"; shift ;;
     --app-dir)          APP_DIR="${2:?--app-dir needs a path}"; shift ;;
     --shutdown-pin)     SHUTDOWN_PIN="${2:?--shutdown-pin needs a BCM pin}"; shift ;;
+    --status-led-pin)   STATUS_LED_PIN="${2:?--status-led-pin needs a BCM pin}"; shift ;;
     --no-gphoto2)       DO_GPHOTO2=0 ;;
     --no-splash)        DO_SPLASH=0 ;;
     --no-boot-speedup)  DO_BOOT_SPEEDUP=0 ;;
@@ -160,6 +168,19 @@ write_config_block() {
     echo "# The UPS HAT's fuel gauge is on I2C. Without this there is no bus for"
     echo "# it to answer on, and the battery reading has nowhere to come from."
     echo "dtparam=i2c_arm=on"
+    if [[ -n "$STATUS_LED_PIN" ]]; then
+      echo ""
+      echo "# The lamp in the power button, driven high here rather than by the"
+      echo "# application: the firmware applies this about a second after the"
+      echo "# switch is flipped, which is the only thing on this device fast"
+      echo "# enough to say \"starting\". A latching switch cuts the rail, so"
+      echo "# nothing can be drawn on the panel at power-off, and the panel"
+      echo "# cannot be written until Linux is up 25 seconds later."
+      echo "#"
+      echo "# main.py drives it low once a real screen is on the panel."
+      echo "gpio=${STATUS_LED_PIN}=op,dh"
+    fi
+
     if [[ -n "$SHUTDOWN_PIN" ]]; then
       echo ""
       echo "# Momentary button: pulling BCM${SHUTDOWN_PIN} to ground halts the Pi cleanly."
