@@ -574,7 +574,9 @@ button → MOSFET → middle pin. Or it can go, and the soft latch is the only s
 - UPS HAT for Raspberry Pi Zero with 1000mah battery\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/cb306792-c2a6-40d5-bd81-8b63f4ea3967" />
 
-- power button 16mm diameter (latching 3 pole 1NO1NC, LED ring 3-6V, 5V nominal)
+- power button 16mm diameter (latching 3 pole 1NO1NC, LED ring 3-6V, 5V nominal)\
+  <img width="200" alt="powerbutton" src="https://github.com/user-attachments/assets/a33f7c25-f148-4ec7-9226-96dd3c6ffadc" />
+
 - 2x BC337 NPN transistor (TO-92): one for the power button ring, one for the soft latch
 - AO3401 P-channel MOSFET (SOT-23-3), for the soft latch (not built yet)
 - SOT23-3 to DIP SIP3 adapter, so the MOSFET fits on perfboard
