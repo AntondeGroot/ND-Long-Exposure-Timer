@@ -618,3 +618,63 @@ Measured on the next boot, with the splash unit reinstalled (`WorkingDirectory=/
 for `local-fs.target` - `/boot/firmware` and its fsck, which the application never
 uses - and 11.4s of interpreter start and imports on a core the rest of the boot is
 still using.
+
+## The application off local-fs.target, and onto the fast driver, 2026-09-28
+
+`nd-timer.service` now has `DefaultDependencies=no` and waits only for
+`systemd-remount-fs`, the journal socket and the splash (never two processes on
+the panel). The application opens the panel through `fast_panel` instead of the
+vendor driver, and the buttons and the lamp wait for the GPIO chip the way the
+splash does, because they now arrive before udev has handed it over.
+
+| | before | after |
+|---|---|---|
+| `nd-timer.service` started | 41.1s | **28.3s** - 30ms after the splash finished |
+| `main()` entered | 52.5s | **34.4s** - imports 6.1s, was 11.4s |
+| panel open | 54.0s (1.5s) | 41.9s (**7.4s**) |
+| **ready** | **56.6s** | **45.1s** |
+
+11.5s off. No restarts, no failures: the waits did their job. The imports got
+cheaper as well as earlier, which says the 11.4s was mostly contention - at 28s
+there is less of the boot left to compete with.
+
+**The new bottleneck is udev.** The panel took 7.4s to open, against 1.5s last
+boot, and it opened at 41.9s - the same moment as before, give or take. That is
+the application sitting in the chip and bus waits until udev's coldplug pass
+chowns `/dev/gpiochip0` and `/dev/spidev0.0`, which this card keeps landing at
+~41s. The splash never waits for it because it runs as root.
+
+The splash's 2.1s `sleep` stage is now on the application's critical path too:
+`fast_panel.sleep()` holds for 2s after the deep-sleep command, copied from the
+vendor driver, and the application is ordered after the splash.
+
+## Handing the devices over before udev does, 2026-09-28
+
+`nd-timer-devices.service`, a root oneshot after `systemd-modules-load`, does what
+udev's `99-com.rules` does to `/dev/gpiochip0`, `/dev/spidev0.0` and `/dev/i2c-1`
+(group, `0660`) - at ~24.7s instead of ~41s. The script lives in
+`/usr/local/sbin`, root-owned, because root should not run anything in a
+directory `pi` can edit. The application is ordered after it.
+
+| | before | after |
+|---|---|---|
+| devices usable by `pi` | ~41s (udev) | **24.7s** |
+| panel open | 7.4s | **0.27s** |
+| **ready** | **45.1s** | **37.4s** |
+
+`/dev/i2c-1` was not there yet at 24.7s (`i2c-dev` loads later) and was left to
+udev, as designed; the battery reader reopens the bus on every read, so it only
+lacks a reading until then.
+
+From 61.4s at the start of the day to 37.4s. What is left before `ready`:
+
+- **28.3s** - the application waits for the splash, and the splash's last 2.1s is
+  `fast_panel.sleep()` holding for 2s after the deep-sleep command.
+- **6.1s** of interpreter start and imports (3.3s on an idle system).
+- **2.7s** from the panel being open to the first screen on it: rendering, and
+  one full refresh (~2.3s).
+
+The USB link dropped around this reboot and took several minutes and a replug to
+come back; the measured boot (uptime 1 min when read) was clean. Nothing in the
+change runs before `g_ether` loads, so it is recorded as the known flaky link
+rather than as a result.

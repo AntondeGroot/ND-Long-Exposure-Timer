@@ -120,7 +120,7 @@ def test_the_chip_is_opened_once_udev_has_finished_with_it(monkeypatch):
     monkeypatch.setattr(fast_panel, "GPIO_POLL_SECONDS", 0)
     lgpio = FakeLgpio(failures=3)
 
-    assert fast_panel._open_chip_when_ready(lgpio) == 7
+    assert fast_panel.open_chip_when_ready(lgpio) == 7
     assert lgpio.attempts == 4
 
 

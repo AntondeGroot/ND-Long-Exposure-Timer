@@ -1,4 +1,4 @@
-"""The panel driven straight from spidev and lgpio, for the boot splash.
+"""The panel driven straight from spidev and lgpio, for the splash and the app.
 
 The vendor driver works, but importing it costs 9.2s of the splash's 18.5s at
 boot - almost all of it `gpiozero`, which `epdconfig` imports and instantiates at
@@ -9,9 +9,11 @@ settings, with the four pins read and written through `lgpio` directly.
 main.py already declined gpiozero for the buttons, for a different reason - its
 lgpio backend busy-loops - so this is the same trade a second time.
 
-Only what the splash needs is here: initialise, push one full frame, sleep. No
+Only what the device uses is here: initialise, push full frames, sleep. No
 partial refresh, no fast mode, no reading the temperature sensor. The application
-keeps using the vendor driver, which is welcome to take its time.
+moved onto it too once it started early enough to arrive before udev had handed
+over the chip and the bus - the vendor driver neither waits for them nor says
+why it failed.
 """
 
 from __future__ import annotations
@@ -78,7 +80,7 @@ class Panel:
         # panel behind it is what filled the screen with noise once already.
         spi = _open_spi_when_ready(spidev)
         try:
-            chip = _open_chip_when_ready(lgpio)
+            chip = open_chip_when_ready(lgpio)
         except BaseException:
             spi.close()
             raise
@@ -218,7 +220,7 @@ def _open_spi_when_ready(spidev):
         return spi
 
 
-def _open_chip_when_ready(lgpio, chip: int = GPIO_CHIP):
+def open_chip_when_ready(lgpio, chip: int = GPIO_CHIP):
     """The GPIO chip, once it is ours to open.
 
     Not a retry for its own sake: at this point in the boot the device node

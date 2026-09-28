@@ -8,8 +8,6 @@ the thing worth pinning is exactly when they are skipped and when they are not.
 from __future__ import annotations
 
 import importlib.util
-import sys
-import types
 from pathlib import Path
 
 import pytest
@@ -40,11 +38,9 @@ class FakeEPD:
 
 @pytest.fixture
 def epd(monkeypatch):
-    """The vendor driver module, replaced by one handing out a FakeEPD."""
+    """The panel driver, replaced by a FakeEPD that records what it is asked."""
     panel = FakeEPD()
-    driver = types.SimpleNamespace(EPD=lambda: panel)
-    monkeypatch.setitem(sys.modules, "fake_epd_driver", driver)
-    monkeypatch.setattr(main_module, "PANEL_MODULE", "fake_epd_driver")
+    monkeypatch.setattr(main_module, "open_panel", lambda: panel)
     return panel
 
 

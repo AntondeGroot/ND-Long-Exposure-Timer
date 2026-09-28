@@ -28,6 +28,7 @@ from nd_timer.boot_splash import DRAWN_MARKER
 from nd_timer.camera import Camera, CameraError, nearest_timed_shutter
 from nd_timer.device import Device
 from nd_timer.exposure import needs_bulb
+from nd_timer.fast_panel import open_chip_when_ready
 from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH
 from nd_timer.ui.panel import to_panel_bytes
 from nd_timer.ui.screens import (
@@ -79,8 +80,6 @@ PINS = {
 
 # ---------------------------------------------------------------------------
 
-PANEL_MODULE = "waveshare_epd.epd2in13_V4"
-
 # The lamp in the power button. The firmware lights it from config.txt
 # (gpio=22=op,dh, written by setup-pi.sh --status-led-pin), about a second after
 # the switch is flipped and long before Linux - so it, not the panel, is what
@@ -122,6 +121,17 @@ RENDERERS = {
 }
 
 
+def open_panel():
+    """The panel over spidev and lgpio, once the boot has handed both over.
+
+    Not the vendor driver: importing it costs seconds of gpiozero at boot, and it
+    fails outright on a bus or chip that is not ours yet rather than waiting.
+    """
+    from nd_timer.fast_panel import Panel as FastPanel
+
+    return FastPanel.open()
+
+
 class Panel:
     """The e-paper panel, drawn only when the screen has actually changed.
 
@@ -140,8 +150,7 @@ class Panel:
     WHITE_FRAME = [0xFF] * (PANEL_WIDTH // 8 + (1 if PANEL_WIDTH % 8 else 0)) * PANEL_HEIGHT
 
     def __init__(self, splash_drawn: bool = False) -> None:
-        module = __import__(PANEL_MODULE, fromlist=["EPD"])
-        self._panel = module.EPD()
+        self._panel = open_panel()
         self._panel.init()
 
         # Start from white before anything is drawn. This device loses power
@@ -193,7 +202,9 @@ class Buttons:
         import lgpio
 
         self._lgpio = lgpio
-        self._chip = lgpio.gpiochip_open(0)
+        # Waits, because the service starts before udev has handed the chip to
+        # the gpio group - the first attempt failing is normal at that point.
+        self._chip = open_chip_when_ready(lgpio)
         self._pins = dict(pins)
         for pin in self._pins.values():
             lgpio.gpio_claim_input(self._chip, pin, lgpio.SET_PULL_UP)
@@ -265,7 +276,7 @@ class StatusLed:
         try:
             import lgpio
 
-            chip = lgpio.gpiochip_open(0)
+            chip = open_chip_when_ready(lgpio)
             # Claimed high, matching what the firmware already set: claiming it
             # low here would blink the lamp off and on again on the way past.
             lgpio.gpio_claim_output(chip, pin, 1)
