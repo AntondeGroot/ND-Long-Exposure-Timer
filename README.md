@@ -267,7 +267,7 @@ has cost you an evening.
 
 ### 1. Flash the card, on the Mac
 
-```bash
+```bash 
 sudo ./scripts/flash-sd.sh ~/Downloads/raspios-lite.img.xz
 ```
 
@@ -390,28 +390,36 @@ the pin low once the first real screen is on the panel.
 **Lit means starting. Dark means ready.** Which also keeps the enclosure dark while the
 shutter is open, the same reason the Pi's own ACT LED is disabled.
 
-### The ring needs a transistor
+### Wiring the button's LED ring as an indicator
 
-It is a 5V ring, and a GPIO is 3.3V logic that should not be asked for more than about
-16mA. So the GPIO switches a transistor and the transistor switches the ring:
+The ring in the BOM is rated 3-6V (5V nominal), and a GPIO is 3.3V logic that should not
+be asked for more than about 16mA. So the GPIO switches a transistor and the transistor switches the ring:
 
 ```
-     5V (header pin 2) ──────── LED ring "+"
-                                     │
-                               LED ring "-"
-                                     │
-                                     C
-        GPIO22 ──── 1k ──── B  [ BC337 ]
-       (pin 15)                      E
-                                     │
-                        GND (header pin 6) ──┘
+                      5V (header pin 2)
+                              │
+                          220-330Ω    optional: not needed for the 3-6V
+                              │           ring, only for a bare LED
+                              +
+                        ┌─────┴─────┐
+                        │ LED  ring │
+                        └─────┬─────┘
+                              -
+                              │
+                          Collector
+                          ┌───┴───┐
+     GPIO22 ── 1k ── Base │ BC337 │
+     (pin 15)             └───┬───┘
+                           Emitter
+                              │
+                     GND (header pin 6)
 ```
 
 | Part | Value | Why |
 |------|-------|-----|
 | NPN transistor | BC337 or 2N3904 | Switches the 5V ring from a 3.3V pin. Either is far over-rated for ~20mA, which is what you want. |
 | Base resistor | 1kΩ | ~2.5mA into the base. With any hFE over about 40 the transistor is fully on, and the GPIO stays well inside its limit. |
-| Series resistor | 220-330Ω, **only if the ring has no built-in resistor** | Most 16mm rings sold as "5V" already have one. Putting a second one in series dims it; leaving one out of a bare LED destroys it. |
+| Series resistor | 220-330Ω, **only if the ring has no built-in resistor** | Not needed for the ring in the BOM: a 3-6V rating is only possible with a resistor already inside. Putting a second one in series dims it; leaving one out of a bare LED destroys it. |
 
 **Check the transistor's pinout before soldering, on the part you actually have.** This is
 the mistake to make, and it cannot be answered from the part number alone: a 2N3904 in
@@ -431,9 +439,9 @@ base is the emitter.
    are usually marked `+` and `-`; the switch terminals are `COM`, `NO` and `NC`. Put a
    multimeter on continuity across `COM` and `NO` and press the button: closed when
    latched in, open when out. That is the pair the power goes through.
-2. **Test the ring on the bench**, 5V through a 330Ω resistor, before it is in the
-   circuit. It tells you the polarity and whether it already has a resistor of its own -
-   if it is bright through 330Ω it does not, if it is dim it does.
+2. **Test the ring on the bench** before it is in the circuit, to find its polarity. The
+   3-6V ring in the BOM can take 5V straight across it. A ring without a rating goes
+   through 330Ω first: bright means it has no resistor of its own, dim means it does.
 3. **Solder the button first**, while it is loose and you can turn it over. Tin each wire,
    heat the terminal rather than the solder, and heat-shrink each joint: these are the
    joints that take the strain of the switch being pressed.
@@ -471,22 +479,91 @@ A soft latch fixes it: a momentary button starts the Pi, a P-channel MOSFET hold
 up, and the Pi drops it when it has finished writing to the panel. Two of the momentary
 buttons in the parts list are already spare.
 
+It is one button on two GPIOs: a **hold** line the Pi drives to keep the rail up, and a
+**sense** line it reads to know the button was pressed again. `setup-pi.sh
+--shutdown-pin` is the sense half of this circuit, not a separate way of doing it.
+
+**Where it goes.** On the Waveshare UPS HAT (C) the on-board ON/OFF slide switch - the
+one the latching button replaced - does not switch the 5V. It switches the battery side
+(SYS, about 3.0-4.2V, a little more while charging) into the TPS61088 boost converter that
+makes the 5V. Its three pads, from Waveshare's schematic:
+
+| Switch pad | Connects to | In the soft latch |
+|------------|-------------|-------------------|
+| **ON pin** (end) | SYS, the battery side | MOSFET Source, and the 100k |
+| **Middle pin** | the boost converter's input | MOSFET Drain |
+| **OFF pin** (other end) | the boost input too, same as the middle | nothing |
+
+Sliding to ON joins the middle pin to the ON pin; sliding to OFF joins it to the OFF pin,
+which is already the same wire, so nothing is powered. The latching button is across the
+ON and middle pins now, and the soft latch goes on the same two. That leaves the pogo pins
+alone, and with the boost converter unpowered it stops drawing from the cell while stored.
+
+**The OFF pin is not used - leave it unconnected.** It has no job: the switch has three
+legs and the circuit only needs two, which is presumably why Waveshare tied the spare one
+to the middle pin.
+Charging does not go through it either. The charger sits before the switch, between the
+micro-USB and the battery, so the cell still charges with the Pi off.
+
+The schematic does not say which end of the board is which, so measure before soldering:
+with the latching button released, the ON pin reads battery voltage to GND, and the
+middle and OFF pins read about 0V.
+
 ```
-        UPS 5V out ──┬──────── S │P-FET│ D ──── Pi 5V
-                     │           (AO3401 / IRLML6402)
-                   100k
-                     │
-        gate ────────┴──┬──── 10k ──── momentary button ──── GND
-                        │
-                        └──── C  BC847
-                                 E → GND
-                                 B ← 10k ← hold GPIO (gpio=N=op,dh)
+                                  (AO3401)
+     switch ON pin ──┬──── Source ┌───────┐ Drain ──── switch middle pin
+                     │            │ P-FET │
+                     │            └───┬───┘
+                   100kΩ             Gate
+                     │                │
+                     └────────────────┤
+                                      │
+                ┌─────────────────────┤
+                │                     │
+               10kΩ               Collector
+                │                 ┌───┴───┐
+                │                 │ BC337 │ Base ── 10kΩ ── hold GPIO
+                │                 └───┬───┘                 (gpio=N=op,dh + gpio-poweroff)
+                ▼  BAT85           Emitter
+               ───                    │
+                │                    GND
+                │
+                ├──|◄── sense GPIO (gpio-shutdown)
+                │  BAT85
+                │
+                └── momentary button ── GND
 ```
 
-The hold line also gets `gpio=N=op,dh`, so the firmware asserts it about a second in and
-you let go of the button then - a hold-to-start of roughly a second, which is normal for
-this kind of circuit. The latching switch then becomes a master isolator for storage
-rather than the on/off control.
+- **Starting:** the button pulls the gate low through its diode and the rail comes up.
+  The hold line gets `gpio=N=op,dh`, so the firmware asserts it about a second in and you
+  let go then - a hold-to-start of roughly a second, which is normal for this kind of
+  circuit.
+- **Stopping:** a second press pulls the sense GPIO low through the other diode, and
+  `gpio-shutdown` starts a clean poweroff - which is when the shutdown frame gets drawn.
+  At the very end `dtoverlay=gpio-poweroff,gpiopin=N,active_low=1` drops the hold line
+  and the rail goes with it.
+- **The two diodes** both point at the button: stripe (cathode) on the button side. It
+  needs two. While the Pi runs, the BC337 holds the gate at about 0V; with one diode the
+  button's side would sit there too, and hold the sense GPIO near its threshold the whole
+  time. With two, the released button's side is connected to nothing, so the sense GPIO
+  stays high until the button is actually pressed. The sense diode also keeps SYS, up to
+  about 4.4V, off a 3.3V pin while the Pi is off.
+- **Schottky, not silicon.** A pressed button leaves the sense GPIO at the diode's forward
+  voltage: about 0.2-0.3V through a BAT85, 0.5-0.6V through a 1N4148 or 1N4001. The Pi
+  reads below about 0.8V as low, so both work, but the Schottky leaves the margin.
+- **Gate drive and heat.** The gate sees SYS, not 5V, so the MOSFET is driven with only
+  3.0-4.2V. The AO3401 is specified down to 2.5V (about 85mΩ there), which is why it is
+  the one to buy. Current is also higher on this side of the boost: about 0.4A
+  typically, up to about 1.5A for a 1A load on a nearly flat cell. That is about 0.2W,
+  some 25°C over ambient on a SOT-23 - no heatsink, and the adapter's copper helps.
+
+The sense pin is not pin 3 on this build, for the reason in `setup-pi.sh --help`: it is
+I2C SCL, which the UPS HAT's fuel gauge needs. Pin 3's wake-from-halt is no use here
+anyway, because the soft latch removes power rather than halting. `setup-pi.sh` does not
+write the `gpio-poweroff` line yet.
+
+The latching button can stay as a master isolator for storage, in series: ON pin → latching
+button → MOSFET → middle pin. Or it can go, and the soft latch is the only switch.
 
 # Bill of Materials
 - five way button\
@@ -497,7 +574,13 @@ rather than the on/off control.
 - UPS HAT for Raspberry Pi Zero with 1000mah battery\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/cb306792-c2a6-40d5-bd81-8b63f4ea3967" />
 
-- power button 16mm diameter (latching 3 pole 1NO1NC)
+- power button 16mm diameter (latching 3 pole 1NO1NC, LED ring 3-6V, 5V nominal)
+- 2x BC337 NPN transistor (TO-92): one for the power button ring, one for the soft latch
+- AO3401 P-channel MOSFET (SOT-23-3), for the soft latch (not built yet)
+- SOT23-3 to DIP SIP3 adapter, so the MOSFET fits on perfboard
+- resistors: 1x 1kΩ (ring transistor base), 2x 10kΩ and 1x 100kΩ (soft latch)
+- 2x BAT85 Schottky diode (DO-35), for the soft latch
+- perfboard, 2x2cm
 - usb-c port with only power cables\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
 
