@@ -121,9 +121,14 @@ ExecStart=${PYTHON} -m nd_timer.boot_splash
 # boot_splash.py's own 20s wait for /dev/spidev0.0.
 TimeoutStartSec=60
 StandardOutput=journal
-# Without this, a traceback from the driver reaches the journal as its first
-# line only - "Exception in thread Thread-1:" and nothing else - and a oneshot
-# reports success anyway, so the failure is invisible.
+# Explicit rather than load-bearing. StandardError defaults to inherit, which
+# duplicates StandardOutput, so stderr already reaches the journal without this -
+# it is here so nobody reading the unit has to know that. The traceback that went
+# missing while this was absent was a thread's, raised during interpreter
+# teardown, which is output that gets lost whatever this says.
+#
+# What does matter: a oneshot reports success even when the panel was never drawn,
+# so the journal is the only place a failure shows up at all.
 StandardError=journal
 
 [Install]

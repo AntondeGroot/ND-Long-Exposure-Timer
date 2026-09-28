@@ -28,9 +28,11 @@ or `scripts/speed-up-boot.sh --measure`, which prints the same three views.
 - **Boot splash** (`install-boot-splash.sh`) - pushes a buffer packed at build time
   as soon as SPI exists, importing the panel driver and nothing else. It does not
   make the boot faster; it removes the blank panel that reads as a dead device.
-- **2026-09-24: `StandardError=journal` on `nd-timer-splash.service`** - the unit
-  logged stdout only, so a driver traceback reached the journal as its first line
-  and nothing more. See below.
+- **2026-09-24: `StandardError=journal` on `nd-timer-splash.service`** - added while
+  chasing a traceback that reached the journal as its first line and nothing more.
+  Explicit is better, but **it was probably not what fixed that**, and the reasoning
+  written here at the time was wrong: `StandardError` defaults to `inherit`, which
+  duplicates standard output, so stderr was already going to the journal. See below.
 - **2026-09-24: `Storage=persistent` for journald** (drop-in) - the card shipped
   `Storage=volatile`, so each reboot destroyed the evidence of the boot before it.
   Nothing intermittent at boot was diagnosable until this. Consider capping it with
@@ -506,3 +508,32 @@ lgpio makes a notification pipe in the working directory, and at 17.3s the root
 filesystem is still read-only - `systemd-remount-fs` runs later. Harmless (nothing
 here uses lgpio notifications) but noisy; `Environment=LG_WD=/run` on the unit would
 put the pipe on a tmpfs that is writable that early.
+
+## Correction: what `StandardError=journal` actually did, 2026-09-27
+
+Nothing, most likely. This document said the splash unit "logged stdout only", which
+is not how systemd works: `StandardError` defaults to `inherit`, and inherit
+duplicates whatever `StandardOutput` is set to - the journal. Stderr was being
+captured before the change. Checked on the live unit: `nd-timer.service` has
+`StandardError=inherit` to this day and its stderr reaches the journal fine.
+
+So why did the first failure log only `Exception in thread Thread-1:` while every
+later one carried a full traceback? The likelier answer is the *kind* of failure, not
+the logging:
+
+- The original was an exception on a **background thread**, raised by gpiozero during
+  interpreter teardown. Output written as a process is exiting is exactly what gets
+  lost - the thread's traceback had to be written after the main thread had already
+  finished.
+- Every traceback we saw afterwards - `GPIO busy`, `can not open gpiochip`,
+  `PermissionError` on the bus - was raised on the **main thread** and printed by the
+  interpreter's normal exception handling, which flushes before exit.
+
+The line stays in the unit: it is free, it makes the intent explicit, and it removes a
+default from the reasoning of anyone reading the unit later. But it was not the fix,
+and the 1m5.2s row in the table above is not "the cost of the change" - it is the
+boot-to-boot variance the next paragraph goes on to describe.
+
+Worth keeping as a caution about this whole document: a change that coincides with a
+symptom disappearing is not the cause of it disappearing. That trap caught the module
+trim (measured: no effect) and it caught this.
