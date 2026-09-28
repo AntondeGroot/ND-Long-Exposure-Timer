@@ -12,9 +12,9 @@ Normally
 
 This module will make the whole process shutter priority, and tell you which filters you need, it will take care of the camera settings.
 - sync with your camera when you have your exposure set correctly
-- let you chose the total exposure time
+- let you choose the total exposure time
 - it will tell you what filters you need to put on
-- it will automatically determine the settings for the long exposure.
+- it will automatically determine the ISO and aperture settings needed for the long exposure within a given range.
 
 no calculations or iterative backsolving required!
 
