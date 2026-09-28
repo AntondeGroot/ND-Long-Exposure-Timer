@@ -28,6 +28,11 @@ SPI_DEVICE = Path("/dev/spidev0.0")
 SPI_WAIT_SECONDS = 20.0
 SPI_POLL_SECONDS = 0.05
 
+# Word for the application that the panel has had one clean, complete refresh
+# this boot, so it need not start from white. On /run, a tmpfs, so it cannot
+# outlive the boot it describes: after a power cut it is simply not there.
+DRAWN_MARKER = Path("/run/nd-timer-splash-drawn")
+
 
 @contextmanager
 def timed(stage: str):
@@ -53,6 +58,19 @@ def open_panel():
     from nd_timer.fast_panel import Panel
 
     return Panel.open()
+
+
+def leave_word() -> None:
+    """Tell the application the panel is in a known state.
+
+    Only ever a saving: without the marker the application clears the panel as
+    it always has, so failing to write it costs time and is not worth failing
+    a splash that has already drawn.
+    """
+    try:
+        DRAWN_MARKER.touch()
+    except OSError as exc:
+        print(f"could not leave word for the application: {exc}", file=sys.stderr)
 
 
 def wait_for_spi() -> bool:
@@ -103,6 +121,7 @@ def main() -> int:
         print(f"the panel was not drawn: {exc!r}", file=sys.stderr)
         return 1
 
+    leave_word()
     print(f"splash on the panel in {time.monotonic() - started:.2f}s", file=sys.stderr)
     return 0
 

@@ -324,6 +324,67 @@ for candidate in main.py app.py "src/main.py" "nd_timer/__main__.py"; do
   [[ -f "$APP_DIR/$candidate" ]] && { ENTRY_POINT="$candidate"; break; }
 done
 
+# The devices, handed to their groups before udev gets round to it. udev's
+# coldplug pass does this from 99-com.rules, and on this card it lands around
+# 41s - after the application has started, imported, and sat waiting on the chip
+# and the bus for seven seconds. Doing the same three chgrps at ~20s, as root,
+# takes that wait away. Exactly what 99-com.rules sets, so when udev does arrive
+# it changes nothing.
+#
+# A root-owned script rather than one in ${APP_DIR}: that directory belongs to
+# ${TARGET_USER}, and a script root runs has to be one ${TARGET_USER} cannot edit.
+DEVICE_ACCESS="/usr/local/sbin/nd-timer-device-access"
+DEVICE_UNIT="/etc/systemd/system/nd-timer-devices.service"
+
+log "installing $DEVICE_ACCESS"
+cat > "$DEVICE_ACCESS" <<'SCRIPT_EOF'
+#!/bin/sh
+# Give the ND timer's devices to their groups early. Written by setup-pi.sh.
+#
+# /dev/spidev0.0 appears when spidev binds, which may be a moment after this
+# starts, so it is waited for briefly. Anything still missing is left to udev,
+# which will get there anyway - this is only ever a head start.
+
+wait_for() {
+  tries=0
+  while [ ! -e "$1" ] && [ "$tries" -lt 100 ]; do
+    sleep 0.05
+    tries=$((tries + 1))
+  done
+}
+
+grant() {
+  if [ -e "$1" ]; then
+    chgrp "$2" "$1" && chmod 0660 "$1"
+  else
+    echo "$1 not there yet; leaving it to udev" >&2
+  fi
+}
+
+wait_for /dev/spidev0.0
+grant /dev/gpiochip0 gpio
+grant /dev/spidev0.0 spi
+grant /dev/i2c-1 i2c
+exit 0
+SCRIPT_EOF
+chmod 0755 "$DEVICE_ACCESS"
+
+log "installing $DEVICE_UNIT"
+cat > "$DEVICE_UNIT" <<UNIT_EOF
+[Unit]
+Description=Give the ND timer its GPIO, SPI and I2C devices before udev does
+# After the kernel modules, which is when the SPI and I2C nodes can exist. Not
+# after udev, which is the whole point.
+DefaultDependencies=no
+After=systemd-modules-load.service
+Before=${SERVICE_NAME}.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=${DEVICE_ACCESS}
+UNIT_EOF
+
 log "installing $UNIT_PATH"
 cat > "$UNIT_PATH" <<UNIT_EOF
 [Unit]
@@ -336,7 +397,34 @@ Description=ND Long Exposure Timer
 # Safe because the runtime measures time with time.monotonic(). NTP corrects the
 # clock about 80s into boot, jumping it by hours; a wall-clock runtime started
 # before that could see a running exposure's elapsed time leap mid-shot.
-After=local-fs.target
+#
+# Nor local-fs.target, which is what it waited on until 2026-09-28: that target
+# includes /boot/firmware, which on this card appears late and is then fsck'd -
+# 12s of waiting, measured, for a partition the app never opens. So default
+# dependencies are off, as for the splash, and what it really needs is named:
+#
+#   systemd-remount-fs      the root filesystem writable. lgpio makes a pipe in
+#                           the working directory on import, and fails on a
+#                           read-only one (see install-boot-splash.sh).
+#   systemd-journald.socket so its output is not lost.
+#   nd-timer-splash         never two processes on the panel at once: the splash
+#                           holds the pins until it has finished. Ignored when
+#                           the splash is not installed.
+#
+#   nd-timer-devices        the GPIO chip and SPI bus handed to their groups,
+#                           which udev would not do until ~41s.
+#
+# The app still waits for the chip and the bus itself
+# (fast_panel.open_chip_when_ready), so if the head start ever misses, it is
+# slower rather than broken.
+DefaultDependencies=no
+Wants=nd-timer-devices.service
+After=systemd-remount-fs.service systemd-journald.socket nd-timer-splash.service nd-timer-devices.service
+# Without default dependencies it has to be told to stop at shutdown - and to
+# stop before anything it relies on goes away, so SIGINT still gets to put the
+# panel to sleep.
+Conflicts=shutdown.target
+Before=shutdown.target
 
 [Service]
 Type=simple

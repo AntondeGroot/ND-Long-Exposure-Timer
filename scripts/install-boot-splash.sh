@@ -109,7 +109,17 @@ RemainAfterExit=yes
 #
 # What runs as root is one oneshot that pushes a fixed buffer down SPI and exits.
 # The application keeps its own user.
-WorkingDirectory=${APP_DIR}
+#
+# /run, not ${APP_DIR}, as the working directory. Importing lgpio makes a named
+# pipe (.lgd-nfy0) in the working directory and then opens it, and at this point
+# the root filesystem is still read-only. It only ever worked because a pipe left
+# by the application's last run was lying there to open; the first deploy whose
+# rsync --delete removed it, the splash died on import. /run is a tmpfs, writable
+# from the start. LG_WD would not do: it moves where the C library makes the pipe,
+# but the Python module still opens it relative to the working directory.
+# Nothing in the splash uses a relative path, so only the import path needs saying.
+WorkingDirectory=/run
+Environment=PYTHONPATH=${APP_DIR}
 ExecStart=${PYTHON} -m nd_timer.boot_splash
 # The panel keeps its image with no power, so a failure here costs the splash and
 # nothing else. It must never hold up the boot it exists to paper over - and it
