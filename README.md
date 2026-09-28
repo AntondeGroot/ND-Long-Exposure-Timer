@@ -208,11 +208,10 @@ it stops on the ISO and the aperture too.
 
 | Control | Does |
 |---------|------|
-| Five-way up / down | move between the time, the scenario and settings; while setting the time, a second on or off |
-| Five-way left / right | change whatever is selected - the AUTO/MANUAL band, the scenario, or the ISO and aperture while they are yours; while setting the time, step it |
-| Five-way centre | start or stop setting the time when it is selected, toggle AUTO and MANUAL on the band, otherwise open the menu |
-| SYNC | read the current exposure from the camera |
-| SHOOT | a button rather than a thing on the screen: start the shot, hold to cancel it, waiting or exposing |
+| Five-way | navigation |
+| Five-way centre | select |
+| SYNC | read the current exposure settings from the camera |
+| SHOOT | start the shot, hold to cancel it |
 
 ## Development
 
