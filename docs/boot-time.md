@@ -537,3 +537,84 @@ boot-to-boot variance the next paragraph goes on to describe.
 Worth keeping as a caution about this whole document: a change that coincides with a
 symptom disappearing is not the cause of it disappearing. That trap caught the module
 trim (measured: no effect) and it caught this.
+
+## The part of the boot nobody had measured: the application, 2026-09-28
+
+`main.py` now prints marks on the kernel-start clock (`time.monotonic()`, the one
+`systemd-analyze` uses): `main`, `camera`, `panel`, and `ready` when the lamp goes
+out. First boot with them:
+
+| | at | took |
+|---|---|---|
+| `local-fs.target` | 38.5s | |
+| `nd-timer.service` started | 41.2s | |
+| `main()` entered | 52.5s | **11.3s** of interpreter start and imports |
+| camera | 52.5s | 0.1s |
+| panel open | 58.8s | **6.2s**: vendor driver, `init()`, two white refreshes |
+| **ready** - first real screen, lamp out | **61.4s** | 2.6s |
+
+So the device is usable at about 61s after the kernel starts, not the ~50s that
+`systemd-analyze` reports: that figure ends at `multi-user.target`, and the
+application is still importing then. Every total in this document measured the
+wrong finish line as well as the wrong start.
+
+The imports are 3.3s warm (`python -X importtime -c "import main"` on a running
+system: PIL is 1.0s of it, `dataclasses`/`inspect` 0.6s) and 11.3s at boot - cold
+page cache, and one core shared with everything else still starting.
+
+### The splash failed this boot, and a deploy did it
+
+```
+xCreatePipe: Can't set permissions (436) for .../.lgd-nfy0, No such file or directory
+FileNotFoundError: [Errno 2] No such file or directory: '.lgd-nfy-3'
+```
+
+The "cosmetic" lgpio line from 2026-09-26 was not cosmetic. Importing lgpio makes a
+named pipe in the working directory and then opens it. At splash time the root
+filesystem is read-only, so the make always failed - and the open only succeeded
+because a pipe left by the application's previous run was lying in the app
+directory. `deploy-to-pi.sh` syncs with `--delete`, removed it, and the next boot's
+splash died on import. The application, starting after the remount, recreated it.
+
+`LG_WD` does not fix it: that moves where the C library makes the pipe, but the
+Python module opens `.lgd-nfy…` relative to the working directory. The splash unit
+now runs in `/run` (a tmpfs, writable from the start) with `PYTHONPATH` pointing at
+the app. Needs `sudo ./scripts/install-boot-splash.sh` to rewrite the unit.
+
+Same shape as the initramfs trap: **a thing that works because of state left behind
+by something else.** It passed every boot until the state went away.
+
+## Clearing the panel: once, and not at all after a splash, 2026-09-28
+
+`Panel.__init__` cleared the panel with two full white refreshes before the first
+screen, ~2.3s each. Two changes:
+
+- **Skipped when the splash drew this boot.** The splash touches
+  `/run/nd-timer-splash-drawn` after a complete draw and sleep; the application
+  reads it and goes straight to its first screen, which is itself a full refresh
+  from a known state. `/run` is a tmpfs, so the marker cannot outlive its boot.
+- **Once, not twice, otherwise.** The second pass was added on the grounds that
+  one leaves a ghost, which was never recorded as seen.
+
+A power cut mid-refresh does leave a ghost *on the glass* - checked by cutting the
+latching switch during a refresh. Whether one white frame clears it at the next
+boot is still untested; it has been judged not worth chasing, because the soft
+latch in the README makes a mid-refresh cut rare (switching off during boot, or
+a flat cell). If ghosts turn up after a hard cut, the second pass is the first
+thing to put back.
+
+Measured on the next boot, with the splash unit reinstalled (`WorkingDirectory=/run`):
+
+| | before | after |
+|---|---|---|
+| splash | failed on the lgpio pipe | **drawn**, 5.90s, marker written |
+| `nd-timer.service` started | 41.2s | 41.1s |
+| `main()` entered | 52.5s | 52.5s |
+| panel open | 6.2s | **1.5s** |
+| **ready** | **61.4s** | **56.6s** |
+
+4.8s off the moment the device is usable, and the splash now covers the wait from
+~28s instead of nothing. What is left is almost all before `main()`: 12s waiting
+for `local-fs.target` - `/boot/firmware` and its fsck, which the application never
+uses - and 11.4s of interpreter start and imports on a core the rest of the boot is
+still using.

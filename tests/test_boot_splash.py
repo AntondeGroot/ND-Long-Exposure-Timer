@@ -31,6 +31,18 @@ class FakeEPD:
         self.calls.append("sleep")
 
 
+@pytest.fixture(autouse=True)
+def marker(monkeypatch, tmp_path):
+    """Where the splash leaves word, moved off the real /run for every test.
+
+    Autouse because any test that draws successfully writes it, and on a Linux
+    machine running as root that would be the real marker the application reads.
+    """
+    drawn = tmp_path / "splash-drawn"
+    monkeypatch.setattr(boot_splash, "DRAWN_MARKER", drawn)
+    return drawn
+
+
 @pytest.fixture
 def panel(monkeypatch, tmp_path):
     """boot_splash wired to a fake panel instead of the real hardware.
@@ -133,3 +145,42 @@ def test_a_failure_part_way_through_lets_the_pins_go(monkeypatch, splash, tmp_pa
     assert boot_splash.main() == 1
     assert failing.abandoned, "the pins were left claimed"
     assert "BUSY still high" in capsys.readouterr().err
+
+
+def test_a_drawn_splash_leaves_word_for_the_application(panel, splash, marker):
+    # The application skips its white frame on this word alone, so it is
+    # only worth anything if a complete draw is what writes it.
+    assert boot_splash.main() == 0
+
+    assert marker.exists()
+
+
+def test_a_splash_that_failed_part_way_leaves_no_word(monkeypatch, splash, tmp_path, marker):
+    # A draw that died part-way leaves the panel in exactly the unknown state
+    # the application's white frame is there for. Word written anyway would
+    # skip it, and the first real screen would go onto half a refresh.
+    class FailingPanel:
+        def init(self) -> None:
+            pass
+
+        def display(self, buffer) -> None:
+            raise RuntimeError("BUSY still high after 15.0s")
+
+        def abandon(self) -> None:
+            pass
+
+    monkeypatch.setattr(boot_splash, "open_panel", FailingPanel)
+    monkeypatch.setattr(boot_splash, "SPI_DEVICE", tmp_path)
+
+    assert boot_splash.main() == 1
+    assert not marker.exists()
+
+
+def test_a_marker_that_cannot_be_written_does_not_fail_the_splash(monkeypatch, panel, splash, tmp_path, capsys):
+    # By then the frame is on the glass. The marker only saves the application
+    # a white frame, so losing it costs two seconds - reported, but not a
+    # failed unit in the boot log over a splash that worked.
+    monkeypatch.setattr(boot_splash, "DRAWN_MARKER", tmp_path / "no-such-dir" / "splash-drawn")
+
+    assert boot_splash.main() == 0
+    assert "could not leave word" in capsys.readouterr().err
