@@ -382,6 +382,8 @@ Flashing a fresh card fixes none of this. It is worth doing only to rule softwar
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/cb306792-c2a6-40d5-bd81-8b63f4ea3967" />
 
 - power button 16mm diameter (latching 3 pole 1NO1NC)
+  <img width="200" alt="powerbutton" src="https://github.com/user-attachments/assets/a33f7c25-f148-4ec7-9226-96dd3c6ffadc" />
+
 - usb-c port with only power cables\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
 
