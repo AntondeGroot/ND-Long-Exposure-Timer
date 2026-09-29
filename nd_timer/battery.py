@@ -27,9 +27,15 @@ I2C_SLAVE = 0x0703
 BUS_VOLTAGE_REGISTER = 0x02
 SHUNT_VOLTAGE_REGISTER = 0x01
 
-# The shunt on this board is a tenth of an ohm, so ten millivolts across it is a
-# hundred milliamps. The sign is the direction: into the cell is charging.
-SHUNT_OHMS = 0.1
+# The shunt on this board is R9 in Waveshare's schematic for the UPS HAT (C):
+# a hundredth of an ohm, so one millivolt across it is a hundred milliamps. The
+# sign is the direction: into the cell is charging.
+#
+# It said a tenth until 2026-09-29, which read every current ten times low. The
+# giveaway was the cell: at the 25mA that reported, two hours on the battery
+# could not have taken it from 3.94V to 3.51V; at the 250mA it really was, it
+# is half the cell, which is what that drop is.
+SHUNT_OHMS = 0.01
 
 # Below this the cell is neither charging nor running anything much - a charger
 # holding it at float reads a few milliamps either way, and calling that

@@ -1,5 +1,7 @@
 """Tests for turning a cell voltage into something worth drawing."""
 
+import pytest
+
 from nd_timer.battery import (
     CHARGING_ABOVE_MILLIAMPS,
     EMPTY_VOLTS,
@@ -55,12 +57,23 @@ def test_the_reading_is_smoothed_rather_than_followed():
 
 def test_current_out_of_the_cell_reads_negative():
     # The shunt register is signed and the sign is the direction. Running off the
-    # cell reads about minus thirteen milliamps on this board; if that came back
-    # positive the panel would show a bolt on a battery that is going flat.
+    # cell reads a couple of hundred milliamps out on this board; if that came
+    # back positive the panel would show a bolt on a battery that is going flat.
     battery = Battery()
     battery._word = lambda register: 0xFFFF - 12  # a small two's-complement negative
 
     assert battery.milliamps() < 0
+
+
+def test_the_shunt_reading_is_scaled_for_the_boards_hundredth_of_an_ohm():
+    # The register counts in ten-microvolt steps, and across R9 - 0.01 ohm on
+    # the UPS HAT (C) - each step is one milliamp. Scaled for a tenth of an ohm
+    # instead, a Pi Zero 2 W idling at ~245mA read as 25mA, and a full cell
+    # looked good for forty hours instead of four.
+    battery = Battery()
+    battery._word = lambda register: 0x10000 - 245  # minus 245 steps: out of the cell
+
+    assert battery.milliamps() == pytest.approx(-245.0)
 
 
 def test_a_cell_being_charged_is_reported_as_charging():
