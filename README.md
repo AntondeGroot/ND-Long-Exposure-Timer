@@ -568,7 +568,7 @@ button → MOSFET → middle pin. Or it can go, and the soft latch is the only s
 - five way button\
   <img width="200" alt="17849727845893738776011421435184" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
 
-- Raspberry Pi Zero, it needs linux for gphoto2 
+- Raspberry Pi Zero 2 W, it needs linux for gphoto2. A plain Pi Zero works too, on the same card, but is ready in ~25s against ~11.5s: the boot is CPU-bound, and the Zero 2 W has four cores to the Zero's one (see `docs/boot-time.md`)
 - 2.13'' E-paper display
 - UPS HAT for Raspberry Pi Zero with 1000mah battery\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/cb306792-c2a6-40d5-bd81-8b63f4ea3967" />
