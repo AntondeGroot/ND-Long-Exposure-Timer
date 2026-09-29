@@ -843,3 +843,32 @@ been riding in a bag. The next boot, identical software, drew the correct main
 screen at 25.1s. So the 1MHz margin is not the whole story: the header between
 the Pi and the panel HAT is intermittent, and worth reseating and inspecting
 before it is trusted in the field.
+
+## Pi Zero 2 W, same card, 2026-09-29
+
+The board swapped for a Zero 2 W (four Cortex-A53 cores against one ARM1176, same
+1GHz, same header and HATs), with the same SD card unchanged: the image already
+carries `kernel7.img` and the `-v7` modules, and the firmware picked them. No
+reinstall, and the armv6 venv runs as it is. First boot:
+
+| | Pi Zero | Pi Zero 2 W |
+|---|---|---|
+| kernel | 3.1s | 2.4s |
+| generators | 1.6s | **0.4s** |
+| `init.scope` | 7.0s | **3.9s** |
+| app service started | 8.3s | 4.3s |
+| `main()` entered | 21.7s | **6.8s** - 2.5s of imports |
+| splash on the panel | 18.4s | 8.8s |
+| **ready** | **25.1s** | **11.5s** |
+| `multi-user.target` | 41.5s | **9.4s** |
+
+Less than half. The imports - 13s on the Zero during boot - take 2.5s: four
+cores means they no longer queue behind everything else. And the device is now
+waiting for the panel, not the CPU: `main()` was reached at 6.8s and then waited
+two seconds for the splash to finish its refresh (`splash done` at 8.8s). From
+here the e-paper's own 2.3s full refresh, done twice, is most of what is left.
+
+The first attempt looked like a board that booted without USB: the panel showed
+the main screen, and nothing appeared on the Mac. The card was still in the Mac's
+reader. E-paper holds its last image unpowered, so a Pi that has not booted at
+all looks exactly like one that has.
