@@ -710,3 +710,29 @@ will fail the same way.
 
 The post-sleep wait was set to 0.5s (from the vendor Python driver's 2s; their C
 drivers use 100ms). It had nothing to do with this.
+
+## The application loads while the splash draws, 2026-09-29
+
+`nd-timer.service` is no longer ordered after the splash. The splash writes
+`/run/nd-timer-splash-done` however it ends, and the application waits for that
+(`boot_splash.wait_for_splash`, at most 30s, and not at all without a splash
+installed) just before it opens the panel - the one step the two must never
+share. First boot on it, read from the journal alone:
+
+| | before | after |
+|---|---|---|
+| `nd-timer.service` started | 27.2s, after the splash | **24.8s**, beside it |
+| splash finished | 27.1s | 27.2s |
+| `main()` entered | 34.0s | 32.8s - imports **8.0s**, was 6.8s |
+| `splash done` (the wait) | - | 33.0s: the marker was already there |
+| **ready** | **37.3s** | **35.9s** |
+
+1.4s, not the ~3s estimated. The overlap is real, but the imports slowed by a
+second and a bit running beside the splash - one core, and the splash's own
+Python start is CPU work, not all refresh-waiting. And by the time the
+application wanted the panel the splash had finished six seconds earlier, so the
+wait never held; the saving is the whole of the start moved earlier, eaten
+partly by contention.
+
+Safe on this boot: the splash finished at 27.2s, the application first touched
+the panel at 33.0s.
