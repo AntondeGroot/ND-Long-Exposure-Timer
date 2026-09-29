@@ -710,3 +710,56 @@ will fail the same way.
 
 The post-sleep wait was set to 0.5s (from the vendor Python driver's 2s; their C
 drivers use 100ms). It had nothing to do with this.
+
+## The application loads while the splash draws, 2026-09-29
+
+`nd-timer.service` is no longer ordered after the splash. The splash writes
+`/run/nd-timer-splash-done` however it ends, and the application waits for that
+(`boot_splash.wait_for_splash`, at most 30s, and not at all without a splash
+installed) just before it opens the panel - the one step the two must never
+share. First boot on it, read from the journal alone:
+
+| | before | after |
+|---|---|---|
+| `nd-timer.service` started | 27.2s, after the splash | **24.8s**, beside it |
+| splash finished | 27.1s | 27.2s |
+| `main()` entered | 34.0s | 32.8s - imports **8.0s**, was 6.8s |
+| `splash done` (the wait) | - | 33.0s: the marker was already there |
+| **ready** | **37.3s** | **35.9s** |
+
+1.4s, not the ~3s estimated. The overlap is real, but the imports slowed by a
+second and a bit running beside the splash - one core, and the splash's own
+Python start is CPU work, not all refresh-waiting. And by the time the
+application wanted the panel the splash had finished six seconds earlier, so the
+wait never held; the saving is the whole of the start moved earlier, eaten
+partly by contention.
+
+Safe on this boot: the splash finished at 27.2s, the application first touched
+the panel at 33.0s.
+
+## 10.6s of generators, nearly all for swap nobody uses, 2026-09-29
+
+systemd's own startup phases (`systemctl show -p Generators…`/`UnitsLoad…`)
+showed 10.6s between starting and finishing the generators - before a single unit
+could start. Timed one by one: every generator ~0.1s except `rpi-swap-generator`,
+a shell script that reads its config through a Python script (1.1s warm) and then
+sizes a swap file and a zram device through two more shell scripts (2.3s each,
+warm) - for swap that is 0 on this device. `speed-up-boot.sh` now masks it with a
+`/dev/null` link in `/etc/systemd/system-generators`; `--restore` removes it.
+
+| | before | after |
+|---|---|---|
+| generators | 3.7s - 14.3s (**10.6s**) | 3.7s - 5.3s (**1.6s**) |
+| `init.scope` (PID 1 ready) | 16.2s | **7.0s** |
+| splash starts | 17.4s | **8.3s** |
+| app service starts | 24.8s | **16.5s** |
+| **ready** | **35.9s** | **27.7s** |
+| `systemd-analyze` total | 51.1s | 43.3s |
+
+8.2s off the moment the device is usable, from one symlink. Swap still 0, no
+failed units. `nd-timer-devices` now runs at 14.6s and the app starts at 16.5s -
+the devices step is on the app's path again, and `/dev/i2c-1` still arrives
+after it.
+
+Worth the general note: `systemd-analyze blame` never showed this, because
+generators are not units. It lives in the manager's own timestamps.

@@ -128,6 +128,22 @@ MASK_BY_DEFAULT=(
   rpi-resize-swap-file.service
 )
 
+# Generators run before systemd starts a single unit, so their time is added to
+# everything - the splash, udev, the application. Measured 2026-09-29: systemd
+# spent 10.6s in generators, and rpi-swap-generator is the one that costs. It
+# reads its config through a Python script (1.1s warm) and then sizes a swap file
+# and a zram device through two shell scripts (2.3s each, warm), every boot, for
+# swap this device does not use: swap is 0 on it, and the application runs in
+# ~95MB of 427MB. Every other generator here took about 0.1s.
+#
+# Masked the way systemd documents: a symlink to /dev/null of the same name in
+# /etc/systemd/system-generators. Mechanism=none in swap.conf would skip the two
+# sizings but still pay for the Python config read. --restore removes the link.
+MASK_GENERATORS=(
+  rpi-swap-generator
+)
+GENERATOR_MASK_DIR="/etc/systemd/system-generators"
+
 # cloud-init exists to configure a machine from a cloud provider's metadata
 # service. This is a camera timer. It still costs the better part of a minute:
 # on a measured boot here, cloud-init-main took 19s and sysinit.target waited on
@@ -313,6 +329,23 @@ mask_units() {
   done
 }
 
+mask_generators() {
+  local name link
+  mkdir -p "$GENERATOR_MASK_DIR"
+  for name in "$@"; do
+    [[ -e "/usr/lib/systemd/system-generators/$name" ]] || continue
+    link="$GENERATOR_MASK_DIR/$name"
+    [[ "$(readlink "$link" 2>/dev/null)" == /dev/null ]] && continue
+    if [[ -e "$link" || -L "$link" ]]; then
+      warn "$link already exists and is not a mask; leaving it alone"
+      continue
+    fi
+    ln -s /dev/null "$link"
+    echo "generator:$name" >> "$STATE_FILE"
+    printf '    masked generator %s\n' "$name"
+  done
+}
+
 disable_units() {
   local unit
   for unit in "$@"; do
@@ -350,6 +383,12 @@ if [[ "${1:-}" == "--restore" ]]; then
     if [[ "$unit" == mask:* ]]; then
       unit="${unit#mask:}"
       systemctl unmask "$unit" >/dev/null 2>&1 && printf '    unmasked %s\n' "$unit"
+    elif [[ "$unit" == generator:* ]]; then
+      unit="${unit#generator:}"
+      # Only ever a link this script made: one to /dev/null.
+      if [[ "$(readlink "$GENERATOR_MASK_DIR/$unit" 2>/dev/null)" == /dev/null ]]; then
+        rm -f "$GENERATOR_MASK_DIR/$unit" && printf '    unmasked generator %s\n' "$unit"
+      fi
     else
       systemctl enable "$unit" >/dev/null 2>&1 && printf '    enabled %s\n' "$unit"
     fi
@@ -371,6 +410,7 @@ log "disabling services this device has no use for"
 mkdir -p "$(dirname "$STATE_FILE")"
 disable_units "${SAFE_TO_DISABLE[@]}"
 mask_units "${MASK_BY_DEFAULT[@]}"
+mask_generators "${MASK_GENERATORS[@]}"
 disable_cloud_init
 
 if network_manager_is_doing_nothing; then

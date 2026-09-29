@@ -24,7 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nd_timer.battery import Battery
-from nd_timer.boot_splash import DRAWN_MARKER
+from nd_timer.boot_splash import DRAWN_MARKER, wait_for_splash
 from nd_timer.camera import Camera, CameraError, nearest_timed_shutter
 from nd_timer.device import Device
 from nd_timer.exposure import needs_bulb
@@ -523,6 +523,11 @@ def main() -> int:
     camera = Camera()
     boot_mark("camera")
     led = StatusLed(STATUS_LED_PIN)
+    # The splash may still be drawing: this service no longer waits for it to
+    # finish before starting, only before touching the panel.
+    if not wait_for_splash():
+        print("the splash never said it was done; opening the panel anyway", file=sys.stderr)
+    boot_mark("splash done")
     panel = Panel(splash_drawn=DRAWN_MARKER.exists())
     boot_mark("panel")
     buttons = Buttons(PINS)

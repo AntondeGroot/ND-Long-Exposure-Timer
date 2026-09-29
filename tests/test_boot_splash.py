@@ -35,11 +35,14 @@ class FakeEPD:
 def marker(monkeypatch, tmp_path):
     """Where the splash leaves word, moved off the real /run for every test.
 
+    Both markers - drawn, and done - though only the first is returned.
+
     Autouse because any test that draws successfully writes it, and on a Linux
     machine running as root that would be the real marker the application reads.
     """
     drawn = tmp_path / "splash-drawn"
     monkeypatch.setattr(boot_splash, "DRAWN_MARKER", drawn)
+    monkeypatch.setattr(boot_splash, "DONE_MARKER", tmp_path / "splash-done")
     return drawn
 
 
@@ -184,3 +187,64 @@ def test_a_marker_that_cannot_be_written_does_not_fail_the_splash(monkeypatch, p
 
     assert boot_splash.main() == 0
     assert "could not leave word" in capsys.readouterr().err
+
+
+def test_the_application_waits_until_the_splash_has_let_go_of_the_panel(monkeypatch, splash, tmp_path):
+    # The two processes must never drive the panel at once - that is what put
+    # noise on the screen on 2026-09-24. So with a splash installed and not yet
+    # done, the wait has to hold, however many looks it takes.
+    unit = tmp_path / "nd-timer-splash.service"
+    unit.touch()
+    monkeypatch.setattr(boot_splash, "SPLASH_UNIT", unit)
+    looks = []
+
+    def a_splash_that_finishes_on_the_third_look(_seconds):
+        looks.append(_seconds)
+        if len(looks) == 3:
+            boot_splash.DONE_MARKER.touch()
+
+    monkeypatch.setattr(boot_splash.time, "sleep", a_splash_that_finishes_on_the_third_look)
+
+    assert boot_splash.wait_for_splash() is True
+    assert len(looks) == 3
+
+
+def test_without_a_splash_installed_the_application_does_not_wait(monkeypatch, splash, tmp_path):
+    # A device set up without the splash would otherwise sit out the whole
+    # timeout on every boot, waiting for a marker nothing is going to write.
+    monkeypatch.setattr(boot_splash, "SPLASH_UNIT", tmp_path / "not-installed.service")
+    looks = []
+    monkeypatch.setattr(boot_splash.time, "sleep", looks.append)
+
+    assert boot_splash.wait_for_splash() is True
+    assert looks == []
+
+
+def test_a_splash_that_never_says_it_is_done_is_given_up_on(monkeypatch, splash, tmp_path):
+    # A splash killed by its own timeout never reaches the line that writes the
+    # marker. The application has to start regardless - late, once, rather
+    # than never - and say that it gave up rather than that the splash finished.
+    unit = tmp_path / "nd-timer-splash.service"
+    unit.touch()
+    monkeypatch.setattr(boot_splash, "SPLASH_UNIT", unit)
+    monkeypatch.setattr(boot_splash, "SPLASH_DONE_WAIT_SECONDS", 0.05)
+    monkeypatch.setattr(boot_splash, "SPLASH_DONE_POLL_SECONDS", 0.01)
+
+    assert boot_splash.wait_for_splash() is False
+
+
+def test_the_splash_says_it_is_done_even_when_it_failed(monkeypatch, splash, tmp_path):
+    # Done means "the panel is free", not "the panel was drawn". A splash that
+    # dies on something nobody anticipated - here an exception main() does not
+    # catch - has still let go of the panel, and an application left waiting
+    # for it would sit out the whole timeout for nothing.
+    def a_panel_that_cannot_be_opened():
+        raise RuntimeError("something nobody anticipated")
+
+    monkeypatch.setattr(boot_splash, "open_panel", a_panel_that_cannot_be_opened)
+    monkeypatch.setattr(boot_splash, "SPI_DEVICE", tmp_path)
+
+    with pytest.raises(RuntimeError):
+        boot_splash.main()
+
+    assert boot_splash.DONE_MARKER.exists()

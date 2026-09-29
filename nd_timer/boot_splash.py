@@ -33,6 +33,23 @@ SPI_POLL_SECONDS = 0.05
 # outlive the boot it describes: after a power cut it is simply not there.
 DRAWN_MARKER = Path("/run/nd-timer-splash-drawn")
 
+# Word that the splash has let go of the panel, drawn or not. The application no
+# longer starts after this unit - it spends the splash's refresh importing, which
+# is most of what it costs to start - so it waits for this instead, just before
+# it opens the panel. Two processes on the panel at once is what filled the
+# screen with noise on 2026-09-24.
+DONE_MARKER = Path("/run/nd-timer-splash-done")
+
+# How the application tells that a splash is coming at all: the unit is
+# installed, and the buffer its ConditionPathExists wants is there. Without both
+# it would wait out SPLASH_DONE_WAIT_SECONDS for a splash that never runs.
+SPLASH_UNIT = Path("/etc/systemd/system/nd-timer-splash.service")
+
+# Longer than a splash takes (4.5s drawn, 20s at most waiting for SPI), and short
+# enough that a splash killed before it could say so costs half a minute, once.
+SPLASH_DONE_WAIT_SECONDS = 30.0
+SPLASH_DONE_POLL_SECONDS = 0.05
+
 
 @contextmanager
 def timed(stage: str):
@@ -83,7 +100,38 @@ def wait_for_spi() -> bool:
     return True
 
 
+def wait_for_splash() -> bool:
+    """Block until the splash has let go of the panel. False if it never said so.
+
+    Returns at once when no splash is going to run.
+    """
+    if not (SPLASH_UNIT.exists() and SPLASH_BUFFER.exists()):
+        return True
+    deadline = time.monotonic() + SPLASH_DONE_WAIT_SECONDS
+    while not DONE_MARKER.exists():
+        if time.monotonic() > deadline:
+            return False
+        time.sleep(SPLASH_DONE_POLL_SECONDS)
+    return True
+
+
 def main() -> int:
+    """Draw the splash, and say it is done however that went."""
+    try:
+        return draw()
+    finally:
+        mark_done()
+
+
+def mark_done() -> None:
+    """Tell the application the panel is free. Never raises: see leave_word()."""
+    try:
+        DONE_MARKER.touch()
+    except OSError as exc:
+        print(f"could not say the splash is done: {exc}", file=sys.stderr)
+
+
+def draw() -> int:
     started = time.monotonic()
 
     if not SPLASH_BUFFER.exists():

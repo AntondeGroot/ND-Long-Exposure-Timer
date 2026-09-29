@@ -407,19 +407,21 @@ Description=ND Long Exposure Timer
 #                           the working directory on import, and fails on a
 #                           read-only one (see install-boot-splash.sh).
 #   systemd-journald.socket so its output is not lost.
-#   nd-timer-splash         never two processes on the panel at once: the splash
-#                           holds the pins until it has finished. Ignored when
-#                           the splash is not installed.
-#
 #   nd-timer-devices        the GPIO chip and SPI bus handed to their groups,
 #                           which udev would not do until ~41s.
+#
+# Not nd-timer-splash, though they must never drive the panel at once. Ordered
+# after it, the app spent 6-7s importing only once the splash was done - and the
+# splash spends most of its run waiting on a refresh with the CPU idle. So the
+# two overlap, and the app waits for the splash's "done" marker just before it
+# opens the panel (boot_splash.wait_for_splash).
 #
 # The app still waits for the chip and the bus itself
 # (fast_panel.open_chip_when_ready), so if the head start ever misses, it is
 # slower rather than broken.
 DefaultDependencies=no
 Wants=nd-timer-devices.service
-After=systemd-remount-fs.service systemd-journald.socket nd-timer-splash.service nd-timer-devices.service
+After=systemd-remount-fs.service systemd-journald.socket nd-timer-devices.service
 # Without default dependencies it has to be told to stop at shutdown - and to
 # stop before anything it relies on goes away, so SIGINT still gets to put the
 # panel to sleep.
