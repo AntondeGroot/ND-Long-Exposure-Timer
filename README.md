@@ -581,7 +581,9 @@ button → MOSFET → middle pin. Or it can go, and the soft latch is the only s
 - SOT23-3 to DIP SIP3 adapter, so the MOSFET fits on perfboard
 - resistors: 1x 1kΩ (ring transistor base), 2x 10kΩ and 1x 100kΩ (soft latch)
 - 2x BAT85 Schottky diode (DO-35), for the soft latch
-- perfboard, 2x2cm
+- Pi Zero Breakout board\
+  <img width="200" alt="KW-1815_0-1400x1050h" src="https://github.com/user-attachments/assets/e4e68370-e5f6-4e82-ae2e-4a0d5db21cb6" />
+
 - usb-c port with only power cables\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/645d8d48-21d6-4195-a56d-52074ed21b96" />
 
