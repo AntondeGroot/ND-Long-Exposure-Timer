@@ -113,6 +113,25 @@ SAFE_TO_DISABLE=(
   # the filesystems. A keyboard plugged in later gets the default layout; the
   # serial console does not use it.
   keyboard-setup.service
+  # The rest are not on the way to the first screen - multi-user.target starts
+  # at ~35s, after the device is ready at ~25s - so they buy no boot time. They
+  # go because they are useless on this hardware and cost CPU later, when the
+  # timer is in use: a Zero has one core, and a background job waking during an
+  # exposure competes with it.
+  #
+  # Wi-Fi. A plain Zero has no radio.
+  wpa_supplicant.service
+  # Updates the boot EEPROM of a Pi 4 or 5. A Zero has none. 3s a boot.
+  rpi-eeprom-update.service
+  # Package lists and upgrades, on a device with no internet of its own. When
+  # they do run on a Zero they take minutes of CPU. apt still works by hand.
+  apt-daily.timer
+  apt-daily-upgrade.timer
+  # Rebuilds the man page index - the same kind of surprise, for nothing.
+  man-db.timer
+  # ext4 metadata checks on LVM snapshots. There is no LVM here.
+  e2scrub_all.timer
+  e2scrub_reap.service
 )
 
 # timesyncd, started 90s after boot instead of during it. It cannot sync here -

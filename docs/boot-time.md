@@ -820,3 +820,26 @@ Also found on the way: the first attempt at this never reached the Pi.
 every deploy since went into RAM, reporting 133 files transferred, while the
 card kept the old scripts. It now takes the directory of the ExecStart entry
 point, and the checksums were compared to confirm it.
+
+## What multi-user.target was carrying, 2026-09-29
+
+`multi-user.target` is not on the application's path any more - it starts at
+~35.5s, behind `sysinit.target`, which waits for `/boot/firmware`, and the device
+is ready at ~25s. So nothing in it costs time-to-ready. Listed anyway, for what
+is useless on this hardware and would cost CPU while the timer is in use:
+`wpa_supplicant` (no radio), `rpi-eeprom-update` (no EEPROM on a Zero, 3s),
+`apt-daily` and `apt-daily-upgrade` timers (no internet; minutes of CPU when they
+do run), `man-db.timer`, and `e2scrub_all.timer`/`e2scrub_reap` (no LVM). All
+seven are now in `speed-up-boot.sh`'s safe set.
+
+Next boot: all seven disabled and inactive, ssh and usb0-static up, no failures.
+Ready at 25.1s - unchanged, as expected. `multi-user.target` at 41.5s (was
+~43.6s); `systemd-analyze` total 41.5s.
+
+One boot after this showed a split, shifted and then random panel at 1MHz, with
+the splash and the application cleanly apart in time (splash out at 19.3s, app
+on the panel at 22.0s) - the connection again, not the software. The device had
+been riding in a bag. The next boot, identical software, drew the correct main
+screen at 25.1s. So the 1MHz margin is not the whole story: the header between
+the Pi and the panel HAT is intermittent, and worth reseating and inspecting
+before it is trusted in the field.
