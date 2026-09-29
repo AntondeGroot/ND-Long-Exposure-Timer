@@ -341,13 +341,14 @@ cat > "$DEVICE_ACCESS" <<'SCRIPT_EOF'
 #!/bin/sh
 # Give the ND timer's devices to their groups early. Written by setup-pi.sh.
 #
-# /dev/spidev0.0 appears when spidev binds, which may be a moment after this
-# starts, so it is waited for briefly. Anything still missing is left to udev,
-# which will get there anyway - this is only ever a head start.
+# This starts before the kernel modules are loaded, so the GPIO chip - built
+# into the kernel - is handed over at once, and the SPI and I2C nodes are waited
+# for as their modules bind: 20s between them at most. Anything still missing is
+# left to udev, which will get there anyway - this is only ever a head start.
 
+tries=0
 wait_for() {
-  tries=0
-  while [ ! -e "$1" ] && [ "$tries" -lt 100 ]; do
+  while [ ! -e "$1" ] && [ "$tries" -lt 400 ]; do
     sleep 0.05
     tries=$((tries + 1))
   done
@@ -361,9 +362,10 @@ grant() {
   fi
 }
 
-wait_for /dev/spidev0.0
 grant /dev/gpiochip0 gpio
+wait_for /dev/spidev0.0
 grant /dev/spidev0.0 spi
+wait_for /dev/i2c-1
 grant /dev/i2c-1 i2c
 exit 0
 SCRIPT_EOF
@@ -373,11 +375,12 @@ log "installing $DEVICE_UNIT"
 cat > "$DEVICE_UNIT" <<UNIT_EOF
 [Unit]
 Description=Give the ND timer its GPIO, SPI and I2C devices before udev does
-# After the kernel modules, which is when the SPI and I2C nodes can exist. Not
-# after udev, which is the whole point.
+# Not after the kernel modules: loading them took 4.9s, measured, and the GPIO
+# chip does not need them. The script waits for the SPI and I2C nodes itself.
+# Not after udev, which is the whole point. And not before the application,
+# which waits for the chip and the bus on its own and has seconds of importing
+# to do first - ordered after this, it started at 16.5s instead of ~8s.
 DefaultDependencies=no
-After=systemd-modules-load.service
-Before=${SERVICE_NAME}.service
 
 [Service]
 Type=oneshot
@@ -403,12 +406,19 @@ Description=ND Long Exposure Timer
 # 12s of waiting, measured, for a partition the app never opens. So default
 # dependencies are off, as for the splash, and what it really needs is named:
 #
-#   systemd-remount-fs      the root filesystem writable. lgpio makes a pipe in
-#                           the working directory on import, and fails on a
-#                           read-only one (see install-boot-splash.sh).
 #   systemd-journald.socket so its output is not lost.
-#   nd-timer-devices        the GPIO chip and SPI bus handed to their groups,
-#                           which udev would not do until ~41s.
+#
+# And pulled in, but not waited for: nd-timer-devices, which hands the GPIO chip
+# and SPI bus to their groups well before udev would. The app waits for both on
+# its own (fast_panel.open_chip_when_ready) and spends its first seconds
+# importing, so waiting here only delayed the imports - 2026-09-29: the app
+# started at 16.5s behind it, and behind systemd-remount-fs.
+#
+# Not systemd-remount-fs either. It was there because lgpio makes a pipe in the
+# working directory on import, and fails on a read-only one (see
+# install-boot-splash.sh). The working directory is now a RuntimeDirectory on
+# /run instead, writable from the start. Nothing else the app does writes files:
+# the camera keeps its frames on its own card (capturetarget=1).
 #
 # Not nd-timer-splash, though they must never drive the panel at once. Ordered
 # after it, the app spent 6-7s importing only once the splash was done - and the
@@ -421,7 +431,7 @@ Description=ND Long Exposure Timer
 # slower rather than broken.
 DefaultDependencies=no
 Wants=nd-timer-devices.service
-After=systemd-remount-fs.service systemd-journald.socket nd-timer-devices.service
+After=systemd-journald.socket
 # Without default dependencies it has to be told to stop at shutdown - and to
 # stop before anything it relies on goes away, so SIGINT still gets to put the
 # panel to sleep.
@@ -431,7 +441,8 @@ Before=shutdown.target
 [Service]
 Type=simple
 User=${TARGET_USER}
-WorkingDirectory=${APP_DIR}
+RuntimeDirectory=${SERVICE_NAME}
+WorkingDirectory=/run/${SERVICE_NAME}
 ExecStart=${VENV_DIR}/bin/python ${APP_DIR}/${ENTRY_POINT:-main.py}
 Restart=on-failure
 RestartSec=5

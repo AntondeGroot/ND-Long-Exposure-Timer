@@ -53,8 +53,16 @@ ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" true 2>/dev/null \
 # a card that has never had setup-pi.sh run on it there is no unit to ask yet,
 # and that is exactly when the first deploy happens. So: ask, and if the answer
 # is empty, put it next to the home directory under this repo's own name.
+#
+# Asked of ExecStart, not WorkingDirectory: the service runs in a RuntimeDirectory
+# on /run, so its working directory is no longer where the app is installed. For
+# a while every deploy went there - into RAM, gone at the next reboot - and
+# reported 133 files transferred while the app on the card stayed as it was.
+# The entry point's directory is the install.
 if [[ -z "$APP_DIR" ]]; then
-  APP_DIR="$(ssh "$HOST" "systemctl show ${SERVICE_NAME} -p WorkingDirectory --value" 2>/dev/null || true)"
+  ENTRY="$(ssh "$HOST" "systemctl show ${SERVICE_NAME} -p ExecStart --value" 2>/dev/null \
+    | sed -n 's/.*argv\[\]=[^ ]* \([^ ;]*\).*/\1/p' | head -1 || true)"
+  [[ -n "$ENTRY" ]] && APP_DIR="$(dirname "$ENTRY")"
 fi
 if [[ -z "$APP_DIR" || "$APP_DIR" == "/" ]]; then
   APP_DIR="$(ssh "$HOST" 'echo $HOME')/$(basename "$REPO_DIR")"
