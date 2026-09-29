@@ -108,7 +108,21 @@ SAFE_TO_DISABLE=(
   # A hotkey daemon for input devices we drive ourselves through gpiozero.
   triggerhappy.service
   triggerhappy.socket
+  # Loads a console keymap for a keyboard this device does not have - 3.5s in
+  # blame, 2026-09-29, and ordered before local-fs-pre.target, so on the way to
+  # the filesystems. A keyboard plugged in later gets the default layout; the
+  # serial console does not use it.
+  keyboard-setup.service
 )
+
+# timesyncd, started 90s after boot instead of during it. It cannot sync here -
+# there is no network unless the Mac shares one - but it keeps the clock honest
+# anyway: with no RTC, PID 1 starts each boot from the time timesyncd last saved
+# in /var/lib/systemd/timesync/clock, and when the Mac does share a connection it
+# corrects the clock. Disabled outright, every boot would restart from the same
+# stale moment. Delayed, it still does both, and takes its 3.9s (blame,
+# 2026-09-29) out of the part of the boot the application is competing for.
+LATE_TIMESYNC_TIMER="/etc/systemd/system/nd-timer-late-timesync.timer"
 
 # Useful but not free. avahi is what answers raspberrypi.local, and the device
 # has a static address, but losing it removes a way back in if that ever breaks.
@@ -346,6 +360,33 @@ mask_generators() {
   done
 }
 
+delay_timesyncd() {
+  [[ -f /usr/lib/systemd/system/systemd-timesyncd.service ]] || return 0
+  if [[ -f "$LATE_TIMESYNC_TIMER" ]]; then
+    return 0
+  fi
+  cat > "$LATE_TIMESYNC_TIMER" <<'TIMER_EOF'
+# Written by speed-up-boot.sh; --restore removes it and re-enables timesyncd.
+[Unit]
+Description=Start timesyncd once the boot is over
+# Without this a timer is ordered after sysinit.target and before the service it
+# starts - and timesyncd orders itself before sysinit.target. A cycle, which
+# systemd would break by dropping the start.
+DefaultDependencies=no
+
+[Timer]
+OnBootSec=90
+Unit=systemd-timesyncd.service
+
+[Install]
+WantedBy=timers.target
+TIMER_EOF
+  systemctl disable systemd-timesyncd.service >/dev/null 2>&1 || true
+  systemctl enable "$(basename "$LATE_TIMESYNC_TIMER")" >/dev/null 2>&1
+  echo "late-timesync" >> "$STATE_FILE"
+  printf '    timesyncd now starts 90s after boot\n'
+}
+
 disable_units() {
   local unit
   for unit in "$@"; do
@@ -383,6 +424,11 @@ if [[ "${1:-}" == "--restore" ]]; then
     if [[ "$unit" == mask:* ]]; then
       unit="${unit#mask:}"
       systemctl unmask "$unit" >/dev/null 2>&1 && printf '    unmasked %s\n' "$unit"
+    elif [[ "$unit" == late-timesync ]]; then
+      systemctl disable "$(basename "$LATE_TIMESYNC_TIMER")" >/dev/null 2>&1 || true
+      rm -f "$LATE_TIMESYNC_TIMER"
+      systemctl enable systemd-timesyncd.service >/dev/null 2>&1 \
+        && printf '    timesyncd starts with the boot again\n'
     elif [[ "$unit" == generator:* ]]; then
       unit="${unit#generator:}"
       # Only ever a link this script made: one to /dev/null.
@@ -411,6 +457,7 @@ mkdir -p "$(dirname "$STATE_FILE")"
 disable_units "${SAFE_TO_DISABLE[@]}"
 mask_units "${MASK_BY_DEFAULT[@]}"
 mask_generators "${MASK_GENERATORS[@]}"
+delay_timesyncd
 disable_cloud_init
 
 if network_manager_is_doing_nothing; then

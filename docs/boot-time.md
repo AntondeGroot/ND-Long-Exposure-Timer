@@ -792,3 +792,31 @@ competing for.
 **The boot is now CPU-bound.** Starting things earlier mostly redistributes the
 same work. What is left to win is work removed: services that cost CPU in the
 first 25s and give this device nothing.
+
+## keyboard-setup off, timesyncd 90s late, 2026-09-29
+
+The boot being CPU-bound, the next wins are work removed. `speed-up-boot.sh` now
+disables `keyboard-setup` (a console keymap for a keyboard this device does not
+have, ordered before `local-fs-pre.target`) and starts timesyncd from
+`nd-timer-late-timesync.timer` 90s after boot instead of in `sysinit.target`.
+timesyncd is delayed rather than disabled: with no RTC, PID 1 starts each boot
+from the time it last saved, and it corrects the clock when the Mac shares a
+connection. The timer needs `DefaultDependencies=no` - otherwise it is ordered
+after `sysinit.target` and before timesyncd, which orders itself before
+`sysinit.target`.
+
+| | before | after |
+|---|---|---|
+| splash finished | 20.4s | 19.2s |
+| `main()` entered | 23.4s | 21.7s |
+| **ready** | **26.5s** | **24.9s** |
+
+1.6s. timesyncd started at 95.8s and saved the clock file; no ordering cycle,
+no failed units.
+
+Also found on the way: the first attempt at this never reached the Pi.
+`deploy-to-pi.sh` took the install directory from the unit's
+`WorkingDirectory`, which the previous change had moved to `/run/nd-timer` - so
+every deploy since went into RAM, reporting 133 files transferred, while the
+card kept the old scripts. It now takes the directory of the ExecStart entry
+point, and the checksums were compared to confirm it.
