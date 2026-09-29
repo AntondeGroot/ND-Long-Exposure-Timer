@@ -678,3 +678,35 @@ The USB link dropped around this reboot and took several minutes and a replug to
 come back; the measured boot (uptime 1 min when read) was clean. Nothing in the
 change runs before `g_ether` loads, so it is recorded as the known flaky link
 rather than as a result.
+
+## The main screen never appeared: SPI at 4MHz, 2026-09-29
+
+Found while trimming the splash's post-sleep wait. From the switch of the
+application to `fast_panel` onwards the main screen never appeared - the panel
+went on showing the splash, refresh after refresh, and after a power cycle it
+showed random pixels. Traced by hand with the service stopped:
+
+| test | result |
+|---|---|
+| the app's own startup draw, frame as a list | refresh ran (2.3s), splash still there |
+| same, frame as `bytes` | splash still there |
+| the vendor driver, same frame | splash still there - so not our driver |
+| after a power cycle | random pixels: what RAM holds when nothing is written |
+| `fast_panel` at **1MHz** instead of 4MHz | **main screen** |
+
+Commands - single bytes - reached the controller at 4MHz, so every refresh ran;
+the 4000-byte frame did not, so each refresh redrew whatever RAM already held.
+The splash seen for the last several boots was never being drawn: it was left
+in RAM from the last time a write worked, and survived because the panel's power
+was not cut. So a "splash on the panel" line only proves a refresh ran, not that
+a frame landed - and when writes stopped landing is not known, only that it was
+no later than the application's move to `fast_panel`.
+
+The same code drew at 4MHz before, so the connection has degraded - a header
+joint or pin between the Pi and the HAT is the likely place. `SPI_HZ` is now
+1MHz: ~32ms per frame against a 2.3s refresh. The vendor-driver scripts
+(`clear-panel.py`, `panel-test.py`, `panel-orientation.py`) still use 4MHz and
+will fail the same way.
+
+The post-sleep wait was set to 0.5s (from the vendor Python driver's 2s; their C
+drivers use 100ms). It had nothing to do with this.
