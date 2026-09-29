@@ -32,7 +32,13 @@ BUSY_PIN = 24
 # vendor driver's writes to its cs_pin are commented out at both ends.
 SPI_BUS = 0
 SPI_DEVICE = 0
-SPI_HZ = 4_000_000
+# 1MHz, not the vendor's 4MHz. On this device 4MHz stopped carrying the frame:
+# every command still landed - they are single bytes - and every refresh ran,
+# but the 4000-byte frame never reached the controller's RAM, so the panel kept
+# redrawing whatever was already in it. At 1MHz the same frame drew first time
+# (2026-09-29). It costs nothing that shows: a frame is ~32ms of SPI against a
+# 2.3s refresh.
+SPI_HZ = 1_000_000
 SPI_MODE = 0b00
 
 # How long the controller is allowed to stay busy before we give up on it. The
@@ -40,6 +46,15 @@ SPI_MODE = 0b00
 # would sit there until systemd killed it, with nothing in the journal.
 BUSY_TIMEOUT_SECONDS = 15.0
 BUSY_POLL_SECONDS = 0.01
+
+# How long the controller is given after the deep-sleep command, before its rails
+# are dropped. Waveshare's Python driver waits 2s; their C drivers for this same
+# panel, the Raspberry Pi one included, wait 100ms. The 2s was measured on the
+# boot's critical path - the application waits for the splash to finish - so it
+# is cut, but to 0.5s rather than the C drivers' 100ms: a margin over the
+# vendor's own shorter figure, for 0.4s. BUSY cannot be polled instead: it stays
+# high for as long as the controller is asleep.
+DEEP_SLEEP_SETTLE_SECONDS = 0.5
 
 # The splash runs early enough to beat udev to the GPIO character device. The
 # node is created root-only and only then chowned to the gpio group by
@@ -135,7 +150,7 @@ class Panel:
         the application wants.
         """
         self._command(0x10, 0x01)
-        time.sleep(2.0)  # the controller wants this before power goes
+        time.sleep(DEEP_SLEEP_SETTLE_SECONDS)
 
         self._spi.close()
         for pin in (RESET_PIN, DATA_COMMAND_PIN, POWER_PIN):
