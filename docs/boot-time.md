@@ -736,3 +736,30 @@ partly by contention.
 
 Safe on this boot: the splash finished at 27.2s, the application first touched
 the panel at 33.0s.
+
+## 10.6s of generators, nearly all for swap nobody uses, 2026-09-29
+
+systemd's own startup phases (`systemctl show -p Generators…`/`UnitsLoad…`)
+showed 10.6s between starting and finishing the generators - before a single unit
+could start. Timed one by one: every generator ~0.1s except `rpi-swap-generator`,
+a shell script that reads its config through a Python script (1.1s warm) and then
+sizes a swap file and a zram device through two more shell scripts (2.3s each,
+warm) - for swap that is 0 on this device. `speed-up-boot.sh` now masks it with a
+`/dev/null` link in `/etc/systemd/system-generators`; `--restore` removes it.
+
+| | before | after |
+|---|---|---|
+| generators | 3.7s - 14.3s (**10.6s**) | 3.7s - 5.3s (**1.6s**) |
+| `init.scope` (PID 1 ready) | 16.2s | **7.0s** |
+| splash starts | 17.4s | **8.3s** |
+| app service starts | 24.8s | **16.5s** |
+| **ready** | **35.9s** | **27.7s** |
+| `systemd-analyze` total | 51.1s | 43.3s |
+
+8.2s off the moment the device is usable, from one symlink. Swap still 0, no
+failed units. `nd-timer-devices` now runs at 14.6s and the app starts at 16.5s -
+the devices step is on the app's path again, and `/dev/i2c-1` still arrives
+after it.
+
+Worth the general note: `systemd-analyze blame` never showed this, because
+generators are not units. It lives in the manager's own timestamps.
