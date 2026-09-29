@@ -763,3 +763,32 @@ after it.
 
 Worth the general note: `systemd-analyze blame` never showed this, because
 generators are not units. It lives in the manager's own timestamps.
+
+## Unchaining the app from the devices step and the remount, 2026-09-29
+
+The app waited for `nd-timer-devices`, which waited for `systemd-modules-load`
+(4.9s), and for `systemd-remount-fs`. Neither was needed at start: the app waits
+for the chip and bus itself, and its first ~8s are imports. Now it is ordered
+after the journal socket only, runs in a `RuntimeDirectory` (`/run/nd-timer`, so
+lgpio's pipe needs no writable root), and the devices step hands over the GPIO
+chip at once and waits for the SPI and I2C nodes as their modules bind.
+
+| | before | after |
+|---|---|---|
+| app service started | 16.5s | **8.6s** |
+| `main()` entered | 24.5s (8.0s of imports) | 23.3s (**14.7s** of imports) |
+| splash finished | 18.4s | 19.7s |
+| **ready** | **27.7s** | **26.4s** |
+
+1.4s. Starting eight seconds earlier bought one and a half: the imports now run
+through the busiest part of the boot and take nearly twice as long. The splash
+lost 1.3s to the same contention. `/dev/i2c-1` was handed over early for the
+first time. No failures; lgpio's pipe is in `/run/nd-timer`.
+
+The devices step now finishes at 35.6s - nothing waits for it, but its wait loop
+forks a `sleep` every 50ms for most of that, on the one core everything else is
+competing for.
+
+**The boot is now CPU-bound.** Starting things earlier mostly redistributes the
+same work. What is left to win is work removed: services that cost CPU in the
+first 25s and give this device nothing.
