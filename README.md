@@ -25,6 +25,8 @@ Now:
 No calculations or iterative backsolving required!
 
 ## What it looks like
+<details>
+<summary>Show the screens</summary>
 
 The display is a 2.13" e-paper panel mounted upright: 122 x 250 pixels. "selected" is shown by inverting the colors.
 
@@ -197,6 +199,8 @@ watch it sit at zero with the shutter still open.
 
 ![Countdown screen](docs/screens/countdown-bulb@3x.png)
 
+</details>
+
 ## Controls
 
 On AUTO the five-way lands on four things - the time, the AUTO/MANUAL band, the scenario
@@ -217,6 +221,8 @@ requirements
 - soldering iron
 
 ## Development
+<details>
+<summary>Show the development setup</summary>
 
 The exposure maths, the screens and the camera commands are all testable without any
 hardware attached - which matters, because the Pi's only USB port cannot carry both the
@@ -266,7 +272,11 @@ presses arrive as method calls and the clock arrives as an argument, so the pane
 driver and gphoto2 are the only parts the simulator stands in for. The solving
 itself is `nd_timer/recipe.py`, which is where the time becomes a filter stack.
 
+</details>
+
 ## Installing on a Pi
+<details>
+<summary>Show the install steps</summary>
 
 From a blank SD card to a running device. Every step is a script, and the notes say why
 each exists - most of them exist to work around something that is not obvious until it
@@ -379,7 +389,11 @@ job and nothing else's.
 
 Flashing a fresh card fixes none of this. It is worth doing only to rule software out.
 
+</details>
+
 ## Wiring the power button
+<details>
+<summary>Show the wiring</summary>
 
 The 16mm button does two jobs and they are wired separately: three terminals switch the
 power, two more light the ring. The ring is the only thing on this device that can say
@@ -572,7 +586,12 @@ write the `gpio-poweroff` line yet.
 The latching button can stay as a master isolator for storage, in series: ON pin → latching
 button → MOSFET → middle pin. Or it can go, and the soft latch is the only switch.
 
+</details>
+
 # Bill of Materials
+<details>
+<summary>Show the parts list</summary>
+
 - five way button\
   <img width="200" alt="17849727845893738776011421435184" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
 
@@ -610,3 +629,4 @@ button → MOSFET → middle pin. Or it can go, and the soft latch is the only s
 - 1/4" Camera Hot shoe Mount\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/daab8fbc-d2e3-43ca-9c25-478450506ead" />
 
+</details>
