@@ -28,7 +28,6 @@ No calculations or iterative backsolving required!
 <details>
 <summary>Show the screens</summary>
 
-The display is a 2.13" e-paper panel mounted upright: 122 x 250 pixels. "selected" is shown by inverting the colors.
 
 ### The recipe
 
@@ -36,11 +35,7 @@ The time is at the top because it is the one thing you choose. Under it, a band 
 who is choosing everything else. Then **base**, the shutter the camera was reading when
 you pressed SYNC - a measurement, which nothing the device does moves - and the answer
 to your time, read down the column: the ISO and aperture to set, the filters to screw
-on, and how close that lands. At 122 pixels wide there is no room for a label beside its
-value, so each row stacks them.
-
-Nothing on screen says SHOOT. It is a button under your thumb, and a panel that drew it
-would be spending its own space saying what the hardware already says.
+on, and how close that lands. 
 
 ![The main screen](docs/screens/main-waterfall@3x.png)
 
@@ -56,9 +51,7 @@ rather than printing a recipe it cannot stand behind.
 
 ### The battery
 
-The UPS HAT carries an INA219, which measures volts and amps rather than charge -
-there is no gauge on the board modelling the cell - so the percentage is inferred
-from cell voltage. That is a cruder thing than it looks: a lithium cell sits near
+The UPS HAT carries an INA219, which measures volts and amps rather than a percentage. That is a cruder thing than it looks: a lithium cell sits near
 3.7V for most of its life and then falls off a cliff, and it sags under load and
 recovers after.
 
@@ -77,21 +70,11 @@ dead and sends you home; hatching says the number is not known.
 Filters come in coarse jumps, so the time asked for is often not reachable with glass
 alone. ISO in thirds is the trim that closes the gap - the ISO on screen is simply the
 one that makes your time the correct exposure for what was metered, not a change to the
-reading itself. The **off** row is what is left over: a signed number of stops, where
-positive is brighter than metered, so shoot that time anyway and the frame is over by
-that much. It says `exact` only when there is nothing left worth reading.
+reading itself. The **DEV** row is the deviation in stops of what it thinks a perfect exposure would be. It can be overruled in **manual** mode.
 
 Aperture is moved last and least, because it is the one thing on the list the photograph
 itself can see - and it moves in thirds, so when it has to move it moves by f/11 to f/13
 rather than by a whole stop.
-
-The row keeps speaking below the point where the device stops working. A third of a stop
-is the finest step a camera has, so one recipe serves every time within half a step of
-it: ask for nine minutes or for ten and the filters, the ISO and the aperture are the
-same, because nothing on the camera could tell those two apart. They are not the same
-photograph though - the second is a minute more cloud - so the row reads `exact` at one
-and `+0.1st` at the other, and the difference between the two screens is visible rather
-than implied.
 
 ![The main screen with a filter bag that cannot reach](docs/screens/main-out-of-reach@3x.png)
 
