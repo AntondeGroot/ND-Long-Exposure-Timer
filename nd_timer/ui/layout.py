@@ -101,14 +101,14 @@ FIRST_ROW_TOP = TOGGLE_BOTTOM + 2
 # The miss gets a line of its own rather than sharing ND's, because "8+64+1000"
 # is already the width of the column and a filter name that shrinks to 8pt is a
 # filter name read wrong in the dark.
-BASE = "base"
+BASE = "BASE"
 ISO = "ISO"
 APERTURE = "APER"
 ND = "ND"
-OFF = "off"
+DEV = "DEV"
 MODE = "MODE"
 
-ROWS = (BASE, ISO, APERTURE, ND, OFF, MODE)
+ROWS = (BASE, ISO, APERTURE, ND, DEV, MODE)
 
 # What the five-way can be pointing at, and the order up and down walk them. The
 # time leads because it is what the photographer sets and the rest is worked back
