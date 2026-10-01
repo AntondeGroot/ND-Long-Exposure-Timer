@@ -244,17 +244,6 @@ Or with nothing installed at all, at
 the same page, with the same Python running in the browser through Pyodide. It is
 rebuilt from `main` on every push by `.github/workflows/pages.yml`.
 
-The five-way, SYNC and SHOOT are on the page and on the keyboard, and the picture
-served is the exact 122 x 250 buffer the panel would be holding. The three values
-SYNC reads sit beside it, so a scene can be metered with no camera on the desk,
-and the clock can be run fast while the shutter is open - a six-minute exposure
-is worth watching at 60x rather than in real time.
-
-What the buttons drive is `nd_timer/device.py`, the state machine the Pi runs:
-presses arrive as method calls and the clock arrives as an argument, so the panel
-driver and gphoto2 are the only parts the simulator stands in for. The solving
-itself is `nd_timer/recipe.py`, which is where the time becomes a filter stack.
-
 </details>
 
 ## Installing on a Pi
