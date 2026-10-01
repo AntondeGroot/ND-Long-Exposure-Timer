@@ -1,31 +1,26 @@
 # ND Long Exposure Timer
 
-Taking long exposure photos can be cumbersome. You work forward based on the filters you might want to put on your camera. However working backwards based on the exposure time you desire is much more user friendly.
+Taking long exposure photos can be cumbersome.
+
+This module will make the whole process "shutter priority", and tell you which filters you need, it will take care of the camera settings like ISO and aperture for small adjustments.
+
+Working based on the exposure time you desire is much more user friendly.
 This way you only need to think about the intended effect you want to create.
 
-Normally
+Before:
 - you first need to determine the correct exposure
 - then guess which filters you would need
-- then calculate how much the total exposure time will be
+- then calculate how much the total exposure time will be in seconds, and convert that to mm:ss.
 - maybe pick different filters and calculate again
 - and then backsolve how to adjust:  iso / aperture so your base shutter speed will result in the total exposure time you wanted.
 
-This module will make the whole process shutter priority, and tell you which filters you need, it will take care of the camera settings.
-- sync with your camera when you have your exposure set correctly
-- let you choose the total exposure time
+Now:
+- you sync with your camera when you have your exposure set correctly
+- you choose the total exposure time
 - it will tell you what filters you need to put on
 - it will automatically determine the ISO and aperture settings needed for the long exposure within a given range.
 
-no calculations or iterative backsolving required!
-
-
-It is shutter priority, with the filters in the loop. A camera in that mode balances
-the shutter you chose against the one variable it has; this one has your filter bag as
-well, and a stop of ND buys time without touching the photograph at all.
-
-- **SYNC** reads ISO, aperture and shutter speed from the camera over USB
-- Choose the time you want, or a scenario that knows what it wants
-- The panel names the filters to screw on and the ISO and aperture to set
+No calculations or iterative backsolving required!
 
 ## What it looks like
 
@@ -212,6 +207,12 @@ it stops on the ISO and the aperture too.
 | Five-way centre | select |
 | SYNC | read the current exposure settings from the camera |
 | SHOOT | start the shot, hold to cancel it |
+
+## Building it
+
+requirements
+- 3d printer
+- soldering iron
 
 ## Development
 
