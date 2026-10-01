@@ -256,7 +256,7 @@ def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
         layout.ISO: screen.iso,
         layout.APERTURE: screen.aperture,
         layout.ND: screen.nd_label,
-        layout.OFF: screen.off_by,
+        layout.DEV: screen.off_by,
         layout.MODE: screen.mode,
     }
 
