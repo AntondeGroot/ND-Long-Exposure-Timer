@@ -282,43 +282,64 @@ class Simulator:
             }
 
 
+def answered(simulator: Simulator, method: str, url: str) -> tuple[bytes, str] | None:
+    """What the simulator says to one request, or None for a route it lacks.
+
+    Kept apart from the HTTP server so the page on GitHub Pages can ask the same
+    questions of a simulator running in the browser, where there is no server.
+    """
+    route = urlparse(url).path
+    query = parse_qs(urlparse(url).query)
+    if method == "GET":
+        if route == "/":
+            return PAGE.read_bytes(), "text/html; charset=utf-8"
+        if route == "/frame.png":
+            return simulator.frame(), "image/png"
+        if route == "/state":
+            return _json(simulator.state())
+        return None
+
+    if route == "/press":
+        simulator.pressed(query.get("button", [""])[0])
+    elif route == "/camera":
+        simulator.set_camera(
+            iso=float(query["iso"][0]),
+            aperture=float(query["aperture"][0]),
+            shutter=float(query["shutter"][0]),
+            connected=query.get("connected", ["1"])[0] == "1",
+        )
+    elif route == "/battery":
+        level = query.get("percent", [""])[0]
+        simulator.set_battery(
+            percent=int(level) if level else None,
+            charging=query.get("charging", ["0"])[0] == "1",
+        )
+    elif route == "/speed":
+        simulator.set_speed(float(query["speed"][0]))
+    else:
+        return None
+    return _json(simulator.state())
+
+
+def _json(payload: dict) -> tuple[bytes, str]:
+    return json.dumps(payload).encode(), "application/json"
+
+
 class Handler(BaseHTTPRequestHandler):
     simulator: Simulator
 
     def do_GET(self) -> None:
-        route = urlparse(self.path).path
-        if route == "/":
-            self._send(PAGE.read_bytes(), "text/html; charset=utf-8")
-        elif route == "/frame.png":
-            self._send(self.simulator.frame(), "image/png")
-        elif route == "/state":
-            self._send_json(self.simulator.state())
-        else:
-            self.send_error(404)
+        self._answer("GET")
 
     def do_POST(self) -> None:
-        route = urlparse(self.path).path
-        query = parse_qs(urlparse(self.path).query)
-        if route == "/press":
-            self.simulator.pressed(query.get("button", [""])[0])
-        elif route == "/camera":
-            self.simulator.set_camera(
-                iso=float(query["iso"][0]),
-                aperture=float(query["aperture"][0]),
-                shutter=float(query["shutter"][0]),
-                connected=query.get("connected", ["1"])[0] == "1",
-            )
-        elif route == "/battery":
-            level = query.get("percent", [""])[0]
-            self.simulator.set_battery(
-                percent=int(level) if level else None,
-                charging=query.get("charging", ["0"])[0] == "1",
-            )
-        elif route == "/speed":
-            self.simulator.set_speed(float(query["speed"][0]))
+        self._answer("POST")
+
+    def _answer(self, method: str) -> None:
+        answer = answered(self.simulator, method, self.path)
+        if answer is None:
+            self.send_error(404)
         else:
-            return self.send_error(404)
-        self._send_json(self.simulator.state())
+            self._send(*answer)
 
     def _send(self, body: bytes, content_type: str) -> None:
         self.send_response(200)
@@ -327,9 +348,6 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
-
-    def _send_json(self, payload: dict) -> None:
-        self._send(json.dumps(payload).encode(), "application/json")
 
     def log_message(self, *_args) -> None:
         """Quiet: a press a second would otherwise fill the terminal."""

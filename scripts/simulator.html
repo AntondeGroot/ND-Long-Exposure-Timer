@@ -53,7 +53,7 @@
 <h1>ND Long Exposure Timer &mdash; simulator</h1>
 
 <div class="workbench">
-  <div class="device"><img id="frame" src="/frame.png" alt="e-paper panel"></div>
+  <div class="device"><img id="frame" alt="e-paper panel"></div>
 
   <div class="controls">
     <div class="pad">
@@ -123,7 +123,15 @@ const KEYS = {
 };
 let polling = null;
 
-function redraw() { frame.src = '/frame.png?t=' + Date.now(); }
+// How the page reaches the simulator: simulator.py over HTTP when run locally.
+// The GitHub Pages build has no server, so simulator-browser.js runs the same
+// Python in the browser and puts itself here before this script starts.
+const device = window.simulatedDevice ?? {
+  ask: async (method, path) => (await fetch(path, { method })).json(),
+  frame: async () => '/frame.png?t=' + Date.now(),
+};
+
+async function redraw() { frame.src = await device.frame(); }
 
 function follow(state) {
   redraw();
@@ -147,7 +155,7 @@ function follow(state) {
 }
 
 async function post(path) {
-  follow(await (await fetch(path, { method: 'POST' })).json());
+  follow(await device.ask('POST', path));
 }
 
 // Presses go one at a time: two fetches in flight can reach the server out of
@@ -201,7 +209,7 @@ document.getElementById('speed').addEventListener('change', (event) => {
 });
 
 (async function start() {
-  const state = await (await fetch('/state')).json();
+  const state = await device.ask('GET', '/state');
   for (const name of ['iso', 'aperture', 'shutter']) {
     fill(document.getElementById(name), state.choices[name], state.camera[name]);
   }

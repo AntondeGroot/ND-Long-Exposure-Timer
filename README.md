@@ -248,6 +248,11 @@ The whole device runs on a laptop, with the panel in a browser and the camera fa
 ./scripts/simulator.py                # then open http://localhost:8000
 ```
 
+Or with nothing installed at all, at
+[antondegroot.github.io/ND-Long-Exposure-Timer](https://antondegroot.github.io/ND-Long-Exposure-Timer/):
+the same page, with the same Python running in the browser through Pyodide. It is
+rebuilt from `main` on every push by `.github/workflows/pages.yml`.
+
 The five-way, SYNC and SHOOT are on the page and on the keyboard, and the picture
 served is the exact 122 x 250 buffer the panel would be holding. The three values
 SYNC reads sit beside it, so a scene can be metered with no camera on the desk,
