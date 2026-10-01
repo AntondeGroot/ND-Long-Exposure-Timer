@@ -1,0 +1,48 @@
+# The simulator, published to GitHub Pages so the device can be tried without
+# cloning anything. Pages has no Python server, so the site runs simulator.py's
+# own code in the browser - see scripts/build-simulator-page.py.
+name: Simulator page
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Reading the repository, and the two that deploying to Pages requires.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel one halfway: a half-published site
+# is worse than one that is a push behind.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      # Standard library only: the Python the page runs is installed by Pyodide
+      # in the visitor's browser, not here.
+      - run: ./scripts/build-simulator-page.py _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
