@@ -7,6 +7,8 @@ This module will make the whole process "shutter priority", and tell you which f
 Working based on the exposure time you desire is much more user friendly.
 This way you only need to think about the intended effect you want to create.
 
+For a preview see: https://antondegroot.github.io/ND-Long-Exposure-Timer/
+
 Before:
 - you first need to determine the correct exposure
 - then guess which filters you would need
