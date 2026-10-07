@@ -197,12 +197,6 @@ it stops on the ISO and the aperture too.
 | SYNC | read the current exposure settings from the camera |
 | SHOOT | start the shot, hold to cancel it |
 
-## Building it
-
-requirements
-- 3d printer
-- soldering iron
-
 ## Development
 <details>
 <summary>Show the development setup</summary>
@@ -363,9 +357,117 @@ Flashing a fresh card fixes none of this. It is worth doing only to rule softwar
 
 </details>
 
-## Wiring the power button
+## Circuit diagrams
 <details>
-<summary>Show the wiring</summary>
+<summary>Show the circuit diagrams</summary>
+
+For checking the design, not for building it: everything needed to solder the board is in
+[Building the exposure timer](#building-the-exposure-timer).
+
+### Button ring
+
+![Button ring schematic](docs/ring-circuit.svg)
+
+### Soft latch
+
+![Soft latch schematic](docs/soft-latch-circuit.svg)
+
+</details>
+
+## Building the exposure timer
+<details>
+<summary>Show the build steps</summary>
+
+You need a 3D printer for the enclosure, a soldering iron and a multimeter.
+
+### 1. Solder the breakout board
+
+Both circuits go on the Breakout Pi Zero in the BOM, in two separate regions: the ring
+under the GP22 pad, the soft latch against the GND rail under GP12 (sense) and GP16
+(hold). The strips run vertically in threes - rows A-C and D-F of each column - so parts
+sit across columns, never along one. On the board itself it takes one jumper (the ring's
+emitter to GND) and one solder bridge (21C to 21D, joining the gate's two strips, made
+after the transistor that sits in 21C).
+
+The seven buttons need no strips at all: each wire goes straight into its GPIO pad, on the
+pins in `main.py`'s `PINS`, and one ground wire from the GND rail is daisy-chained to the
+common leg of every button.
+
+Holes are written column then row: `21C` is column 21, row C. This is the finished board:
+
+![The whole build](docs/breakout/overview.svg)
+
+The overview and the five steps below are drawn from one description of the build,
+`scripts/breakout_drawing/layout.py`. To change the layout, change that file and run
+`./scripts/draw-breakout.py` - never edit the SVGs. The test suite fails if they drift
+apart. Each step shows what is already on the board faded, and only its own parts in
+full.
+
+Low parts first, so the board still lies flat on the bench for the next ones. Check each
+step with a multimeter on continuity before starting the next: a short found now costs a
+blob of solder, found later it costs a UPS HAT.
+
+#### 1.1 Resistors and BAT85s
+
+![Step 1](docs/breakout/step-1.svg)
+
+The four resistors and two diodes, stood up. The GPIO legs go straight into the pads - no
+wire. Stripe towards column 18 on both diodes.
+
+Check: 20F to 21F and 19C to 21B do not beep (a resistor is not a short); 21C does not
+beep to 21D yet.
+
+#### 1.2 The AO3401
+
+![Step 2](docs/breakout/step-2.svg)
+
+Before soldering, put the meter on the adapter: confirm that the SIP pin going in 21E is
+the gate and the middle one the source. Solder the adapter's middle leg first, check it
+stands straight, then the outer two.
+
+Check: no beep between any two of 19E, 20E and 21E.
+
+#### 1.3 The two BC337s and the solder bridge
+
+![Step 3](docs/breakout/step-3.svg)
+
+Check the pinout on the part in hand first (see
+[the ring wiring](#wiring-the-buttons-led-ring-as-an-indicator) below). Emitter to the
+right on both: 10B for the ring, 23C - in the GND rail - for the soft latch. Leave a few
+millimetres of leg so the iron does not cook them.
+
+Then the bridge, on the underside, now that the collector is soldered in 21C: the
+simplest bridge is that collector leg itself, bent over onto the 21D pad and soldered
+there - or an offcut of resistor leg. Solder alone across two pads tends to ball up
+rather than span them.
+
+Check: 21C beeps to 21D; 23C beeps to the GND rail; 8B, 9B and 10B beep to nothing
+around them.
+
+#### 1.4 The GND jumper and the wires that leave the board
+
+![Step 4](docs/breakout/step-4.svg)
+
+Before the wires to the power button, find its terminals and the ring's polarity - steps
+1 and 2 of [Order of work](#order-of-work) below. The jumper runs below row F, from 10C to
+23D. Then the six wires: ① and ② to the ring,
+③ and ⑥ to the power button's switch, ④ and ⑤ to the UPS switch pads. **④ and ⑤ are the
+thick ones** - up to 1.5A from an unfused cell. Heat-shrink both ends of every wire.
+
+Check: 10C beeps to the GND rail. ④ to ⑤ must not beep. On the diode range they read
+about 0.5V one way: that is the MOSFET's body diode, and is expected.
+
+#### 1.5 The button wires
+
+![Step 5](docs/breakout/step-5.svg)
+
+One wire per pad, ⑦ to ⑬, and ⑭ from the GND rail daisy-chained to the common leg of
+every button.
+
+Check: no pad beeps to its neighbours or to GND; each one beeps to GND while its button
+is held.
+
+### The power button
 
 The 16mm button is momentary and does two jobs, wired separately: two terminals are the
 soft latch's button (below), two more light the ring. The ring is the only thing on this
@@ -387,9 +489,8 @@ hold line.
 ### Wiring the button's LED ring as an indicator
 
 The ring in the BOM is rated 3-6V (5V nominal), and a GPIO is 3.3V logic that should not
-be asked for more than about 16mA. So the GPIO switches a transistor and the transistor switches the ring:
-
-![Button ring schematic](docs/ring-circuit.svg)
+be asked for more than about 16mA. So the GPIO switches a transistor and the transistor
+switches the ring (the schematic is under [Circuit diagrams](#circuit-diagrams)).
 
 | Part | Value | Why |
 |------|-------|-----|
@@ -421,12 +522,9 @@ base is the emitter.
 3. **Solder the button first**, while it is loose and you can turn it over. Tin each wire,
    heat the terminal rather than the solder, and heat-shrink each joint: these are the
    joints that take the strain of the switch being pressed.
-4. **Build the transistor on a scrap of perfboard**, not in mid-air. Three wires leave it:
-   5V, GND, and the GPIO. A dead bug of components hanging off a button will fail in a
-   camera bag.
-5. **Tap the header last.** GPIO22 is physical pin 15, 5V is pin 2, GND is pin 6. Both
-   HATs sit on that header, so take these from the stacking header's pass-through pins or
-   from a spare set - do not unsolder anything on the UPS HAT to get at them.
+4. **The transistor lives on the breakout board** (step 1), not in mid-air: a dead bug of
+   components hanging off a button will fail in a camera bag. Only the four wires ① ② ③ ⑥
+   go to the button.
 
 ### Checking it
 
@@ -483,9 +581,7 @@ micro-USB and the battery, so the cell still charges with the Pi off.
 
 The schematic does not say which end of the board is which, so measure before soldering:
 with the latching button released, the ON pin reads battery voltage to GND, and the
-middle and OFF pins read about 0V.
-
-![Soft latch schematic](docs/soft-latch-circuit.svg)
+middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#circuit-diagrams).
 
 - **Starting:** the button pulls the gate low through its diode and the rail comes up.
   The hold line gets `gpio=16=op,dh`, so the firmware asserts it about a second in and you
@@ -517,90 +613,6 @@ write the `gpio-poweroff` line yet.
 
 The latching button comes off the ON and middle pins and the soft latch is the only switch.
 Off, the MOSFET leaks microamps, so storage drain is about what a hard switch gives.
-
-### On the breakout board
-
-Both circuits go on the Breakout Pi Zero in the BOM, in two separate regions: the ring
-under the GP22 pad, the soft latch against the GND rail under GP12 (sense) and GP16
-(hold). The strips run vertically in threes - rows A-C and D-F of each column - so parts
-sit across columns, never along one. On the board itself it takes one jumper (the ring's
-emitter to GND) and one solder bridge (21C to 21D, joining the gate's two strips, made
-after the transistor that sits in 21C).
-
-The seven buttons need no strips at all: each wire goes straight into its GPIO pad, on the
-pins in `main.py`'s `PINS`, and one ground wire from the GND rail is daisy-chained to the
-common leg of every button.
-
-Holes are written column then row: `21C` is column 21, row C. This is the finished board:
-
-![The whole build](docs/breakout/overview.svg)
-
-The overview and the five steps below are drawn from one description of the build,
-`scripts/breakout_drawing/layout.py`. To change the layout, change that file and run
-`./scripts/draw-breakout.py` - never edit the SVGs. The test suite fails if they drift
-apart. Each step shows what is already on the board faded, and only its own parts in
-full.
-
-Low parts first, so the board still lies flat on the bench for the next ones. Check each
-step with a multimeter on continuity before starting the next: a short found now costs a
-blob of solder, found later it costs a UPS HAT.
-
-#### Step 1: resistors and BAT85s
-
-![Step 1](docs/breakout/step-1.svg)
-
-The four resistors and two diodes, stood up. The GPIO legs go straight into the pads - no
-wire. Stripe towards column 18 on both diodes.
-
-Check: 20F to 21F and 19C to 21B do not beep (a resistor is not a short); 21C does not
-beep to 21D yet.
-
-#### Step 2: the AO3401
-
-![Step 2](docs/breakout/step-2.svg)
-
-Before soldering, put the meter on the adapter: confirm that the SIP pin going in 21E is
-the gate and the middle one the source. Solder the adapter's middle leg first, check it
-stands straight, then the outer two.
-
-Check: no beep between any two of 19E, 20E and 21E.
-
-#### Step 3: the two BC337s and the solder bridge
-
-![Step 3](docs/breakout/step-3.svg)
-
-Check the pinout on the part in hand first (see the ring section above). Emitter to the
-right on both: 10B for the ring, 23C - in the GND rail - for the soft latch. Leave a few
-millimetres of leg so the iron does not cook them.
-
-Then the bridge, on the underside, now that the collector is soldered in 21C: the
-simplest bridge is that collector leg itself, bent over onto the 21D pad and soldered
-there - or an offcut of resistor leg. Solder alone across two pads tends to ball up
-rather than span them.
-
-Check: 21C beeps to 21D; 23C beeps to the GND rail; 8B, 9B and 10B beep to nothing
-around them.
-
-#### Step 4: the GND jumper and the wires that leave the board
-
-![Step 4](docs/breakout/step-4.svg)
-
-The jumper runs below row F, from 10C to 23D. Then the six wires: ① and ② to the ring,
-③ and ⑥ to the power button's switch, ④ and ⑤ to the UPS switch pads. **④ and ⑤ are the
-thick ones** - up to 1.5A from an unfused cell. Heat-shrink both ends of every wire.
-
-Check: 10C beeps to the GND rail. ④ to ⑤ must not beep. On the diode range they read
-about 0.5V one way: that is the MOSFET's body diode, and is expected.
-
-#### Step 5: the button wires
-
-![Step 5](docs/breakout/step-5.svg)
-
-One wire per pad, ⑦ to ⑬, and ⑭ from the GND rail daisy-chained to the common leg of
-every button.
-
-Check: no pad beeps to its neighbours or to GND; each one beeps to GND while its button
-is held.
 
 </details>
 

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1346" width="1510" height="1346" font-family="Helvetica, Arial, sans-serif">
 <rect width="1510" height="1346" fill="#ffffff"/>
-<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Step 1 of 5: Resistors and BAT85s</text>
+<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 1 of 5: Resistors and BAT85s</text>
 <text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
