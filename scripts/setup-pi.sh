@@ -9,6 +9,7 @@
 #   - gphoto2 for camera control (delegates to install-gphoto2.sh)
 #   - the boot splash (delegates to install-boot-splash.sh)
 #   - a faster boot (delegates to speed-up-boot.sh)
+#   - the soft latch's hold line on BCM16 and the power-off at the end of a shutdown
 #   - optional clean-shutdown GPIO pin (momentary buttons only, see --shutdown-pin)
 #   - battery-friendly tweaks (activity LED off, splash off)
 #   - a systemd unit so the timer starts on boot
@@ -51,6 +52,10 @@ DO_POWER_TWEAKS=1
 ASSUME_YES=0
 
 SERVICE_NAME="nd-timer"
+# The soft latch's hold line, as soldered on the breakout board (docs/power-button.md).
+# Fixed rather than an option: it is part of the build, and a card without it
+# switches the device off the moment the power button is let go.
+HOLD_PIN=16
 WAVESHARE_DIR="/opt/waveshare-epaper"
 MARKER_BEGIN="# >>> ND Long Exposure Timer >>>"
 MARKER_END="# <<< ND Long Exposure Timer <<<"
@@ -168,6 +173,13 @@ write_config_block() {
     echo "# The UPS HAT's fuel gauge is on I2C. Without this there is no bus for"
     echo "# it to answer on, and the battery reading has nowhere to come from."
     echo "dtparam=i2c_arm=on"
+    echo ""
+    echo "# The soft latch's hold line. The firmware drives it high about a second"
+    echo "# after the power button is pressed - that is when it can be let go - and"
+    echo "# gpio-poweroff drops it at the very end of a shutdown, taking the power"
+    echo "# with it. Harmless on a board without the soft latch: nothing is on the pin."
+    echo "gpio=${HOLD_PIN}=op,dh"
+    echo "dtoverlay=gpio-poweroff,gpiopin=${HOLD_PIN},active_low=1"
     if [[ -n "$STATUS_LED_PIN" ]]; then
       echo ""
       echo "# The lamp in the power button, driven high here rather than by the"
@@ -184,7 +196,7 @@ write_config_block() {
     if [[ -n "$SHUTDOWN_PIN" ]]; then
       echo ""
       echo "# Momentary button: pulling BCM${SHUTDOWN_PIN} to ground halts the Pi cleanly."
-      echo "# This is the sense half of the soft latch in the README."
+      echo "# This is the sense half of the soft latch in docs/power-button.md."
       echo "dtoverlay=gpio-shutdown,gpio_pin=${SHUTDOWN_PIN},active_low=1,gpio_pull=up"
     fi
 
@@ -558,8 +570,10 @@ the root filesystem read-only so a hard cut is harmless:
 
     sudo raspi-config nonint enable_overlayfs   # then reboot
 
-(For a clean software shutdown instead, build the soft latch in the README
-and rerun with --shutdown-pin N for its sense line. Not pin 3 on this build.)
+(For a clean software shutdown instead, build the soft latch in docs/power-button.md.
+Its hold line on BCM${HOLD_PIN} is always configured; rerun with --shutdown-pin 12 for
+its sense line. With the soft latch, a reboot switches the device off: the hold line
+drops while the firmware restarts, so press the power button to bring it back.)
 
 To undo the config.txt changes: restore ${CONFIG_TXT}.nd-timer.bak
 EOF
