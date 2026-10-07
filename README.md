@@ -367,46 +367,29 @@ Flashing a fresh card fixes none of this. It is worth doing only to rule softwar
 <details>
 <summary>Show the wiring</summary>
 
-The 16mm button does two jobs and they are wired separately: three terminals switch the
-power, two more light the ring. The ring is the only thing on this device that can say
-"starting" - the panel cannot be written until Linux is up, about seventeen seconds in,
-and a latching switch cuts the rail so nothing runs at power-off to leave a message
-either. See `docs/boot-time.md` for how that conclusion was arrived at.
+The 16mm button is momentary and does two jobs, wired separately: two terminals are the
+soft latch's button (below), two more light the ring. The ring is the only thing on this
+device that can say "starting" - the panel cannot be written until Linux is up, about
+seventeen seconds in. See `docs/boot-time.md` for how that conclusion was arrived at.
 
 ### What the ring is for
 
 `config.txt` carries `gpio=22=op,dh`, written by `setup-pi.sh --status-led-pin 22`. The
-**firmware** applies that about a second after the switch is flipped - before the kernel,
+**firmware** applies that about a second after the button is pressed - before the kernel,
 let alone the application - so the ring lights almost immediately. `main.py` then drives
 the pin low once the first real screen is on the panel.
 
 **Lit means starting. Dark means ready.** Which also keeps the enclosure dark while the
-shutter is open, the same reason the Pi's own ACT LED is disabled.
+shutter is open, the same reason the Pi's own ACT LED is disabled. With the soft latch the
+ring also says when to let go: it lights at the same moment the firmware takes over the
+hold line.
 
 ### Wiring the button's LED ring as an indicator
 
 The ring in the BOM is rated 3-6V (5V nominal), and a GPIO is 3.3V logic that should not
 be asked for more than about 16mA. So the GPIO switches a transistor and the transistor switches the ring:
 
-```
-                      5V (header pin 2)
-                              │
-                          220-330Ω    optional: not needed for the 3-6V
-                              │           ring, only for a bare LED
-                              +
-                        ┌─────┴─────┐
-                        │ LED  ring │
-                        └─────┬─────┘
-                              -
-                              │
-                          Collector
-                          ┌───┴───┐
-     GPIO22 ── 1k ── Base │ BC337 │
-     (pin 15)             └───┬───┘
-                           Emitter
-                              │
-                     GND (header pin 6)
-```
+![Button ring schematic](docs/ring-circuit.svg)
 
 | Part | Value | Why |
 |------|-------|-----|
@@ -430,8 +413,8 @@ base is the emitter.
 
 1. **Identify the button's terminals** before anything is soldered. The two LED terminals
    are usually marked `+` and `-`; the switch terminals are `COM`, `NO` and `NC`. Put a
-   multimeter on continuity across `COM` and `NO` and press the button: closed when
-   latched in, open when out. That is the pair the power goes through.
+   multimeter on continuity across `COM` and `NO` and press the button: closed only while
+   it is held. That is the pair the soft latch uses; `NC` stays unconnected.
 2. **Test the ring on the bench** before it is in the circuit, to find its polarity. The
    3-6V ring in the BOM can take 5V straight across it. A ring without a rating goes
    through 330Ω first: bright means it has no resistor of its own, dim means it does.
@@ -469,8 +452,8 @@ is why there is no "shutting down" frame on the panel, and why the panel holds a
 screen from the last session.
 
 A soft latch fixes it: a momentary button starts the Pi, a P-channel MOSFET holds the rail
-up, and the Pi drops it when it has finished writing to the panel. Two of the momentary
-buttons in the parts list are already spare.
+up, and the Pi drops it when it has finished writing to the panel. The momentary 16mm
+button in the BOM replaces the latching one for this, so the ring stays on the same button.
 
 It is one button on two GPIOs: a **hold** line the Pi drives to keep the rail up, and a
 **sense** line it reads to know the button was pressed again. `setup-pi.sh
@@ -502,38 +485,15 @@ The schematic does not say which end of the board is which, so measure before so
 with the latching button released, the ON pin reads battery voltage to GND, and the
 middle and OFF pins read about 0V.
 
-```
-                                  (AO3401)
-     switch ON pin ──┬──── Source ┌───────┐ Drain ──── switch middle pin
-                     │            │ P-FET │
-                     │            └───┬───┘
-                   100kΩ             Gate
-                     │                │
-                     └────────────────┤
-                                      │
-                ┌─────────────────────┤
-                │                     │
-               10kΩ               Collector
-                │                 ┌───┴───┐
-                │                 │ BC337 │ Base ── 10kΩ ── hold GPIO
-                │                 └───┬───┘                 (gpio=N=op,dh + gpio-poweroff)
-                ▼  BAT85           Emitter
-               ───                    │
-                │                    GND
-                │
-                ├──|◄── sense GPIO (gpio-shutdown)
-                │  BAT85
-                │
-                └── momentary button ── GND
-```
+![Soft latch schematic](docs/soft-latch-circuit.svg)
 
 - **Starting:** the button pulls the gate low through its diode and the rail comes up.
-  The hold line gets `gpio=N=op,dh`, so the firmware asserts it about a second in and you
+  The hold line gets `gpio=16=op,dh`, so the firmware asserts it about a second in and you
   let go then - a hold-to-start of roughly a second, which is normal for this kind of
   circuit.
 - **Stopping:** a second press pulls the sense GPIO low through the other diode, and
   `gpio-shutdown` starts a clean poweroff - which is when the shutdown frame gets drawn.
-  At the very end `dtoverlay=gpio-poweroff,gpiopin=N,active_low=1` drops the hold line
+  At the very end `dtoverlay=gpio-poweroff,gpiopin=16,active_low=1` drops the hold line
   and the rail goes with it.
 - **The two diodes** both point at the button: stripe (cathode) on the button side. It
   needs two. While the Pi runs, the BC337 holds the gate at about 0V; with one diode the
@@ -555,8 +515,92 @@ I2C SCL, which the UPS HAT's fuel gauge needs. Pin 3's wake-from-halt is no use 
 anyway, because the soft latch removes power rather than halting. `setup-pi.sh` does not
 write the `gpio-poweroff` line yet.
 
-The latching button can stay as a master isolator for storage, in series: ON pin → latching
-button → MOSFET → middle pin. Or it can go, and the soft latch is the only switch.
+The latching button comes off the ON and middle pins and the soft latch is the only switch.
+Off, the MOSFET leaks microamps, so storage drain is about what a hard switch gives.
+
+### On the breakout board
+
+Both circuits go on the Breakout Pi Zero in the BOM, in two separate regions: the ring
+under the GP22 pad, the soft latch against the GND rail under GP12 (sense) and GP16
+(hold). The strips run vertically in threes - rows A-C and D-F of each column - so parts
+sit across columns, never along one. On the board itself it takes one jumper (the ring's
+emitter to GND) and one solder bridge (21C to 21D, joining the gate's two strips, made
+after the transistor that sits in 21C).
+
+The seven buttons need no strips at all: each wire goes straight into its GPIO pad, on the
+pins in `main.py`'s `PINS`, and one ground wire from the GND rail is daisy-chained to the
+common leg of every button.
+
+Holes are written column then row: `21C` is column 21, row C. This is the finished board:
+
+![The whole build](docs/breakout/overview.svg)
+
+The overview and the five steps below are drawn from one description of the build,
+`scripts/breakout_drawing/layout.py`. To change the layout, change that file and run
+`./scripts/draw-breakout.py` - never edit the SVGs. The test suite fails if they drift
+apart. Each step shows what is already on the board faded, and only its own parts in
+full.
+
+Low parts first, so the board still lies flat on the bench for the next ones. Check each
+step with a multimeter on continuity before starting the next: a short found now costs a
+blob of solder, found later it costs a UPS HAT.
+
+#### Step 1: resistors and BAT85s
+
+![Step 1](docs/breakout/step-1.svg)
+
+The four resistors and two diodes, stood up. The GPIO legs go straight into the pads - no
+wire. Stripe towards column 18 on both diodes.
+
+Check: 20F to 21F and 19C to 21B do not beep (a resistor is not a short); 21C does not
+beep to 21D yet.
+
+#### Step 2: the AO3401
+
+![Step 2](docs/breakout/step-2.svg)
+
+Before soldering, put the meter on the adapter: confirm that the SIP pin going in 21E is
+the gate and the middle one the source. Solder the adapter's middle leg first, check it
+stands straight, then the outer two.
+
+Check: no beep between any two of 19E, 20E and 21E.
+
+#### Step 3: the two BC337s and the solder bridge
+
+![Step 3](docs/breakout/step-3.svg)
+
+Check the pinout on the part in hand first (see the ring section above). Emitter to the
+right on both: 10B for the ring, 23C - in the GND rail - for the soft latch. Leave a few
+millimetres of leg so the iron does not cook them.
+
+Then the bridge, on the underside, now that the collector is soldered in 21C: the
+simplest bridge is that collector leg itself, bent over onto the 21D pad and soldered
+there - or an offcut of resistor leg. Solder alone across two pads tends to ball up
+rather than span them.
+
+Check: 21C beeps to 21D; 23C beeps to the GND rail; 8B, 9B and 10B beep to nothing
+around them.
+
+#### Step 4: the GND jumper and the wires that leave the board
+
+![Step 4](docs/breakout/step-4.svg)
+
+The jumper runs below row F, from 10C to 23D. Then the six wires: ① and ② to the ring,
+③ and ⑥ to the power button's switch, ④ and ⑤ to the UPS switch pads. **④ and ⑤ are the
+thick ones** - up to 1.5A from an unfused cell. Heat-shrink both ends of every wire.
+
+Check: 10C beeps to the GND rail. ④ to ⑤ must not beep. On the diode range they read
+about 0.5V one way: that is the MOSFET's body diode, and is expected.
+
+#### Step 5: the button wires
+
+![Step 5](docs/breakout/step-5.svg)
+
+One wire per pad, ⑦ to ⑬, and ⑭ from the GND rail daisy-chained to the common leg of
+every button.
+
+Check: no pad beeps to its neighbours or to GND; each one beeps to GND while its button
+is held.
 
 </details>
 
@@ -572,7 +616,7 @@ button → MOSFET → middle pin. Or it can go, and the soft latch is the only s
 - UPS HAT for Raspberry Pi Zero with 1000mah battery\
   <img width="200" alt="image" src="https://github.com/user-attachments/assets/cb306792-c2a6-40d5-bd81-8b63f4ea3967" />
 
-- power button 16mm diameter (latching 3 pole 1NO1NC, LED ring 3-6V, 5V nominal)\
+- power button 16mm diameter (momentary 1NO1NC, LED ring 3-6V, 5V nominal), for the soft latch\
   <img width="200" alt="powerbutton" src="https://github.com/user-attachments/assets/a33f7c25-f148-4ec7-9226-96dd3c6ffadc" />
 
 - 2x BC337 NPN transistor (TO-92): one for the power button ring, one for the soft latch
