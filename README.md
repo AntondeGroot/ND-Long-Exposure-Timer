@@ -26,6 +26,11 @@ What every screen means: [docs/screens.md](docs/screens.md).
 
 ## 1. Buy
 
+**Cost:** about €130 for a first build, bought in the Netherlands (prices of October 2026,
+with VAT, without shipping). €64 of that is the Pi, the UPS HAT, the display and the
+breakout board; the rest is small parts, which mostly come in packs. If you already have
+those, it comes down to about €64.
+
 <details>
 <summary>Show the parts list</summary>
 
