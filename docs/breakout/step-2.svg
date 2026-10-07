@@ -136,21 +136,21 @@
 <circle cx="912.0" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="912.0" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(919.0,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP25</text>
-<circle cx="966.8" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
+<circle cx="966.8" cy="320.0" r="16" fill="#d9b04a" stroke="#0b3a8c" stroke-width="6"/>
 <circle cx="966.8" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(973.8,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP5</text>
-<circle cx="1021.6" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
+<text transform="translate(973.8,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#0b3a8c">GP5</text>
+<circle cx="1021.6" cy="320.0" r="16" fill="#d9b04a" stroke="#0b3a8c" stroke-width="6"/>
 <circle cx="1021.6" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(1028.6,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP6</text>
-<circle cx="1076.4" cy="320.0" r="16" fill="#d9b04a" stroke="#0b3a8c" stroke-width="6"/>
+<text transform="translate(1028.6,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#0b3a8c">GP6</text>
+<circle cx="1076.4" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="1076.4" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(1083.4,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#0b3a8c">GP12</text>
+<text transform="translate(1083.4,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP12</text>
 <circle cx="1131.2" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="1131.2" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(1138.2,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP13</text>
-<circle cx="1186.0" cy="320.0" r="16" fill="#d9b04a" stroke="#0b3a8c" stroke-width="6"/>
+<circle cx="1186.0" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="1186.0" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(1193.0,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#0b3a8c">GP16</text>
+<text transform="translate(1193.0,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP16</text>
 <circle cx="1240.8" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="1240.8" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(1247.8,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP20</text>
@@ -382,40 +382,41 @@
 <text x="1464.0" y="741.0" font-size="20" fill="#555" text-anchor="start">F</text>
 <path d="M 501.4 294 H 555.4 V 424.0 H 644.2 V 605.6 H 462.6 V 424.0 H 501.4 Z" fill="none" stroke="#e8590c" stroke-width="4" stroke-dasharray="14 8" stroke-linejoin="round"/>
 <text x="553.4" y="865.0" font-size="24" fill="#e8590c" text-anchor="middle" font-weight="bold">Region 1: button ring</text>
-<path d="M 1049.4 294 H 1213.0 V 424.0 H 1411.4 V 770.0 H 1010.6 V 424.0 H 1049.4 Z" fill="none" stroke="#0b3a8c" stroke-width="4" stroke-dasharray="14 8" stroke-linejoin="round"/>
-<text x="1211.0" y="865.0" font-size="24" fill="#0b3a8c" text-anchor="middle" font-weight="bold">Region 2: soft latch</text>
+<path d="M 939.8 294 H 1048.6 V 424.0 H 1082.6 V 770.0 H 846.2 V 424.0 H 939.8 Z" fill="none" stroke="#0b3a8c" stroke-width="4" stroke-dasharray="14 8" stroke-linejoin="round"/>
+<text x="964.4" y="865.0" font-size="24" fill="#0b3a8c" text-anchor="middle" font-weight="bold">Region 2: soft latch</text>
 <g opacity="0.3">
 <line x1="528.4" y1="320.0" x2="553.4" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <g transform="translate(540.9,390.0) rotate(79.9)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
 <text x="583.4" y="440.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">1k</text>
-<line x1="1186.0" y1="320.0" x2="1265.8" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(1225.9,390.0) rotate(60.3)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="1207.0" y="440.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
-<line x1="1101.4" y1="569.6" x2="1211.0" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(1156.2,542.2) rotate(-26.6)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="1156.2" y="528.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
-<line x1="1156.2" y1="734.0" x2="1211.0" y2="734.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(1183.6,734.0) rotate(0.0)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="1279.8" y="740.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100k</text>
-<line x1="1076.4" y1="320.0" x2="1046.6" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(1061.5,390.0) rotate(102.0)"><rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>
-<text x="995.8" y="440.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
-<line x1="1101.4" y1="514.8" x2="1046.6" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(1074.0,514.8) rotate(180.0)"><rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>
-<text x="1074.0" y="497.8" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
+<line x1="1021.6" y1="320.0" x2="991.8" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(1006.7,390.0) rotate(102.0)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
+<text x="1050.6" y="440.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
+<line x1="937.0" y1="734.0" x2="882.2" y2="734.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(909.6,734.0) rotate(180.0)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
+<text x="821.4" y="740.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
+<line x1="937.0" y1="624.4" x2="1046.6" y2="624.4" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(991.8,624.4) rotate(0.0)"><rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
+<text x="991.8" y="608.4" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100k</text>
+<line x1="966.8" y1="320.0" x2="882.2" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(924.5,390.0) rotate(121.1)"><rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>
+<text x="837.4" y="440.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
+<line x1="882.2" y1="624.4" x2="882.2" y2="569.6" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(882.2,597.0) rotate(-90.0)"><rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>
+<text x="827.4" y="603.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
+<rect x="926.0" y="569.6" width="22.0" height="54.8" fill="#c7c7c7" rx="10" stroke="#7d7d7d" stroke-width="2"/>
 </g>
-<rect x="1077.4" y="663.2" width="157.6" height="42.0" fill="#2b5d9b" rx="4" stroke="#0f2e55" stroke-width="2"/>
-<rect x="1144.2" y="671.2" width="24.0" height="16.0" fill="#111"/>
-<circle cx="1101.4" cy="679.2" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="1101.4" y="657.2" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">D</text>
-<circle cx="1156.2" cy="679.2" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="1156.2" y="657.2" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">S</text>
-<circle cx="1211.0" cy="679.2" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="1211.0" y="657.2" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">G</text>
-<text x="1156.2" y="701.2" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">AO3401 on adapter</text>
+<rect x="913.0" y="663.2" width="157.6" height="42.0" fill="#2b5d9b" rx="4" stroke="#0f2e55" stroke-width="2"/>
+<rect x="979.8" y="671.2" width="24.0" height="16.0" fill="#111"/>
+<circle cx="1046.6" cy="679.2" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
+<text x="1046.6" y="657.2" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">S</text>
+<circle cx="991.8" cy="679.2" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
+<text x="991.8" y="657.2" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">D</text>
+<circle cx="937.0" cy="679.2" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
+<text x="937.0" y="657.2" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">G</text>
+<text x="991.8" y="701.2" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">AO3401 on adapter</text>
 <text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">This step</text>
 <circle cx="95.0" cy="967.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">AO3401 on its adapter: drain 19E, source 20E, gate 21E</text>
+<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">AO3401 on its adapter: source 18E, drain 17E, gate 16E</text>
 <text x="80.0" y="1026.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
-<text x="80.0" y="1058.0" font-size="19" fill="#444" text-anchor="start">Transistors: base in the middle, emitter to the right. Adapter assumed G-S-D in a row: check it before soldering.</text>
+<text x="80.0" y="1058.0" font-size="19" fill="#444" text-anchor="start">Transistors: base in the middle, emitter to the right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 16E.</text>
 </svg>

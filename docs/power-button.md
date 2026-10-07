@@ -15,9 +15,7 @@ let alone the application - so the ring lights almost immediately. `main.py` the
 the pin low once the first real screen is on the panel.
 
 **Lit means starting. Dark means ready.** Which also keeps the enclosure dark while the
-shutter is open, the same reason the Pi's own ACT LED is disabled. With the soft latch the
-ring also says when to let go: it lights at the same moment the firmware takes over the
-hold line.
+shutter is open, the same reason the Pi's own ACT LED is disabled.
 
 ### Wiring the button's LED ring as an indicator
 
@@ -117,12 +115,12 @@ with the latching button released, the ON pin reads battery voltage to GND, and 
 middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#circuit-diagrams).
 
 - **Starting:** the button pulls the gate low through its diode and the rail comes up.
-  The hold line gets `gpio=16=op,dh`, so the firmware asserts it about a second in and you
-  let go then - a hold-to-start of roughly a second, which is normal for this kind of
-  circuit.
+  The hold line is GPIO6, which the Pi pulls up by default from the moment it has power,
+  so the latch catches within milliseconds and a short press is enough. The firmware
+  then makes it a driven output with `gpio=6=op,dh`.
 - **Stopping:** a second press pulls the sense GPIO low through the other diode, and
   `gpio-shutdown` starts a clean poweroff - which is when the shutdown frame gets drawn.
-  At the very end `dtoverlay=gpio-poweroff,gpiopin=16,active_low=1` drops the hold line
+  At the very end `dtoverlay=gpio-poweroff,gpiopin=6,active_low=1` drops the hold line
   and the rail goes with it.
 - **The two diodes** both point at the button: stripe (cathode) on the button side. It
   needs two. While the Pi runs, the BC337 holds the gate at about 0V; with one diode the
@@ -142,10 +140,11 @@ middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#ci
 The sense pin is not pin 3 on this build, for the reason in `setup-pi.sh --help`: it is
 I2C SCL, which the UPS HAT's fuel gauge needs. Pin 3's wake-from-halt is no use here
 anyway, because the soft latch removes power rather than halting. `setup-pi.sh` always
-writes both hold-line settings for BCM16; the sense line needs `--shutdown-pin 12`.
+writes both hold-line settings for BCM6; the sense line, GPIO5, needs `--shutdown-pin 5`.
 
-A reboot switches the device off: the Pi's GPIOs reset while the firmware restarts, the
-hold line drops, and the rail goes with it. Press the button to start it again.
+The default pull-up is also what keeps a reboot from switching the device off: the GPIOs
+reset while the firmware restarts, and GPIO6 goes back to pulled up rather than to low.
+A pin above 8 would be pulled down there, and the rail would go with it.
 
 The latching button comes off the ON and middle pins and the soft latch is the only switch.
 Off, the MOSFET leaks microamps, so storage drain is about what a hard switch gives.

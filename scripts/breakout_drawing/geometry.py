@@ -30,8 +30,8 @@ STRIP_COLUMNS = range(3, 23)
 Point = tuple[float, float]
 
 
-def column_x(column: int) -> float:
-    """Grid column 1 is the 5V rail, 24 the right-hand GND column."""
+def column_x(column: float) -> float:
+    """Grid column 1 is the 5V rail, 24 the right-hand GND column; 12.5 is the gap between 12 and 13."""
     return ORIGIN_X + 265 + PITCH * (column - 1)
 
 

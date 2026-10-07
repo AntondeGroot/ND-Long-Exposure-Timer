@@ -47,6 +47,7 @@ What every screen means: [docs/screens.md](docs/screens.md).
 | USB-A socket, 4 pin | 1 |
 | USB-A to camera cable (UC-E6 / UC-E16 / UC-E17) | 1 |
 | 1/4" hot shoe mount | 1 |
+| JST connector with 8 wires | 1 |
 | Clear acrylic sheet, 1mm thick, at least 55x30mm | 1 |
 
 Five-way button\
@@ -72,6 +73,12 @@ USB-A socket\
 
 Tactile button\
 <img width="160" alt="tactile button" src="https://github.com/user-attachments/assets/a8823ef3-7dc4-4e2d-9e30-258b56376464" />
+
+SOT-23 to SIP3 adapter\
+<img width="160" alt="SOT-23 to SIP3 adapter" src="https://github.com/user-attachments/assets/fd1fa2b8-39ee-4ffa-a240-2bdcc5c6d658" />
+
+JST connector\
+<img width="160" alt="JST connector with 8 wires" src="https://github.com/user-attachments/assets/0335222b-765e-4fe0-838f-ae89e64db8e9" />
 
 Hot shoe mount\
 <img width="160" alt="hot shoe mount" src="https://github.com/user-attachments/assets/daab8fbc-d2e3-43ca-9c25-478450506ead" />
@@ -107,38 +114,42 @@ Check each step with the multimeter before the next one.
 
 ![Step 1](docs/breakout/step-1.svg)
 
-Stand them up. The GPIO legs go straight into the pads. Diode stripes face column 18.
+Stand them up. The GPIO legs go straight into the pads. Both diode stripes go in
+column 15: the one from GP5 in 15A, the upright one in 15C. Then, underneath, bend the
+100k's leg from 16D onto 16C and solder it: that is the bridge.
 
-Check: 21C does not beep to 21D yet.
+Check: 16C beeps to 16D.
 
 ### 3.2 MOSFET
 
 ![Step 2](docs/breakout/step-2.svg)
 
-Check on the adapter that the pin in 21E is the gate and the middle one the source.
+Solder the AO3401 onto the adapter with its pin 1 at the dot. The adapter's legs read
+2-3-1, which is source, drain, gate. The leg marked `1` goes in 16E, so the drain lands
+in 17E and the source in 18E.
 
-Check: 19E, 20E and 21E don't beep to each other.
+Check: 16E, 17E and 18E don't beep to each other.
 
-### 3.3 Transistors and the bridge
+### 3.3 Transistors
 
 ![Step 3](docs/breakout/step-3.svg)
 
 Measure each BC337's pinout first; makers differ. On the diode range the base reads about
 0.7V to both other legs, and the emitter reads slightly higher than the collector.
-Emitters go right. Then, underneath, bend the collector leg from 21C onto 21D and solder
-it.
+Emitters go right.
 
-Check: 21C beeps to 21D, and 23C beeps to GND.
+Check: 8B, 9B, 10B and 16B, 17B, 18B don't beep to each other.
 
 ### 3.4 Wires
 
 ![Step 4](docs/breakout/step-4.svg)
 
-The green jumper runs under row F. ④ and ⑤ go to the UPS HAT's old power switch pads and
+Two green jumpers: one under row F, one between rows C and D. ④ and ⑤ go to the UPS
+HAT's old power switch pads and
 carry up to 1.5A: use thick wire. With the switch off, the ON pad reads battery voltage,
 the middle pad 0V. Heat-shrink every joint.
 
-Check: 10C beeps to GND; ④ and ⑤ don't beep to each other.
+Check: 10C and 18C beep to GND; ④ and ⑤ don't beep to each other.
 
 ### 3.5 Buttons
 
@@ -168,7 +179,7 @@ sudo ./scripts/flash-sd.sh ~/Downloads/raspios-lite.img.xz   # asks for a passwo
 ssh-copy-id -i ~/.ssh/pi_deploy_key.pub pi@10.55.0.1
 sudo ./scripts/share-internet-macos.sh                       # the Pi has no network of its own
 ./scripts/deploy-to-pi.sh
-ssh -t pi@10.55.0.1 'cd ~/ND-Long-Exposure-Timer && sudo ./scripts/setup-pi.sh --status-led-pin 22 --shutdown-pin 12'
+ssh -t pi@10.55.0.1 'cd ~/ND-Long-Exposure-Timer && sudo ./scripts/setup-pi.sh --status-led-pin 22 --shutdown-pin 5'
 ssh pi@10.55.0.1 'sudo systemctl reboot'
 ./scripts/deploy-to-pi.sh
 ssh -t pi@10.55.0.1 'sudo systemctl enable --now nd-timer'
@@ -176,9 +187,6 @@ ssh -t pi@10.55.0.1 'sudo systemctl enable --now nd-timer'
 
 `setup-pi.sh` takes 15-30 minutes. After that, `deploy-to-pi.sh` is the only thing to
 rerun when the code changes.
-
-With the soft latch built, the reboot switches the device off. Press the power button to
-start it again.
 
 What each step does, and what to do if the panel looks wrong: [docs/installing.md](docs/installing.md).
 
@@ -188,7 +196,3 @@ What each step does, and what to do if the panel looks wrong: [docs/installing.m
 
 Run it on a laptop with `./scripts/simulator.py`, or use the browser link above. Tests,
 lint and the rest: [docs/development.md](docs/development.md).
-
-<img width="1200" height="909" alt="st" src="https://github.com/user-attachments/assets/fd1fa2b8-39ee-4ffa-a240-2bdcc5c6d658" />
-<img width="679" height="559" alt="71zk6QDncoL _AC_SX679_" src="https://github.com/user-attachments/assets/0335222b-765e-4fe0-838f-ae89e64db8e9" />
-

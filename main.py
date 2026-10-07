@@ -48,18 +48,19 @@ from nd_timer.ui.settings import SettingsScreen, render_settings
 # BCM numbering, switches to ground, internal pull-ups. CORRECT THESE to match
 # how the five-way and the two buttons are actually wired.
 #
-# These defaults avoid the pins the e-paper HAT already owns - 8, 9, 10, 11 for
-# SPI and 17, 24, 25 for reset, busy and data/command - so they are a safe place
-# to start, not a description of your board.
+# These are the pins the breakout board in docs/breakout/ wires them to: the seven
+# pads in a row at its right-hand end. They avoid the pins the e-paper HAT already
+# owns - 8, 9, 10, 11 for SPI and 17, 24, 25 for reset, busy and data/command - and
+# 5 and 6, the soft latch's sense and hold lines.
 
 # BCM number, and the header pin it comes out on. Every one of them happens to
 # sit beside a ground, which is what makes a jumper enough to test a button
 # before it is soldered: touch the two together and the pin reads as pressed.
 #
 #     name     BCM   header pin   ground beside it
-#     left       5       29            30
-#     up         6       31            30
+#     left      12       32            30
 #     centre    13       33            34
+#     up        16       36            34
 #     down      19       35            34
 #     right     26       37            39
 #     sync      20       38            39
@@ -69,9 +70,9 @@ from nd_timer.ui.settings import SettingsScreen, render_settings
 # which is 5V, and 5V into a 3.3V input is a dead pin. The ones above are
 # surrounded by other GPIOs, where a slip costs nothing.
 PINS = {
-    "up": 6,
+    "up": 16,
     "down": 19,
-    "left": 5,
+    "left": 12,
     "right": 26,
     "centre": 13,
     "sync": 20,
