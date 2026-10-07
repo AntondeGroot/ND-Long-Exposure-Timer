@@ -47,6 +47,7 @@ What every screen means: [docs/screens.md](docs/screens.md).
 | USB-A socket, 4 pin | 1 |
 | USB-A to camera cable (UC-E6 / UC-E16 / UC-E17) | 1 |
 | 1/4" hot shoe mount | 1 |
+| Clear acrylic sheet, 1mm thick, at least 55x30mm | 1 |
 
 Five-way button\
 <img width="160" alt="five-way button" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
@@ -74,6 +75,9 @@ Tactile button\
 
 Hot shoe mount\
 <img width="160" alt="hot shoe mount" src="https://github.com/user-attachments/assets/daab8fbc-d2e3-43ca-9c25-478450506ead" />
+
+Acrylic sheet\
+<img width="160" alt="clear acrylic sheets" src="https://github.com/user-attachments/assets/01a9c53f-c7d5-4f04-ac88-26bfdfb01c78" />
 
 </details>
 
@@ -184,6 +188,3 @@ What each step does, and what to do if the panel looks wrong: [docs/installing.m
 
 Run it on a laptop with `./scripts/simulator.py`, or use the browser link above. Tests,
 lint and the rest: [docs/development.md](docs/development.md).
-
-
-<img width="1500" height="1500" alt="acrylic-sheet" src="https://github.com/user-attachments/assets/01a9c53f-c7d5-4f04-ac88-26bfdfb01c78" />
