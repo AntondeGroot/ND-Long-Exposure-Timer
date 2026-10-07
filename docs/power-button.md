@@ -141,8 +141,11 @@ middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#ci
 
 The sense pin is not pin 3 on this build, for the reason in `setup-pi.sh --help`: it is
 I2C SCL, which the UPS HAT's fuel gauge needs. Pin 3's wake-from-halt is no use here
-anyway, because the soft latch removes power rather than halting. `setup-pi.sh` does not
-write the `gpio-poweroff` line yet.
+anyway, because the soft latch removes power rather than halting. `setup-pi.sh` always
+writes both hold-line settings for BCM16; the sense line needs `--shutdown-pin 12`.
+
+A reboot switches the device off: the Pi's GPIOs reset while the firmware restarts, the
+hold line drops, and the rail goes with it. Press the button to start it again.
 
 The latching button comes off the ON and middle pins and the soft latch is the only switch.
 Off, the MOSFET leaks microamps, so storage drain is about what a hard switch gives.

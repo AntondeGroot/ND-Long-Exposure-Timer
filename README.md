@@ -173,13 +173,8 @@ ssh -t pi@10.55.0.1 'sudo systemctl enable --now nd-timer'
 `setup-pi.sh` takes 15-30 minutes. After that, `deploy-to-pi.sh` is the only thing to
 rerun when the code changes.
 
-`setup-pi.sh` does not write the soft latch's hold line yet. Add these two lines to
-`/boot/firmware/config.txt` by hand:
-
-```
-gpio=16=op,dh
-dtoverlay=gpio-poweroff,gpiopin=16,active_low=1
-```
+With the soft latch built, the reboot switches the device off. Press the power button to
+start it again.
 
 What each step does, and what to do if the panel looks wrong: [docs/installing.md](docs/installing.md).
 
