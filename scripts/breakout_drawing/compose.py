@@ -33,7 +33,7 @@ def step_page(number: int) -> str:
     """Step `number`, counting from 1."""
     step = STEPS[number - 1]
     done = [part for earlier in STEPS[:number - 1] for part in earlier.parts]
-    return _page(f"Step {number} of {len(STEPS)}: {step.title}",
+    return _page(f"Breakout board, step {number} of {len(STEPS)}: {step.title}",
                  done=done, current=list(step.parts),
                  legend_title="This step", legend=list(step.parts))
 
