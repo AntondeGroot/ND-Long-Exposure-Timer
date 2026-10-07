@@ -188,3 +188,7 @@ What each step does, and what to do if the panel looks wrong: [docs/installing.m
 
 Run it on a laptop with `./scripts/simulator.py`, or use the browser link above. Tests,
 lint and the rest: [docs/development.md](docs/development.md).
+
+<img width="1200" height="909" alt="st" src="https://github.com/user-attachments/assets/fd1fa2b8-39ee-4ffa-a240-2bdcc5c6d658" />
+<img width="679" height="559" alt="71zk6QDncoL _AC_SX679_" src="https://github.com/user-attachments/assets/0335222b-765e-4fe0-838f-ae89e64db8e9" />
+
