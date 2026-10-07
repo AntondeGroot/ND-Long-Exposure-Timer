@@ -184,7 +184,7 @@ write_config_block() {
     if [[ -n "$SHUTDOWN_PIN" ]]; then
       echo ""
       echo "# Momentary button: pulling BCM${SHUTDOWN_PIN} to ground halts the Pi cleanly."
-      echo "# This is the sense half of the soft latch in the README."
+      echo "# This is the sense half of the soft latch in docs/power-button.md."
       echo "dtoverlay=gpio-shutdown,gpio_pin=${SHUTDOWN_PIN},active_low=1,gpio_pull=up"
     fi
 
@@ -558,7 +558,7 @@ the root filesystem read-only so a hard cut is harmless:
 
     sudo raspi-config nonint enable_overlayfs   # then reboot
 
-(For a clean software shutdown instead, build the soft latch in the README
+(For a clean software shutdown instead, build the soft latch in docs/power-button.md
 and rerun with --shutdown-pin N for its sense line. Not pin 3 on this build.)
 
 To undo the config.txt changes: restore ${CONFIG_TXT}.nd-timer.bak
