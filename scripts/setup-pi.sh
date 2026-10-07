@@ -9,7 +9,7 @@
 #   - gphoto2 for camera control (delegates to install-gphoto2.sh)
 #   - the boot splash (delegates to install-boot-splash.sh)
 #   - a faster boot (delegates to speed-up-boot.sh)
-#   - the soft latch's hold line on BCM16 and the power-off at the end of a shutdown
+#   - the soft latch's hold line on BCM6 and the power-off at the end of a shutdown
 #   - optional clean-shutdown GPIO pin (momentary buttons only, see --shutdown-pin)
 #   - battery-friendly tweaks (activity LED off, splash off)
 #   - a systemd unit so the timer starts on boot
@@ -54,8 +54,10 @@ ASSUME_YES=0
 SERVICE_NAME="nd-timer"
 # The soft latch's hold line, as soldered on the breakout board (docs/power-button.md).
 # Fixed rather than an option: it is part of the build, and a card without it
-# switches the device off the moment the power button is let go.
-HOLD_PIN=16
+# switches the device off the moment the power button is let go. BCM6 is pulled
+# up by default, so the latch also holds before the firmware gets to it, and
+# through a reboot.
+HOLD_PIN=6
 WAVESHARE_DIR="/opt/waveshare-epaper"
 MARKER_BEGIN="# >>> ND Long Exposure Timer >>>"
 MARKER_END="# <<< ND Long Exposure Timer <<<"
@@ -571,9 +573,8 @@ the root filesystem read-only so a hard cut is harmless:
     sudo raspi-config nonint enable_overlayfs   # then reboot
 
 (For a clean software shutdown instead, build the soft latch in docs/power-button.md.
-Its hold line on BCM${HOLD_PIN} is always configured; rerun with --shutdown-pin 12 for
-its sense line. With the soft latch, a reboot switches the device off: the hold line
-drops while the firmware restarts, so press the power button to bring it back.)
+Its hold line on BCM${HOLD_PIN} is always configured; rerun with --shutdown-pin 5 for
+its sense line.)
 
 To undo the config.txt changes: restore ${CONFIG_TXT}.nd-timer.bak
 EOF

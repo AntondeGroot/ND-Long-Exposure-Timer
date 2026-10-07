@@ -112,10 +112,9 @@ class SolderBridge:
     def draw(self, canvas: Canvas) -> None:
         (x, y0), (_, y1) = point(self.top), point(self.bottom)
         canvas.rect(x - 11, y0, 22, y1 - y0, "#c7c7c7", rx=10, stroke="#7d7d7d", stroke_width=2)
-        canvas.text((x + 16, y1 + 6), "bridge", 15, "#fff", bold=True, halo="#1f6b48")
 
     def describe(self) -> str:
-        return f"solder bridge: {self.top} to {self.bottom} on the underside, joining the gate's two strips"
+        return f"bridge: {self.top} to {self.bottom} on the underside, joining the gate's two strips"
 
 
 @dataclass(frozen=True)
@@ -146,27 +145,30 @@ class Transistor:
 
 @dataclass(frozen=True)
 class Mosfet:
-    """The AO3401 on its SOT-23 to SIP3 adapter, assumed to bring out G, S, D in a row."""
+    """The AO3401 on its SOT-23 to SIP3 adapter. The adapter's legs run 2-3-1, which for
+    the AO3401 is source, drain, gate: the drain is the middle leg."""
 
-    drain: str
+    source: str
     gate: str
 
     def pads(self) -> set[str]:
         return set()
 
     def draw(self, canvas: Canvas) -> None:
-        (x0, y), (x1, _) = point(self.drain), point(self.gate)
-        middle = (x0 + x1) / 2
-        canvas.rect(x0 - 24, y - 16, x1 - x0 + 48, 42, "#2b5d9b", rx=4, stroke="#0f2e55", stroke_width=2)
+        """Either way round: the gate can be on the left or the right."""
+        (x_source, y), (x_gate, _) = point(self.source), point(self.gate)
+        left, right = min(x_source, x_gate), max(x_source, x_gate)
+        middle = (left + right) / 2
+        canvas.rect(left - 24, y - 16, right - left + 48, 42, "#2b5d9b", rx=4, stroke="#0f2e55", stroke_width=2)
         canvas.rect(middle - 12, y - 8, 24, 16, "#111")
-        for x, letter in [(x0, "D"), (middle, "S"), (x1, "G")]:
+        for x, letter in [(x_source, "S"), (middle, "D"), (x_gate, "G")]:
             canvas.circle((x, y), 6, "#bbb")
             canvas.board_label((x, y - 22), letter, 16)
         canvas.text((middle, y + 22), "AO3401 on adapter", 13, "#fff", anchor="middle", bold=True)
 
     def describe(self) -> str:
-        source = _middle_hole(self.drain, self.gate)
-        return f"AO3401 on its adapter: drain {self.drain}, source {source}, gate {self.gate}"
+        drain = _middle_hole(self.source, self.gate)
+        return f"AO3401 on its adapter: source {self.source}, drain {drain}, gate {self.gate}"
 
 
 @dataclass(frozen=True)
@@ -175,7 +177,7 @@ class Jumper:
 
     route: tuple[str | g.Point, ...]
     purpose: str
-    label_at: g.Point
+    label_at: g.Point | None = None
 
     def pads(self) -> set[str]:
         return set()
@@ -184,7 +186,8 @@ class Jumper:
         points = [point(p) if isinstance(p, str) else p for p in self.route]
         d = "M " + " L ".join(f"{x:.1f} {y:.1f}" for x, y in points)
         canvas.path(d, stroke="#2f9e44", stroke_width=7, stroke_linecap="round", stroke_linejoin="round")
-        canvas.board_label(self.label_at, "GND jumper (insulated)")
+        if self.label_at:
+            canvas.board_label(self.label_at, "GND jumper (insulated)")
 
     def describe(self) -> str:
         return f"GND jumper: {self.route[0]} to {self.route[-1]}, {self.purpose}"
