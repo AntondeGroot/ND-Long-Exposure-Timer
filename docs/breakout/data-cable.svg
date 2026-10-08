@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 640" width="1150" height="640" font-family="Helvetica, Arial, sans-serif">
+<rect width="1150" height="640" fill="#ffffff"/>
+<text x="40.0" y="60.0" font-size="30" fill="#111" text-anchor="start" font-weight="bold">The data cable: USB-A socket to micro-USB plug</text>
+<text x="40.0" y="98.0" font-size="21" fill="#444" text-anchor="start">Red to pad 1 (VBUS), white to 2 (D-), blue to 3 (D+), black to 5 (GND). Pad 4 stays empty.</text>
+<path d="M 242.3 252.6 C 351.8 180.2 428.6 169.6 559.8 169.6 L 629.8 169.6" fill="none" stroke="#555" stroke-width="12" stroke-linecap="round"/>
+<path d="M 242.3 252.6 C 351.8 180.2 428.6 169.6 559.8 169.6 L 629.8 169.6" fill="none" stroke="#e03131" stroke-width="9" stroke-linecap="round"/>
+<path d="M 258.5 261.6 C 354.2 198.3 420.5 185.9 535.2 185.9 L 605.2 185.9" fill="none" stroke="#555" stroke-width="12" stroke-linecap="round"/>
+<path d="M 258.5 261.6 C 354.2 198.3 420.5 185.9 535.2 185.9 L 605.2 185.9" fill="none" stroke="#f8f9fa" stroke-width="9" stroke-linecap="round"/>
+<path d="M 274.7 270.6 C 356.7 216.5 412.4 202.2 510.6 202.2 L 580.6 202.2" fill="none" stroke="#555" stroke-width="12" stroke-linecap="round"/>
+<path d="M 274.7 270.6 C 356.7 216.5 412.4 202.2 510.6 202.2 L 580.6 202.2" fill="none" stroke="#1c7ed6" stroke-width="9" stroke-linecap="round"/>
+<path d="M 291.0 279.6 C 349.7 240.8 390.8 234.8 461.3 234.8 L 531.3 234.8" fill="none" stroke="#555" stroke-width="12" stroke-linecap="round"/>
+<path d="M 291.0 279.6 C 349.7 240.8 390.8 234.8 461.3 234.8 L 531.3 234.8" fill="none" stroke="#212529" stroke-width="9" stroke-linecap="round"/>
+<polygon points="133.0,263.2 126.5,259.6 126.5,294.2 133.0,297.8" fill="#25292c" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="155.3,248.4 126.5,259.6 133.0,263.2" fill="#4a5056" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="247.2,315.3 327.4,262.3 205.8,194.7 125.5,247.8" fill="#4a5056" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="247.2,390.6 247.2,315.3 125.5,247.8 125.5,323.0" fill="#25292c" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="247.2,390.6 327.4,337.5 327.4,262.3 247.2,315.3" fill="#25292c" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="261.1,369.0 276.9,350.6 276.9,316.0 261.1,334.4" fill="#25292c" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="254.6,365.4 261.1,369.0 261.1,334.4 254.6,330.7" fill="#25292c" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="254.6,330.7 261.1,334.4 276.9,316.0" fill="#4a5056" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="105.0,246.9 121.4,236.0 117.2,236.7 100.8,247.5" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="110.0,248.5 126.3,237.7 121.4,236.0 105.0,246.9" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="230.0,411.5 235.0,413.1 239.2,412.5 242.0,409.5 243.0,404.7 243.0,336.4 242.0,330.5 239.2,324.4 235.0,319.0 230.0,315.2 110.0,248.5 105.0,246.9 100.8,247.5 98.0,250.5 97.0,255.3 97.0,323.6 98.0,329.5 100.8,335.6 105.0,341.0 110.0,344.8" fill="#3d4246" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="239.2,412.5 255.5,401.6 258.3,398.7 242.0,409.5" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="242.0,409.5 258.3,398.7 259.3,393.9 243.0,404.7" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="230.0,315.2 246.4,304.4 126.3,237.7 110.0,248.5" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="243.0,404.7 259.3,393.9 259.3,325.6 243.0,336.4" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="243.0,336.4 259.3,325.6 258.3,319.7 242.0,330.5" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="235.0,319.0 251.3,308.2 246.4,304.4 230.0,315.2" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="242.0,330.5 258.3,319.7 255.5,313.6 239.2,324.4" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="239.2,324.4 255.5,313.6 251.3,308.2 235.0,319.0" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="230.0,411.5 235.0,413.1 239.2,412.5 242.0,409.5 243.0,404.7 243.0,336.4 242.0,330.5 239.2,324.4 235.0,319.0 230.0,315.2 110.0,248.5 105.0,246.9 100.8,247.5 98.0,250.5 97.0,255.3 97.0,323.6 98.0,329.5 100.8,335.6 105.0,341.0 110.0,344.8" fill="#3d4246" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="220.2,383.4 221.4,383.8 222.5,383.6 223.2,382.9 223.4,381.7 223.4,337.9 223.2,336.4 222.5,334.9 221.4,333.6 220.2,332.6 119.7,276.7 118.4,276.3 117.4,276.5 116.7,277.2 116.4,278.4 116.4,322.2 116.7,323.7 117.4,325.2 118.4,326.5 119.7,327.5" fill="#ced4da" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="217.7,378.5 218.6,378.9 219.4,378.7 219.9,378.2 220.1,377.3 220.1,338.8 219.9,337.7 219.4,336.5 218.6,335.5 217.7,334.8 122.0,281.6 121.1,281.3 120.3,281.5 119.8,282.0 119.6,282.9 119.6,321.4 119.8,322.5 120.3,323.7 121.1,324.7 122.0,325.4" fill="#0b0c0d" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="211.1,352.7 211.8,352.9 212.3,352.8 212.6,352.4 212.8,351.8 212.8,338.7 212.6,338.0 212.3,337.2 211.8,336.5 211.1,336.1 128.4,290.1 127.8,289.9 127.3,290.0 126.9,290.4 126.8,291.0 126.8,304.1 126.9,304.8 127.3,305.6 127.8,306.3 128.4,306.7" fill="#25292c" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="134.8,313.9 146.2,320.2 146.2,316.7 134.8,310.4" fill="#e9c46a" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="154.3,324.7 165.6,331.0 165.6,327.5 154.3,321.2" fill="#e9c46a" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="173.8,335.5 185.1,341.8 185.1,338.3 173.8,332.0" fill="#e9c46a" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="193.2,346.3 204.6,352.6 204.6,349.1 193.2,342.8" fill="#e9c46a" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<text x="170.0" y="440.0" font-size="18" fill="#444" text-anchor="middle" font-weight="bold">USB-A socket</text>
+<text x="170.0" y="464.0" font-size="16" fill="#666" text-anchor="middle">for the camera's cable</text>
+<text x="760.0" y="470.0" font-size="18" fill="#444" text-anchor="middle" font-weight="bold">micro-USB plug, wide side up</text>
+<text x="760.0" y="494.0" font-size="16" fill="#666" text-anchor="middle">into the Pi's data port, marked USB</text>
+<polygon points="503.1,241.3 562.8,274.5 697.8,185.2 638.1,152.0" fill="#495057" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="562.8,306.7 697.8,217.4 697.8,185.2 562.8,274.5" fill="#2b2f33" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="503.1,273.5 562.8,306.7 562.8,274.5 503.1,241.3" fill="#343a40" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="616.6,170.9 662.3,196.3 676.9,186.7 631.2,161.3" fill="#e9c46a" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="591.9,187.2 637.7,212.6 652.3,203.0 606.5,177.6" fill="#e9c46a" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="567.3,203.5 613.1,228.9 627.7,219.3 581.9,193.8" fill="#e9c46a" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="542.7,219.8 588.5,245.2 603.1,235.5 557.3,210.1" fill="#dee2e6" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="518.1,236.0 563.8,261.5 578.4,251.8 532.6,226.4" fill="#e9c46a" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="557.4,243.7 627.0,282.4 773.0,185.9 703.3,147.2" fill="#495057" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="627.0,349.0 773.0,252.5 773.0,185.9 627.0,282.4" fill="#2b2f33" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="557.4,310.3 627.0,349.0 627.0,282.4 557.4,243.7" fill="#343a40" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="636.1,289.3 765.5,361.1 893.2,276.7 763.9,204.8" fill="#e9ecef" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="780.1,394.4 878.6,329.3 893.2,276.7 765.5,361.1" fill="#adb5bd" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="650.7,322.6 780.1,394.4 765.5,361.1 636.1,289.3" fill="#ced4da" stroke="#555" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="784.1,384.5 875.0,324.4 887.0,288.5 772.1,364.5" fill="#212529" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="676.4,291.5 752.1,333.5 763.0,326.2 687.4,284.2" fill="#495057" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<line x1="691.9" y1="293.4" x2="751.6" y2="326.5" stroke="#f8f9fa" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="760.4,236.0 836.0,278.0 847.0,270.7 771.3,228.7" fill="#495057" stroke="none" stroke-width="1.2" stroke-linejoin="round"/>
+<line x1="775.8" y1="237.9" x2="835.5" y2="271.0" stroke="#f8f9fa" stroke-width="2.5" stroke-linecap="round"/>
+<text x="652.3" y="187.1" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">1</text>
+<text x="627.6" y="203.4" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">2</text>
+<text x="603.0" y="219.6" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">3</text>
+<text x="578.4" y="235.9" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">4</text>
+<text x="553.7" y="252.2" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">5</text>
+<text x="960.0" y="170.0" font-size="16" fill="#444" text-anchor="start" font-weight="bold">pads</text>
+<text x="960.0" y="200.0" font-size="17" fill="#222" text-anchor="start" font-weight="bold">1  VBUS +5V</text>
+<text x="960.0" y="230.0" font-size="17" fill="#222" text-anchor="start" font-weight="bold">2  D-</text>
+<text x="960.0" y="260.0" font-size="17" fill="#222" text-anchor="start" font-weight="bold">3  D+</text>
+<text x="960.0" y="290.0" font-size="17" fill="#868e96" text-anchor="start">4  ID, not used</text>
+<text x="960.0" y="320.0" font-size="17" fill="#222" text-anchor="start" font-weight="bold">5  GND</text>
+<text x="40.0" y="498.0" font-size="20" fill="#111" text-anchor="start" font-weight="bold">Notes</text>
+<text x="40.0" y="530.0" font-size="18" fill="#444" text-anchor="start">•  Cable lengths not to scale.</text>
+<text x="40.0" y="556.0" font-size="18" fill="#444" text-anchor="start">•  Put heat-shrink over the soldered end of the micro-USB plug.</text>
+<text x="40.0" y="582.0" font-size="18" fill="#444" text-anchor="start">•  Socket wire colours vary between makers: check white and blue against the socket's D- and D+ with the meter.</text>
+</svg>

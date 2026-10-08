@@ -95,6 +95,17 @@ def stadium(width: float, height: float, points_per_end: int = 10) -> list[tuple
     return outline
 
 
+def rounded_rect(width: float, height: float, radius: float, points_per_corner: int = 4) -> list[tuple[float, float]]:
+    """A rectangle with rounded corners in the x-z plane, centred, anticlockwise from +x."""
+    half_w, half_h = width / 2 - radius, height / 2 - radius
+    outline = []
+    for corner, (cx, cz) in enumerate([(half_w, -half_h), (half_w, half_h), (-half_w, half_h), (-half_w, -half_h)]):
+        for i in range(points_per_corner + 1):
+            a = -math.pi / 2 + math.pi / 2 * (corner + i / points_per_corner)
+            outline.append((cx + radius * math.cos(a), cz + radius * math.sin(a)))
+    return outline
+
+
 def prism_along_y(outline: list[tuple[float, float]], y_front: float, y_back: float,
                   front: str, side: str) -> list[Face]:
     """An outline in the x-z plane pushed back from y_front to y_back.
