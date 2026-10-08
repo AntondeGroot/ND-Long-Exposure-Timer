@@ -191,7 +191,16 @@ The drawings are generated: edit `scripts/breakout_drawing/layout.py` and run
 <details>
 <summary>Show the power cable</summary>
 
-To be written.
+The USB-C socket's red wire goes to pad 1 (VBUS) of the micro-USB plug and the black wire
+to pad 5 (GND); the three pads between stay empty. The plug goes into the UPS HAT's
+charging port.
+
+![The power cable](docs/breakout/power-cable.svg)
+
+With the wide side up (the side with the two latch slots) and the tip pointing away from
+you, pad 1 is on the left. Check it before soldering: push the bare plug into the UPS
+HAT's charging port, and pad 5 should beep to the HAT's ground. If the other outer pad
+does, trust the meter and swap red and black.
 
 </details>
 
