@@ -48,7 +48,7 @@ those, it comes down to about €64.
 | BAT85 Schottky diode | 2 |
 | Resistors: 1kΩ, 10kΩ, 10kΩ, 100kΩ | 4 |
 | USB-C power-only socket | 1 |
-| Micro-USB solder plug, 5 pin | 1 |
+| Micro-USB solder plug, 5 pin (one for power, one for the camera) | 2 |
 | USB-A socket, 4 pin | 1 |
 | USB-A to camera cable (UC-E6 / UC-E16 / UC-E17) | 1 |
 | 1/4" hot shoe mount | 1 |
@@ -208,7 +208,14 @@ does, trust the meter and swap red and black.
 <details>
 <summary>Show the data cable</summary>
 
-To be written.
+The USB-A socket's four wires go to the second micro-USB plug: red to pad 1 (VBUS), white to
+2 (D-), blue to 3 (D+), black to 5 (GND); pad 4 stays empty. The plug goes into the Pi's
+data port, the one marked `USB`, and the camera's cable plugs into the socket.
+
+![The data cable](docs/breakout/data-cable.svg)
+
+Wire colours on these sockets vary between makers, so check white and blue against the
+socket's D- and D+ with the meter before soldering.
 
 </details>
 
