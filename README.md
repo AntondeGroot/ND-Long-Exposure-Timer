@@ -104,18 +104,33 @@ The enclosure files are not in the repo yet.
 <details>
 <summary>Show the soldering steps</summary>
 
-Everything goes on the breakout board. Holes are column then row: `21C` is column 21,
-row C. Each column has two separate strips, rows A-C and D-F. Numbered circles are wires
-that leave the board.
+Five parts: the JST cable, the breakout board, the power cable, the data cable and the
+buttons. Check each step with the multimeter before the next one.
+
+### 3.1 JST cable
+<details>
+<summary>Show the JST cable</summary>
+
+The JST cable comes with all eight wires on the male connector and the female one loose.
+Cut every wire in half. Plug the female onto the male, then solder each cut end to the
+female pin facing its own colour, and heat-shrink every joint. The colours then run straight
+through, and the cable comes apart in the middle. The bottom of the drawing shows where
+each colour goes.
+
+![The JST cable](docs/breakout/jst-cable.svg)
+
+</details>
+
+### 3.2 Breakout board
+<details>
+<summary>Show the breakout board steps</summary>
+
+- Holes are column then row: `21C` is column 21, row C.
+- Numbered circles are wires that leave the board.
 
 ![The whole build](docs/breakout/overview.svg)
 
-Before you start, find the power button's terminals with the multimeter: `+`/`-` for the
-ring, and the `COM`/`NO` pair that closes only while pressed. `NC` is not used.
-
-Check each step with the multimeter before the next one.
-
-### 3.1 Resistors and diodes
+#### 3.2.1 Resistors and diodes
 
 ![Step 1](docs/breakout/step-1.svg)
 
@@ -125,7 +140,7 @@ column 15: the one from GP5 in 15A, the upright one in 15C. Then, underneath, be
 
 Check: 16C beeps to 16D.
 
-### 3.2 MOSFET
+#### 3.2.2 MOSFET
 
 ![Step 2](docs/breakout/step-2.svg)
 
@@ -135,7 +150,7 @@ in 17E and the source in 18E.
 
 Check: 16E, 17E and 18E don't beep to each other.
 
-### 3.3 Transistors
+#### 3.2.3 Transistors
 
 ![Step 3](docs/breakout/step-3.svg)
 
@@ -145,7 +160,7 @@ Emitters go right.
 
 Check: 8B, 9B, 10B and 16B, 17B, 18B don't beep to each other.
 
-### 3.4 Wires
+#### 3.2.4 Wires
 
 ![Step 4](docs/breakout/step-4.svg)
 
@@ -156,17 +171,50 @@ the middle pad 0V. Heat-shrink every joint.
 
 Check: 10C and 18C beep to GND; ④ and ⑤ don't beep to each other.
 
-### 3.5 Buttons
+#### 3.2.5 Button wires
 
 ![Step 5](docs/breakout/step-5.svg)
 
-One wire per pad, and one ground wire from ⑭ chained to every button's common leg.
+The male half of the JST cable (3.1): purple into the leftmost pad, through red into the
+rightmost, and black into ⑭ for the buttons' ground.
 
-Check: each pad beeps to GND only while its button is pressed.
+Check: once the buttons are on (3.5), each pad beeps to GND only while its button is
+pressed.
 
 How the circuits work, with schematics: [docs/power-button.md](docs/power-button.md).
 The drawings are generated: edit `scripts/breakout_drawing/layout.py` and run
 `./scripts/draw-breakout.py`.
+
+</details>
+
+### 3.3 Power cable
+<details>
+<summary>Show the power cable</summary>
+
+To be written.
+
+</details>
+
+### 3.4 Data cable
+<details>
+<summary>Show the data cable</summary>
+
+To be written.
+
+</details>
+
+### 3.5 Buttons
+<details>
+<summary>Show the buttons</summary>
+
+The female half of the JST cable goes to the buttons, one colour each: purple five-way
+left, blue centre, green up, yellow down, white right, orange SYNC, red SHOOT. Black goes
+to the common leg of every button, chained from one to the next.
+
+Find the power button's terminals with the multimeter first: `+`/`-` for the ring, and
+the `COM`/`NO` pair that closes only while pressed. `NC` is not used.
+
+</details>
 
 </details>
 
