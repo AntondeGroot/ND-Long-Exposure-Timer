@@ -57,25 +57,29 @@ from nd_timer.ui.settings import SettingsScreen, render_settings
 # sit beside a ground, which is what makes a jumper enough to test a button
 # before it is soldered: touch the two together and the pin reads as pressed.
 #
+# In pad order on the breakout board, which is also the five-way's own pin order
+# (up, down, left, right, centre) followed by SYNC and SHOOT, so the JST cable's
+# colours run straight from the board to the buttons without crossing.
+#
 #     name     BCM   header pin   ground beside it
-#     left      12       32            30
-#     centre    13       33            34
-#     up        16       36            34
-#     down      19       35            34
-#     right     26       37            39
-#     sync      20       38            39
+#     up        12       32            30
+#     down      13       33            34
+#     left      16       36            34
+#     right     20       38            39
+#     centre    19       35            34
+#     sync      26       37            39
 #     shoot     21       40            39
 #
 # Ground is common, so any ground pin works - but pin 6 is directly below pin 4,
 # which is 5V, and 5V into a 3.3V input is a dead pin. The ones above are
 # surrounded by other GPIOs, where a slip costs nothing.
 PINS = {
-    "up": 16,
-    "down": 19,
-    "left": 12,
-    "right": 26,
-    "centre": 13,
-    "sync": 20,
+    "up": 12,
+    "down": 13,
+    "left": 16,
+    "right": 20,
+    "centre": 19,
+    "sync": 26,
     "shoot": 21,
 }
 

@@ -207,9 +207,10 @@ To be written.
 <details>
 <summary>Show the buttons</summary>
 
-The female half of the JST cable goes to the buttons, one colour each: purple five-way
-left, blue centre, green up, yellow down, white right, orange SYNC, red SHOOT. Black goes
-to the common leg of every button, chained from one to the next.
+The female half of the JST cable goes to the buttons. Purple, blue, green, orange and
+yellow go to the five-way's pins in its own order: up, down, left, right, centre. White
+goes to SYNC and red to SHOOT. Black goes to the ground leg of SYNC and SHOOT, and a short
+wire carries it on from there to the five-way's ground pin.
 
 Find the power button's terminals with the multimeter first: `+`/`-` for the ring, and
 the `COM`/`NO` pair that closes only while pressed. `NC` is not used.
