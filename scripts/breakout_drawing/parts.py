@@ -43,9 +43,17 @@ def _angle(a: g.Point, b: g.Point) -> float:
 
 
 def badge(canvas: Canvas, centre: g.Point, number: int, colour: str, radius: float = 15) -> None:
+    """A numbered circle; light fills (a white or yellow wire) get dark text and a dark rim."""
     size = 17 if radius >= 15 else 14
-    canvas.circle(centre, radius, colour, "#fff", 3)
-    canvas.text(_offset(centre, 0, size / 3 + 0.5), str(number), size, "#fff", anchor="middle", bold=True)
+    light = _is_light(colour)
+    canvas.circle(centre, radius, colour, "#555" if light else "#fff", 3)
+    canvas.text(_offset(centre, 0, size / 3 + 0.5), str(number), size, "#111" if light else "#fff",
+                anchor="middle", bold=True)
+
+
+def _is_light(colour: str) -> bool:
+    red, green, blue = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
+    return 0.299 * red + 0.587 * green + 0.114 * blue > 170
 
 
 @dataclass(frozen=True)
@@ -201,6 +209,7 @@ class Wire:
     at: str
     to: str
     colour: str
+    colour_name: str = ""
 
     def pads(self) -> set[str]:
         return {self.at} if self.at in g.PADS else set()
@@ -210,7 +219,8 @@ class Wire:
         badge(canvas, point(self.at), self.number, self.colour, radius)
 
     def describe(self) -> str:
-        return f"{place(self.at)}  ->  {self.to}"
+        wire = f" ({self.colour_name})" if self.colour_name else ""
+        return f"{place(self.at)}  ->  {self.to}{wire}"
 
 
 Part = Resistor | Diode | SolderBridge | Transistor | Mosfet | Jumper | Wire

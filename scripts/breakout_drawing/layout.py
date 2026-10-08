@@ -16,11 +16,9 @@ from .parts import Diode, Jumper, Mosfet, Part, Resistor, SolderBridge, Transist
 RING = "#e8590c"
 LATCH = "#0b3a8c"
 BUTTON_PAD = "#99e9f2"
-BUTTON_WIRE = "#0b7285"
 LED_WIRE = "#c92a2a"
 SWITCH_WIRE = "#6741d9"
 POWER_WIRE = "#d6336c"
-GROUND_WIRE = "#212529"
 
 REGIONS = [
     Region("Region 1: button ring", RING, 8, 10, "C", "GP22", "GP22"),
@@ -31,6 +29,32 @@ PAD_COLOURS = {"GP22": RING, "GP5": LATCH, "GP6": LATCH} | dict.fromkeys(
     ["GP12", "GP13", "GP16", "GP20", "GP19", "GP26", "GP21"], BUTTON_PAD)
 
 LABEL_ROW_Y = g.ORIGIN_Y + 530  # between the pad names and row A
+
+
+@dataclass(frozen=True)
+class CableWire:
+    """One wire of the JST cable: its colour, the hole on the board, and the button it reaches."""
+
+    name: str
+    colour: str
+    at: str
+    button: str
+
+
+# The JST cable, pin 1 first, in the order its wires leave the connector. Purple takes the
+# leftmost button pad and red the rightmost, so the cable runs straight along the row;
+# black, the last, is the buttons' shared ground.
+JST_CABLE = [
+    CableWire("purple", "#7048e8", "GP12", "five-way left"),
+    CableWire("blue", "#1c7ed6", "GP13", "five-way centre"),
+    CableWire("green", "#0ca678", "GP16", "five-way up"),
+    CableWire("orange", "#f76707", "GP20", "SYNC"),
+    CableWire("yellow", "#fcc419", "GP19", "five-way down"),
+    CableWire("white", "#f8f9fa", "GP26", "five-way right"),
+    CableWire("red", "#e03131", "GP21", "SHOOT"),
+    CableWire("black", "#212529", "24C", "GND: the common leg of every button"),
+]
+FIRST_BUTTON_WIRE = 7
 
 
 @dataclass(frozen=True)
@@ -76,15 +100,9 @@ STEPS = [
         Wire(4, "17F", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),
         Wire(5, "18F", "UPS switch ON pin (SYS, battery), thick wire", POWER_WIRE),
     )),
-    Step("The button wires", (
-        Wire(7, "GP12", "five-way left", BUTTON_WIRE),
-        Wire(8, "GP13", "five-way centre", BUTTON_WIRE),
-        Wire(9, "GP16", "five-way up", BUTTON_WIRE),
-        Wire(10, "GP20", "SYNC", BUTTON_WIRE),
-        Wire(11, "GP19", "five-way down", BUTTON_WIRE),
-        Wire(12, "GP26", "five-way right", BUTTON_WIRE),
-        Wire(13, "GP21", "SHOOT", BUTTON_WIRE),
-        Wire(14, "24C", "one wire, daisy-chained to all seven buttons (GND)", GROUND_WIRE),
+    Step("The button wires: one half of the JST cable", tuple(
+        Wire(number, wire.at, wire.button, wire.colour, wire.name)
+        for number, wire in enumerate(JST_CABLE, start=FIRST_BUTTON_WIRE)
     )),
 ]
 

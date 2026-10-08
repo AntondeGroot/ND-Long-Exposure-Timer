@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1262" width="1510" height="1262" font-family="Helvetica, Arial, sans-serif">
 <rect width="1510" height="1262" fill="#ffffff"/>
-<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 5 of 5: The button wires</text>
+<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 5 of 5: The button wires: one half of the JST cable</text>
 <text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
@@ -445,47 +445,47 @@
 <circle cx="1046.6" cy="734.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
 <text x="1046.6" y="740.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
 </g>
-<circle cx="1076.4" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<circle cx="1076.4" cy="320.0" r="14" fill="#7048e8" stroke="#fff" stroke-width="3"/>
 <text x="1076.4" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-<circle cx="1131.2" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<circle cx="1131.2" cy="320.0" r="14" fill="#1c7ed6" stroke="#fff" stroke-width="3"/>
 <text x="1131.2" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<circle cx="1186.0" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<circle cx="1186.0" cy="320.0" r="14" fill="#0ca678" stroke="#fff" stroke-width="3"/>
 <text x="1186.0" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-<circle cx="1240.8" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<circle cx="1240.8" cy="320.0" r="14" fill="#f76707" stroke="#fff" stroke-width="3"/>
 <text x="1240.8" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<circle cx="1295.6" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
-<text x="1295.6" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
-<circle cx="1350.4" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
-<text x="1350.4" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
-<circle cx="1405.2" cy="320.0" r="14" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<circle cx="1295.6" cy="320.0" r="14" fill="#fcc419" stroke="#555" stroke-width="3"/>
+<text x="1295.6" y="325.2" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">11</text>
+<circle cx="1350.4" cy="320.0" r="14" fill="#f8f9fa" stroke="#555" stroke-width="3"/>
+<text x="1350.4" y="325.2" font-size="14" fill="#111" text-anchor="middle" font-weight="bold">12</text>
+<circle cx="1405.2" cy="320.0" r="14" fill="#e03131" stroke="#fff" stroke-width="3"/>
 <text x="1405.2" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
 <circle cx="1375.4" cy="569.6" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="1375.4" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
 <text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">This step</text>
-<circle cx="95.0" cy="967.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<circle cx="95.0" cy="967.0" r="15" fill="#7048e8" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="973.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">GP12 pad  ->  five-way left</text>
-<circle cx="875.0" cy="967.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">GP12 pad  ->  five-way left (purple)</text>
+<circle cx="875.0" cy="967.0" r="15" fill="#1c7ed6" stroke="#fff" stroke-width="3"/>
 <text x="875.0" y="973.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<text x="902.0" y="974.0" font-size="20" fill="#222" text-anchor="start">GP13 pad  ->  five-way centre</text>
-<circle cx="95.0" cy="1009.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<text x="902.0" y="974.0" font-size="20" fill="#222" text-anchor="start">GP13 pad  ->  five-way centre (blue)</text>
+<circle cx="95.0" cy="1009.0" r="15" fill="#0ca678" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1015.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-<text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">GP16 pad  ->  five-way up</text>
-<circle cx="875.0" cy="1009.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">GP16 pad  ->  five-way up (green)</text>
+<circle cx="875.0" cy="1009.0" r="15" fill="#f76707" stroke="#fff" stroke-width="3"/>
 <text x="875.0" y="1015.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<text x="902.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">GP20 pad  ->  SYNC</text>
-<circle cx="95.0" cy="1051.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="1057.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
-<text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">GP19 pad  ->  five-way down</text>
-<circle cx="875.0" cy="1051.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="1057.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">12</text>
-<text x="902.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">GP26 pad  ->  five-way right</text>
-<circle cx="95.0" cy="1093.0" r="15" fill="#0b7285" stroke="#fff" stroke-width="3"/>
+<text x="902.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">GP20 pad  ->  SYNC (orange)</text>
+<circle cx="95.0" cy="1051.0" r="15" fill="#fcc419" stroke="#555" stroke-width="3"/>
+<text x="95.0" y="1057.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">11</text>
+<text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">GP19 pad  ->  five-way down (yellow)</text>
+<circle cx="875.0" cy="1051.0" r="15" fill="#f8f9fa" stroke="#555" stroke-width="3"/>
+<text x="875.0" y="1057.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">12</text>
+<text x="902.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">GP26 pad  ->  five-way right (white)</text>
+<circle cx="95.0" cy="1093.0" r="15" fill="#e03131" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
-<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP21 pad  ->  SHOOT</text>
+<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP21 pad  ->  SHOOT (red)</text>
 <circle cx="875.0" cy="1093.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="875.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<text x="902.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">24C  ->  one wire, daisy-chained to all seven buttons (GND)</text>
+<text x="902.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">24C  ->  GND: the common leg of every button (black)</text>
 <text x="80.0" y="1152.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
 <text x="80.0" y="1184.0" font-size="19" fill="#444" text-anchor="start">Transistors: base in the middle, emitter to the right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 16E.</text>
 </svg>
