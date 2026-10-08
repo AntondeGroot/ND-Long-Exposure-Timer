@@ -482,28 +482,28 @@
 <text x="902.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">18F  ->  UPS switch ON pin (SYS, battery), thick wire</text>
 <circle cx="95.0" cy="1093.0" r="15" fill="#7048e8" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP12 pad  ->  five-way left (purple)</text>
+<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP12 pad  ->  five-way up (purple)</text>
 <circle cx="875.0" cy="1093.0" r="15" fill="#1c7ed6" stroke="#fff" stroke-width="3"/>
 <text x="875.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<text x="902.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP13 pad  ->  five-way centre (blue)</text>
+<text x="902.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP13 pad  ->  five-way down (blue)</text>
 <circle cx="95.0" cy="1135.0" r="15" fill="#0ca678" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1141.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">GP16 pad  ->  five-way up (green)</text>
+<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">GP16 pad  ->  five-way left (green)</text>
 <circle cx="875.0" cy="1135.0" r="15" fill="#f76707" stroke="#fff" stroke-width="3"/>
 <text x="875.0" y="1141.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<text x="902.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">GP20 pad  ->  SYNC (orange)</text>
+<text x="902.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">GP20 pad  ->  five-way right (orange)</text>
 <circle cx="95.0" cy="1177.0" r="15" fill="#fcc419" stroke="#555" stroke-width="3"/>
 <text x="95.0" y="1183.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">11</text>
-<text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">GP19 pad  ->  five-way down (yellow)</text>
+<text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">GP19 pad  ->  five-way centre (yellow)</text>
 <circle cx="875.0" cy="1177.0" r="15" fill="#f8f9fa" stroke="#555" stroke-width="3"/>
 <text x="875.0" y="1183.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">12</text>
-<text x="902.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">GP26 pad  ->  five-way right (white)</text>
+<text x="902.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">GP26 pad  ->  SYNC (white)</text>
 <circle cx="95.0" cy="1219.0" r="15" fill="#e03131" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1225.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
 <text x="122.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">GP21 pad  ->  SHOOT (red)</text>
 <circle cx="875.0" cy="1219.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="875.0" y="1225.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<text x="902.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">24C  ->  GND: the common leg of every button (black)</text>
+<text x="902.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">24C  ->  GND: SYNC, SHOOT, five-way (black)</text>
 <text x="80.0" y="1278.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
 <text x="80.0" y="1310.0" font-size="19" fill="#444" text-anchor="start">Transistors: base in the middle, emitter to the right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 16E.</text>
 </svg>

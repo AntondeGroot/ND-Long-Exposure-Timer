@@ -42,17 +42,19 @@ class CableWire:
 
 
 # The JST cable, pin 1 first, in the order its wires leave the connector. Purple takes the
-# leftmost button pad and red the rightmost, so the cable runs straight along the row;
-# black, the last, is the buttons' shared ground.
+# leftmost button pad and red the rightmost, so the cable runs straight along the row.
+# The first five follow the five-way's own pins (up, down, left, right, centre), so they
+# reach it without crossing; white and red go to SYNC and SHOOT. Black is ground: it goes
+# to SYNC and SHOOT, and from there a short wire carries it on to the five-way's ground pin.
 JST_CABLE = [
-    CableWire("purple", "#7048e8", "GP12", "five-way left"),
-    CableWire("blue", "#1c7ed6", "GP13", "five-way centre"),
-    CableWire("green", "#0ca678", "GP16", "five-way up"),
-    CableWire("orange", "#f76707", "GP20", "SYNC"),
-    CableWire("yellow", "#fcc419", "GP19", "five-way down"),
-    CableWire("white", "#f8f9fa", "GP26", "five-way right"),
+    CableWire("purple", "#7048e8", "GP12", "five-way up"),
+    CableWire("blue", "#1c7ed6", "GP13", "five-way down"),
+    CableWire("green", "#0ca678", "GP16", "five-way left"),
+    CableWire("orange", "#f76707", "GP20", "five-way right"),
+    CableWire("yellow", "#fcc419", "GP19", "five-way centre"),
+    CableWire("white", "#f8f9fa", "GP26", "SYNC"),
     CableWire("red", "#e03131", "GP21", "SHOOT"),
-    CableWire("black", "#212529", "24C", "GND: the common leg of every button"),
+    CableWire("black", "#212529", "24C", "GND: SYNC, SHOOT, five-way"),
 ]
 FIRST_BUTTON_WIRE = 7
 

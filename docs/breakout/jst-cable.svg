@@ -179,20 +179,20 @@
 <text x="170.0" y="728.0" font-size="16" fill="#444" text-anchor="end" font-weight="bold">breakout board</text>
 <text x="932.0" y="728.0" font-size="16" fill="#444" text-anchor="start" font-weight="bold">buttons</text>
 <text x="170.0" y="755.0" font-size="15" fill="#222" text-anchor="end">GP12 pad</text>
-<text x="932.0" y="755.0" font-size="15" fill="#222" text-anchor="start">five-way left</text>
+<text x="932.0" y="755.0" font-size="15" fill="#222" text-anchor="start">five-way up</text>
 <text x="170.0" y="773.0" font-size="15" fill="#222" text-anchor="end">GP13 pad</text>
-<text x="932.0" y="773.0" font-size="15" fill="#222" text-anchor="start">five-way centre</text>
+<text x="932.0" y="773.0" font-size="15" fill="#222" text-anchor="start">five-way down</text>
 <text x="170.0" y="791.0" font-size="15" fill="#222" text-anchor="end">GP16 pad</text>
-<text x="932.0" y="791.0" font-size="15" fill="#222" text-anchor="start">five-way up</text>
+<text x="932.0" y="791.0" font-size="15" fill="#222" text-anchor="start">five-way left</text>
 <text x="170.0" y="809.0" font-size="15" fill="#222" text-anchor="end">GP20 pad</text>
-<text x="932.0" y="809.0" font-size="15" fill="#222" text-anchor="start">SYNC</text>
+<text x="932.0" y="809.0" font-size="15" fill="#222" text-anchor="start">five-way right</text>
 <text x="170.0" y="827.0" font-size="15" fill="#222" text-anchor="end">GP19 pad</text>
-<text x="932.0" y="827.0" font-size="15" fill="#222" text-anchor="start">five-way down</text>
+<text x="932.0" y="827.0" font-size="15" fill="#222" text-anchor="start">five-way centre</text>
 <text x="170.0" y="845.0" font-size="15" fill="#222" text-anchor="end">GP26 pad</text>
-<text x="932.0" y="845.0" font-size="15" fill="#222" text-anchor="start">five-way right</text>
+<text x="932.0" y="845.0" font-size="15" fill="#222" text-anchor="start">SYNC</text>
 <text x="170.0" y="863.0" font-size="15" fill="#222" text-anchor="end">GP21 pad</text>
 <text x="932.0" y="863.0" font-size="15" fill="#222" text-anchor="start">SHOOT</text>
 <text x="170.0" y="881.0" font-size="15" fill="#222" text-anchor="end">24C, GND rail</text>
-<text x="932.0" y="881.0" font-size="15" fill="#222" text-anchor="start">GND: the common leg of every button</text>
+<text x="932.0" y="881.0" font-size="15" fill="#222" text-anchor="start">GND: SYNC, SHOOT, five-way</text>
 <text x="520.0" y="916.0" font-size="19" fill="#444" text-anchor="middle">male + female</text>
 </svg>
