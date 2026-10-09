@@ -456,6 +456,8 @@ Before=shutdown.target
 Type=simple
 User=${TARGET_USER}
 RuntimeDirectory=${SERVICE_NAME}
+# /var/lib/nd-timer, owned by the service user: where the settings are kept.
+StateDirectory=${SERVICE_NAME}
 WorkingDirectory=/run/${SERVICE_NAME}
 ExecStart=${VENV_DIR}/bin/python ${APP_DIR}/${ENTRY_POINT:-main.py}
 Restart=on-failure
