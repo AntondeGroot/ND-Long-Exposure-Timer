@@ -21,6 +21,7 @@ sys.path.insert(0, str(REPO))
 from scripts.breakout_drawing.cable_page import cable_page  # noqa: E402
 from scripts.breakout_drawing.cables import DATA_CABLE, POWER_CABLE  # noqa: E402
 from scripts.breakout_drawing.compose import overview, step_page  # noqa: E402
+from scripts.breakout_drawing.header_drawing import header_page  # noqa: E402
 from scripts.breakout_drawing.jst_cable import jst_cable_page  # noqa: E402
 from scripts.breakout_drawing.layout import STEPS  # noqa: E402
 
@@ -33,6 +34,7 @@ def pages() -> dict[str, str]:
     return {
         "overview.svg": overview(),
         **steps,
+        "header.svg": header_page(),
         "jst-cable.svg": jst_cable_page(),
         "power-cable.svg": cable_page(POWER_CABLE),
         "data-cable.svg": cable_page(DATA_CABLE),
