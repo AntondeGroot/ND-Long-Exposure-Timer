@@ -38,7 +38,7 @@ dead and sends you home; hatching says the number is not known.
 
 ![A device with no battery gauge](screens/main-no-battery@3x.png)
 
-### When the bag cannot get there
+### When the filter bag cannot get there
 
 Filters come in coarse jumps, so the time asked for is often not reachable with glass
 alone. ISO in thirds is the trim that closes the gap - the ISO on screen is simply the
@@ -98,8 +98,8 @@ yours, and choosing a scenario is how you hand it back.
 ### Settings
 
 The device can only answer out of the kit it has been told about, so most of settings is
-that kit: which filters are in the bag, how far the ISO may be pushed, and the two ends
-of the lens. A filter left out of the bag is never asked for and an aperture past either
+that kit: which filters are in the filter bag, how far the ISO may be pushed, and the two ends
+of the lens. A filter left out of the filter bag is never asked for and an aperture past either
 end is never named - the device would rather miss the time and say so on the **off** row
 than tell you to use glass you did not bring. **DELAY** is the exception, and is about
 the tripod rather than the camera.
@@ -112,7 +112,7 @@ configured rather than empty.
 ![Settings](screens/settings@3x.png)
 
 The filter list is the same screen one level down. The centre press is what puts a
-filter in the bag or takes it out, so its rows go without the carets that would promise
+filter in the filter bag or takes it out, so its rows go without the carets that would promise
 left and right do something.
 
 ![The filter list](screens/settings-filters@3x.png)

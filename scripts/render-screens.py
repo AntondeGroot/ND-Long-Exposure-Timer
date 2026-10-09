@@ -17,8 +17,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
-from nd_timer.bag import Bag  # noqa: E402
 from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
+from nd_timer.filter_bag import FilterBag  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
     DelayScreen,
@@ -31,8 +31,8 @@ from nd_timer.ui.screens import (  # noqa: E402
 )
 from nd_timer.ui.settings import SettingsEntry, SettingsScreen, render_settings  # noqa: E402
 
-# A typical bag: a light filter for water, a medium one and a big stopper.
-TYPICAL_BAG = Bag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
+# A typical filter bag: a light filter for water, a medium one and a big stopper.
+TYPICAL_FILTER_BAG = FilterBag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
 
 OUTPUT_DIR = REPO / "docs" / "screens"
 
@@ -77,7 +77,7 @@ CASES = {
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="", direction=0, is_bulb=False, synced_note="NOT SYNCED", battery=100,
     ),
-    # An hour at noon, metered at 1/2000: every filter in the bag, stopped all
+    # An hour at noon, metered at 1/2000: every filter in the filter bag, stopped all
     # the way down, and it still lands most of a stop short - which the row says
     # out loud rather than quietly rounding.
     "main-stacked": MainScreen(
@@ -86,7 +86,7 @@ CASES = {
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-8min", direction=-1, is_bulb=True, synced_note="SYNCED 30s", battery=66,
     ),
-    # The same scene with one filter in the bag. The time asked for is still the
+    # The same scene with one filter in the filter bag. The time asked for is still the
     # time on screen: a camera in shutter priority takes the shot too.
     "main-out-of-reach": MainScreen(
         mode="CLOUDS", iso="100", aperture="f/22", nd_label="8", off_by="+8.6st", is_auto=True,
@@ -174,7 +174,7 @@ CASES = {
         setting_time=False, shows_nudge_hint=False, time_is_set=True,
         target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 4s", battery=10,
     ),
-    # The shape of the kit: the bag, how far the ISO may be pushed, and the two
+    # The shape of the kit: the filter bag, how far the ISO may be pushed, and the two
     # ends of the lens the device is allowed to use.
     "settings": SettingsScreen(
         entries=(
@@ -187,11 +187,11 @@ CASES = {
         selected=2, battery=10,
     ),
     "settings-filters": SettingsScreen(
-        entries=tuple(SettingsEntry(f.name, TYPICAL_BAG.ownership_label(f)) for f in COMMON_FILTERS),
+        entries=tuple(SettingsEntry(f.name, TYPICAL_FILTER_BAG.ownership_label(f)) for f in COMMON_FILTERS),
         selected=2, battery=10, title="FILTERS", left_right_change_values=False,
     ),
     "settings-filters-scrolled": SettingsScreen(
-        entries=tuple(SettingsEntry(f.name, TYPICAL_BAG.ownership_label(f)) for f in COMMON_FILTERS),
+        entries=tuple(SettingsEntry(f.name, TYPICAL_FILTER_BAG.ownership_label(f)) for f in COMMON_FILTERS),
         selected=8, battery=10, title="FILTERS", left_right_change_values=False,
     ),
 }

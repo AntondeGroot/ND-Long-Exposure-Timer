@@ -18,7 +18,7 @@ one level. Two presses belong to something else, and the app hands them over
 rather than this deciding for them:
 
     navigation.selected == layout.TIME     ->  dial.pressed_centre()
-    navigation.pointed_filter is not None  ->  bag.toggled(navigation.pointed_filter)
+    navigation.pointed_filter is not None  ->  filter_bag.toggled(navigation.pointed_filter)
     otherwise                              ->  navigation.pressed_centre()
 
 Anywhere else there is nothing behind the press, so nothing happens.
