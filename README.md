@@ -181,6 +181,17 @@ rightmost, and black into ⑭ for the buttons' ground.
 Check: once the buttons are on (3.5), each pad beeps to GND only while its button is
 pressed.
 
+#### 3.2.6 Header
+
+![The header](docs/breakout/header.svg)
+
+The 2x20 female header goes on last: it is the tallest part, and the board no longer lies
+flat once it is on. It sits underneath the board, where it plugs onto the Pi, with its
+pins coming up through the holes; solder them from the top. One pin at each end first,
+check the header sits square, then the other 38.
+
+Check: no solder bridges between pins - look closely along both rows.
+
 How the circuits work, with schematics: [docs/power-button.md](docs/power-button.md).
 The drawings are generated: edit `scripts/breakout_drawing/layout.py` and run
 `./scripts/draw-breakout.py`.

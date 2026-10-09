@@ -1,8 +1,8 @@
-"""Flat-shaded 3D for the parts drawings: faces, one fixed viewpoint, and painting order.
+"""Flat-shaded 3D for the parts drawings: faces, a viewpoint, and painting order.
 
-Everything is drawn from the same direction, so parts drawn on one page agree with each
-other. A face is a flat polygon wound so its normal points outwards; faces turned away
-from the viewer are skipped, and the rest are painted far to near.
+Parts drawn on one page share a viewpoint, so they agree with each other. A face is a
+flat polygon wound so its normal points outwards; faces turned away from the viewer are
+skipped, and the rest are painted far to near.
 """
 
 from __future__ import annotations
@@ -15,8 +15,8 @@ from .svg import Canvas
 Vector = tuple[float, float, float]
 EDGE = "#555"
 
-# Towards the viewer: from in front (positive x), from the left (negative y), and from
-# above - roughly the angle of the usual product photo.
+# The usual viewpoint, towards the viewer: from in front (positive x), from the left
+# (negative y), and from above - roughly the angle of the usual product photo.
 VIEW: Vector = (0.55, -0.6, 0.62)
 
 
@@ -33,12 +33,6 @@ def _dot(a: Vector, b: Vector) -> float:
     return sum(x * y for x, y in zip(a, b, strict=True))
 
 
-TOWARDS_VIEWER = _normalise(VIEW)
-_FORWARD = (-TOWARDS_VIEWER[0], -TOWARDS_VIEWER[1], -TOWARDS_VIEWER[2])
-_RIGHT = _normalise(_cross(_FORWARD, (0.0, 0.0, 1.0)))
-_UP = _normalise(_cross(_RIGHT, _FORWARD))
-
-
 @dataclass(frozen=True)
 class Face:
     corners: tuple[Vector, ...]
@@ -52,14 +46,31 @@ class Projection:
     origin_x: float
     origin_y: float
     scale: float
+    view: Vector = VIEW
+
+    @property
+    def _towards_viewer(self) -> Vector:
+        return _normalise(self.view)
+
+    @property
+    def _right(self) -> Vector:
+        forward = tuple(-c for c in self._towards_viewer)
+        return _normalise(_cross(forward, (0.0, 0.0, 1.0)))
+
+    @property
+    def _up(self) -> Vector:
+        forward = tuple(-c for c in self._towards_viewer)
+        return _normalise(_cross(self._right, forward))
 
     def point(self, p: Vector) -> tuple[float, float]:
-        return self.origin_x + self.scale * _dot(p, _RIGHT), self.origin_y - self.scale * _dot(p, _UP)
+        return self.origin_x + self.scale * _dot(p, self._right), self.origin_y - self.scale * _dot(p, self._up)
 
     def paint(self, canvas: Canvas, faces: list[Face], stroke: str = EDGE) -> None:
         """The faces turned towards the viewer, furthest first. A curved surface made of
         many thin faces reads better without an outline on each: pass stroke="none"."""
-        for face in sorted((f for f in faces if _faces_viewer(f)), key=_depth):
+        towards = self._towards_viewer
+        facing = [f for f in faces if _dot(_normal(f), towards) > 1e-9]
+        for face in sorted(facing, key=lambda f: _dot(_centre(f), towards)):
             self.polygon(canvas, face.corners, face.fill, stroke=stroke)
 
     def polygon(self, canvas: Canvas, corners: tuple[Vector, ...], fill: str, stroke: str = "none") -> None:
@@ -120,6 +131,20 @@ def prism_along_y(outline: list[tuple[float, float]], y_front: float, y_back: fl
     return faces
 
 
+def prism_along_z(outline: list[tuple[float, float]], z_bottom: float, z_top: float,
+                  top: str, side: str) -> list[Face]:
+    """An outline in the x-y plane, a slab from z_bottom up to z_top.
+
+    `outline` runs anticlockwise seen from above."""
+    faces = [
+        Face(tuple((x, y, z_top) for x, y in outline), top),
+        Face(tuple((x, y, z_bottom) for x, y in reversed(outline)), side),
+    ]
+    for (xa, ya), (xb, yb) in zip(outline, outline[1:] + outline[:1], strict=True):
+        faces.append(Face(((xa, ya, z_bottom), (xb, yb, z_bottom), (xb, yb, z_top), (xa, ya, z_top)), side))
+    return faces
+
+
 def _normal(face: Face) -> Vector:
     """Newell's method: robust for polygons with many corners, such as a stadium."""
     nx = ny = nz = 0.0
@@ -131,12 +156,7 @@ def _normal(face: Face) -> Vector:
     return nx, ny, nz
 
 
-def _faces_viewer(face: Face) -> bool:
-    return _dot(_normal(face), TOWARDS_VIEWER) > 1e-9
-
-
-def _depth(face: Face) -> float:
+def _centre(face: Face) -> Vector:
     n = len(face.corners)
-    centre = (sum(c[0] for c in face.corners) / n, sum(c[1] for c in face.corners) / n,
-              sum(c[2] for c in face.corners) / n)
-    return _dot(centre, TOWARDS_VIEWER)
+    return (sum(c[0] for c in face.corners) / n, sum(c[1] for c in face.corners) / n,
+            sum(c[2] for c in face.corners) / n)
