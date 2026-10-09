@@ -17,9 +17,9 @@ How it works:
 
 | Control | Does |
 |---------|------|
-| Five-way | move |
+| Five-way | navigate |
 | Five-way centre | select |
-| SYNC | read the exposure from the camera |
+| SYNC | read the current exposure settings from the camera |
 | SHOOT | start the shot; hold to cancel |
 
 What every screen means: [docs/screens.md](docs/screens.md).
