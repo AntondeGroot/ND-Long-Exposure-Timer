@@ -92,7 +92,7 @@ FIRST_ROW_TOP = TOGGLE_BOTTOM + 2
 # Six rows. The first is the shutter the camera metered, which is a measurement
 # and never moves. The four after it are the answer to the time above: the ISO,
 # the aperture and the filters that would expose for it, and how far the nearest
-# thing the bag can do lands from it. The last is the scenario.
+# thing the filter bag can do lands from it. The last is the scenario.
 #
 # Which of them the five-way can land on depends on who is choosing: on AUTO
 # none of the middle four, because they are answers; on MANUAL the ISO and the

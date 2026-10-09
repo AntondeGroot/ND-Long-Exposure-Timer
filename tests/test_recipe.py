@@ -24,7 +24,7 @@ def test_it_names_the_stack_that_exposes_for_the_time_that_was_asked_for():
 
 
 def test_iso_closes_a_gap_the_filters_cannot():
-    # Two thirds of a second is 5.4 stops past 1/60 and the bag jumps 3 to 6, so
+    # Two thirds of a second is 5.4 stops past 1/60 and the filter bag jumps 3 to 6, so
     # the filters alone land a third of a stop long. ISO is the trim: a third of
     # a stop of it costs the photograph nothing, and the aperture stays where it
     # was framed.

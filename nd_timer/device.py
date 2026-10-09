@@ -7,7 +7,7 @@ scenario is a shortcut to a time rather than a mode of its own, so choosing
 CLOUDS puts the time in the middle of what clouds want and the recipe follows.
 
 The pieces underneath each know one thing. The dial knows how a time steps, the
-navigation knows where the five-way is pointing, the bag knows which filters are
+navigation knows where the five-way is pointing, the filter bag knows which filters are
 in it, nd_timer.recipe does the solving. None of them knows that a left press
 means the dial while the time is being set and the scenario otherwise. That
 routing is what this is.
@@ -21,10 +21,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 
-from nd_timer.bag import Bag
 from nd_timer.camera import MeteredExposure
 from nd_timer.dial import Dial
 from nd_timer.exposure import FilterChoice, filter_choices
+from nd_timer.filter_bag import FilterBag
 from nd_timer.recipe import APERTURES, STANDARD_ISOS, Recipe, recipe_for, recipe_of
 from nd_timer.subjects import SUBJECTS
 from nd_timer.ui import layout
@@ -122,7 +122,7 @@ class Device:
     delay_seconds: float = DEFAULT_DELAY_SECONDS
     aperture_min: float = APERTURES[0]
     aperture_max: float = APERTURES[-1]
-    bag: Bag = field(default_factory=Bag)
+    filter_bag: FilterBag = field(default_factory=FilterBag)
     by_hand: ByHand | None = None
     navigation: Navigation = field(default_factory=Navigation)
     dial: Dial = field(default_factory=lambda: Dial(DEFAULT_TIME_SECONDS))
@@ -183,7 +183,7 @@ class Device:
             metered_shutter=self.metered.shutter_seconds,
             metered_iso=self.metered.iso,
             metered_aperture=self.metered.aperture,
-            choices=filter_choices(self.bag.owned),
+            choices=filter_choices(self.filter_bag.owned),
             highest_iso=self.iso_max,
             lowest_aperture=self.aperture_min,
             highest_aperture=self.aperture_max,
@@ -219,7 +219,7 @@ class Device:
             return self._toggled_auto()
         pointed = self.navigation.pointed_filter
         if pointed is not None:
-            return replace(self, bag=self.bag.toggled(pointed))
+            return replace(self, filter_bag=self.filter_bag.toggled(pointed))
         return replace(self, navigation=self.navigation.pressed_centre())
 
     def pressed_sync(self, metered: MeteredExposure, now: float) -> Device:
@@ -266,7 +266,7 @@ class Device:
     def setting_value(self, label: str) -> str:
         """What a settings entry currently says, for the list that shows it."""
         return {
-            FILTERS: self.bag.summary,
+            FILTERS: self.filter_bag.summary,
             ISO_MAX: f"{self.iso_max:g}",
             APERTURE_MIN: f"f/{self.aperture_min:g}",
             APERTURE_MAX: f"f/{self.aperture_max:g}",

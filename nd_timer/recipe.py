@@ -13,7 +13,7 @@ That makes ND the coarse control and the camera the trim:
   ISO      thirds of a stop, which is what turns "nearly" into "exactly"
 
 The search is over three ladders at once, so it is not run as three loops. For
-each ISO and aperture the filtration needed is arithmetic, and the bag is sorted
+each ISO and aperture the filtration needed is arithmetic, and the filter bag is sorted
 by stops, so the nearest stack is a bisection rather than a scan.
 """
 
@@ -99,7 +99,7 @@ class Recipe:
 
     `error_stops` is what the shot costs if the wanted time is used anyway:
     positive is brighter than metered, negative is darker. It is not always zero
-    and the device does not pretend otherwise - with a bag that cannot reach, a
+    and the device does not pretend otherwise - with a filter bag that cannot reach, a
     camera in shutter priority blinks its aperture and takes the shot.
 
     It is not the same question as whether the recipe could have been closer.
@@ -153,7 +153,7 @@ def recipe_for(
     lowest_aperture: float = APERTURES[0],
     highest_aperture: float = APERTURES[-1],
 ) -> Recipe:
-    """The closest the bag and the camera can come to exposing for `wanted_seconds`.
+    """The closest the filter bag and the camera can come to exposing for `wanted_seconds`.
 
     Among everything that lands within a third of a stop the cheapest one wins,
     and cheap is counted in what it costs the photograph: the glass in front of

@@ -1,6 +1,6 @@
 """The settings screens: the device's own lists, drawn the way the calculator's is.
 
-Settings are the things that are true of the bag rather than of the shot - which
+Settings are the things that are true of the filter bag rather than of the shot - which
 filters are in it, how far the ISO may be pushed and how wide and how far down
 the lens goes when the device goes looking for a recipe. They change rarely
 enough to be worth a screen of their own, and the calculator is the better for
@@ -24,7 +24,7 @@ from nd_timer.ui import layout, render
 # What the screen lists, in the order it lists them. The navigation walks this,
 # so it is the one place the list is written down.
 #
-# Four of them are the shape of the kit: which filters are in the bag, how far
+# Four of them are the shape of the kit: which filters are in the filter bag, how far
 # the ISO may be pushed, and how wide and how far down the lens goes. Between
 # them they are the whole search space the device is allowed to answer from.
 # The fifth is the wait between the press and the shutter.

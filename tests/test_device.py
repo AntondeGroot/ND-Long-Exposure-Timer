@@ -1,19 +1,19 @@
 """Tests for what a press does: the time is the input, the recipe is the answer."""
 
-from nd_timer.bag import Bag
 from nd_timer.camera import MeteredExposure
 from nd_timer.device import Device
 from nd_timer.exposure import COMMON_FILTERS
+from nd_timer.filter_bag import FilterBag
 from nd_timer.subjects import SUBJECTS
 from nd_timer.ui import layout
 from nd_timer.ui.settings import DELAY, ENTRY_LABELS
 
 DUSK = MeteredExposure(iso=100, aperture=11.0, shutter_seconds=1 / 60)
-TYPICAL_BAG = Bag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
+TYPICAL_FILTER_BAG = FilterBag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
 
 
 def synced(**fields) -> Device:
-    return Device(bag=TYPICAL_BAG, **fields).pressed_sync(DUSK, now=0)
+    return Device(filter_bag=TYPICAL_FILTER_BAG, **fields).pressed_sync(DUSK, now=0)
 
 
 def wanting(seconds: float, **fields) -> Device:
@@ -154,13 +154,13 @@ def test_narrowing_the_lens_can_cost_the_recipe_its_exactness():
 
 
 def test_the_filters_in_the_bag_change_the_recipe_rather_than_the_time():
-    # Taking a filter out of the bag cannot change what the photographer asked
+    # Taking a filter out of the filter bag cannot change what the photographer asked
     # for; it changes what the device can offer, and how close it gets.
     device = synced()
     wanted = device.exposure_seconds
 
     without_the_one_it_chose = Device(
-        **{**device.__dict__, "bag": device.bag.toggled(device.recipe.filters.filters[0])}
+        **{**device.__dict__, "filter_bag": device.filter_bag.toggled(device.recipe.filters.filters[0])}
     )
 
     assert without_the_one_it_chose.exposure_seconds == wanted

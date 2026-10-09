@@ -14,6 +14,7 @@ fails for a file inside the package.
 
 from __future__ import annotations
 
+import os
 import queue
 import sys
 import threading
@@ -29,6 +30,7 @@ from nd_timer.camera import Camera, CameraError, nearest_timed_shutter
 from nd_timer.device import Device
 from nd_timer.exposure import needs_bulb
 from nd_timer.fast_panel import open_chip_when_ready
+from nd_timer.saved_settings import SettingsFile
 from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH
 from nd_timer.ui.panel import to_panel_bytes
 from nd_timer.ui.screens import (
@@ -93,6 +95,11 @@ PINS = {
 # Free of the panel (17, 25, 18, 24), SPI (8, 10, 11), I2C (2, 3) and all seven
 # buttons; physical pin 15.
 STATUS_LED_PIN = 22
+
+# Where the settings - the filter bag, ISO ceiling, lens ends and delay - survive a
+# restart. systemd creates the directory for the service (StateDirectory= in the unit
+# setup-pi.sh writes) and says where it is; the fallback is the same place.
+SETTINGS_FILE = Path(os.environ.get("STATE_DIRECTORY", "/var/lib/nd-timer")) / "settings.json"
 
 # Long enough not to fire on a firm press, short enough to feel like a decision.
 # It is what the countdown's "HOLD TO CANCEL" has been promising all along.
@@ -476,7 +483,7 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
 
 
 def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
-        led: StatusLed | None = None) -> None:
+        led: StatusLed | None = None, settings_file: SettingsFile | None = None) -> None:
     """Presses in, frames out, until something asks it to stop.
 
     The screen is worked out when the device has changed - which a press does,
@@ -493,6 +500,8 @@ def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
     while True:
         now = time.monotonic()
         device = stepped(device, buttons, panel, camera, shutter, now)
+        if settings_file is not None:
+            settings_file.save_if_changed(device)
 
         if now - read_battery_at >= BATTERY_INTERVAL_SECONDS:
             read_battery_at = now
@@ -536,9 +545,10 @@ def main() -> int:
     panel = Panel(splash_drawn=DRAWN_MARKER.exists())
     boot_mark("panel")
     buttons = Buttons(PINS)
+    settings_file = SettingsFile(SETTINGS_FILE)
 
     try:
-        run(Device(), buttons, panel, camera, led)
+        run(settings_file.restored(Device()), buttons, panel, camera, led, settings_file)
     except KeyboardInterrupt:
         # systemd stops this with SIGINT for exactly this reason: the panel
         # keeps whatever is on it, so it is left showing the last screen rather

@@ -130,10 +130,10 @@ def _settings_screen(device) -> SettingsScreen:
 
 
 def _filters_screen(device) -> SettingsScreen:
-    """The bag, one filter a line. Left and right do nothing here, so no carets."""
+    """The filter bag, one filter a line. Left and right do nothing here, so no carets."""
     return SettingsScreen(
         entries=tuple(
-            SettingsEntry(f.name, device.bag.ownership_label(f)) for f in COMMON_FILTERS
+            SettingsEntry(f.name, device.filter_bag.ownership_label(f)) for f in COMMON_FILTERS
         ),
         selected=device.navigation.filter_entry,
         battery=device.battery,
