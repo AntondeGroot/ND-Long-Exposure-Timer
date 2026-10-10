@@ -2,7 +2,7 @@
 
 A small box on your camera's hot shoe for long exposures with ND filters. You pick the
 exposure time you want; it tells you which filters to put on and the ISO and aperture
-to match. No maths, no guessing. At night it is a plain long-exposure timer too.
+to match. No maths, no guessing. At night it is a plain long-exposure timer too. (Select mode: "no filters")
 
 **Try it in your browser:** https://antondegroot.github.io/ND-Long-Exposure-Timer/
 
