@@ -17,7 +17,7 @@ How it works:
 
 | Control | Does |
 |---------|------|
-| Five-way | navigate |
+| Five-way ↔↕ | navigate |
 | Five-way centre | select |
 | SYNC | read the current exposure settings from the camera |
 | SHOOT | start the shot; hold to cancel |
