@@ -103,6 +103,15 @@ CASES = {
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
         target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 40s", battery=74,
     ),
+    # NO FILTERS: a timer for night shots. MANUAL and locked there, the filter row
+    # says there is no glass to choose, and nothing measured means no deviation and
+    # no nagging about SYNC. SHOOT sends this ISO and aperture to the camera.
+    "main-no-filters": MainScreen(
+        mode="NO FILTERS", iso="1600", aperture="f/2.8", nd_label="DISABLED", off_by="--",
+        is_auto=False, selected="ISO", base_shutter="--", final_time="4m",
+        setting_time=False, shows_nudge_hint=True, time_is_set=True,
+        target="", direction=0, is_bulb=True, synced_note="", battery=69,
+    ),
     # A time dialled away from the scenario's own: SET is what says so.
     "main-time-set": MainScreen(
         mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact", is_auto=True,

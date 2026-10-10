@@ -1,6 +1,8 @@
 """Tests for the gphoto2 integration."""
 
-from nd_timer.camera import Camera, nearest_timed_shutter
+import subprocess
+
+from nd_timer.camera import Camera, CameraSettings, nearest_timed_shutter
 
 
 class FakeProcess:
@@ -31,6 +33,40 @@ def test_a_bulb_exposure_is_a_single_gphoto2_invocation():
     # Open, wait, close and the card target all ride in this one command.
     assert "capturetarget=1" in command
     assert command.index("bulb=1") < command.index("256s") < command.index("bulb=0")
+
+
+def test_the_settings_go_in_the_same_gphoto2_call_as_the_bulb_exposure():
+    # NO FILTERS sets the ISO and aperture itself. A setting made in one gphoto2
+    # session is not in force in the next, so they have to ride in the exposure's own
+    # command - and come before the shutter opens, or the frame is taken without them.
+    launched = []
+
+    def fake_popen(command, **_kwargs):
+        launched.append(command)
+        return FakeProcess()
+
+    Camera(popen=fake_popen).start_bulb_exposure(seconds=240, settings=CameraSettings(iso=1600, aperture=2.8))
+
+    assert len(launched) == 1
+    command = launched[0]
+    assert command.index("iso=1600") < command.index("bulb=1")
+    assert command.index("aperture=f/2.8") < command.index("bulb=1")
+
+
+def test_a_timed_shot_sends_the_settings_too():
+    # Thirty seconds and under the camera times itself, through a different call -
+    # and the settings have to ride in that one as well, ahead of the trigger.
+    ran = []
+
+    def fake_run(command, **_kwargs):
+        ran.append(command)
+        return subprocess.CompletedProcess(command, returncode=0, stdout="", stderr="")
+
+    Camera(runner=fake_run).capture_timed("25", settings=CameraSettings(iso=800, aperture=4.0))
+
+    command = ran[0]
+    assert command.index("iso=800") < command.index("--trigger-capture")
+    assert command.index("aperture=f/4") < command.index("--trigger-capture")
 
 
 def test_the_shutter_sent_to_the_camera_reaches_the_speeds_past_the_dial():

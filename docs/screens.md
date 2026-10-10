@@ -65,8 +65,25 @@ the mode - the device stops solving and starts telling you where you have got to
 
 ![The settings taken over by hand](screens/main-manual@3x.png)
 
-The ceiling and the lens ends from settings still hold: MANUAL is the photographer
-choosing within the kit, not the kit being forgotten.
+The ISO ceiling and the lens ends from settings do not hold here. They tell AUTO where
+to look; a setting chosen by hand is a decision, not a search.
+
+### At night: NO FILTERS
+
+The last scenario, past MANUAL, turns the device into a plain timer for night shots,
+so it is the only thing you need on the camera. There is nothing to filter, so the
+**ND** row says **DISABLED**, the band is **MANUAL** and stays there, and the **DEV**
+row has nothing to measure against. It needs no SYNC either, and does not ask for one.
+
+You set the time, the ISO and the aperture, and SHOOT puts the ISO and aperture on the
+camera before it opens the shutter: what is on the panel is the photograph. It starts
+from the camera's own settings if you synced, and from ISO 100 f/11 if not. Scroll back
+out and the device goes back to AUTO.
+
+![NO FILTERS](screens/main-no-filters@3x.png)
+
+The aperture only gets set on a lens the camera can stop down itself; with a manual
+lens, turn its ring to match.
 
 ### Setting the time
 

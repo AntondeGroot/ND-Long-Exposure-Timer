@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 
-from nd_timer.camera import MeteredExposure
+from nd_timer.camera import CameraSettings, MeteredExposure
 from nd_timer.dial import Dial
 from nd_timer.exposure import FilterChoice, filter_choices
 from nd_timer.filter_bag import FilterBag
@@ -85,6 +85,9 @@ class Shot:
     total_seconds: float
     started_at: float
     delay_seconds: float = 0.0
+    # What to put on the camera before it opens: set only in NO FILTERS, where the
+    # device is the whole exposure rather than the arithmetic for one.
+    camera_settings: CameraSettings | None = None
 
     @property
     def opens_at(self) -> float:
@@ -142,6 +145,11 @@ class Device:
     @property
     def subject(self):
         return SUBJECTS[self.subject_index]
+
+    @property
+    def uses_filters(self) -> bool:
+        """False in NO FILTERS, where the device is a plain timer with nothing to solve."""
+        return self.subject.uses_filters
 
     @property
     def is_auto(self) -> bool:
@@ -235,9 +243,10 @@ class Device:
         """
         if self.shot is not None:
             return replace(self, shot=None)
+        settings = None if self.uses_filters else CameraSettings(self.by_hand.iso, self.by_hand.aperture)
         return replace(
             self,
-            shot=Shot(self.exposure_seconds, now, self.delay_seconds),
+            shot=Shot(self.exposure_seconds, now, self.delay_seconds, settings),
             dial=replace(self.dial, is_being_set=False),
             fault=None,
         )
@@ -300,7 +309,12 @@ class Device:
         Taking over starts from whatever the device had chosen, so nothing jumps
         under the press: the first thing MANUAL shows is the recipe AUTO was
         showing, and from there the ISO and the aperture are yours.
+
+        NO FILTERS is MANUAL and stays so: with nothing to solve, AUTO would have
+        nothing to choose.
         """
+        if not self.uses_filters:
+            return self
         if not self.is_auto:
             return replace(self, by_hand=None)
         return replace(self, by_hand=self._taken_over())
@@ -311,15 +325,37 @@ class Device:
             return ByHand(FilterChoice((), 0.0), STANDARD_ISOS[0], UNMETERED_APERTURE)
         return ByHand(recipe.filters, recipe.iso, recipe.aperture)
 
+    def _for_the_night(self) -> ByHand:
+        """Into NO FILTERS: MANUAL, with no glass, from the nearest settings to hand.
+
+        The ISO and aperture already taken over if there are any; else what the camera
+        was reading at SYNC, which is what it is set to; else the unmetered start. Put on
+        the ladders' nearest rungs, so left and right step from somewhere they know.
+        """
+        if self.by_hand is not None:
+            iso, aperture = self.by_hand.iso, self.by_hand.aperture
+        elif self.metered is not None:
+            iso, aperture = self.metered.iso, self.metered.aperture
+        else:
+            iso, aperture = STANDARD_ISOS[0], UNMETERED_APERTURE
+        return ByHand(
+            FilterChoice((), 0.0),
+            STANDARD_ISOS[_nearest(STANDARD_ISOS, iso)],
+            APERTURES[_nearest(APERTURES, aperture)],
+        )
+
     def _changed_iso(self, direction: int) -> Device:
-        """The ISO by hand, still inside the ceiling the photographer set."""
-        usable = [iso for iso in STANDARD_ISOS if iso <= self.iso_max] or [STANDARD_ISOS[0]]
-        return self._by_hand(iso=_walked(usable, self.by_hand.iso, direction))
+        """The ISO by hand, anywhere on the ladder.
+
+        The ceiling in settings is where AUTO may look. A setting chosen by hand is a
+        decision rather than a search, so it is not held to it.
+        """
+        return self._by_hand(iso=_walked(STANDARD_ISOS, self.by_hand.iso, direction))
 
     def _changed_aperture(self, direction: int) -> Device:
-        """The aperture by hand, still inside the lens it was told about."""
-        usable = [f for f in APERTURES if self.aperture_min <= f <= self.aperture_max]
-        return self._by_hand(aperture=_walked(usable or [self.by_hand.aperture], self.by_hand.aperture, direction))
+        """The aperture by hand, anywhere on the ladder: the lens ends, like the ceiling,
+        bound AUTO's search and not the photographer's choice."""
+        return self._by_hand(aperture=_walked(APERTURES, self.by_hand.aperture, direction))
 
     def _by_hand(self, **settings) -> Device:
         if self.by_hand is None:
@@ -334,6 +370,8 @@ class Device:
         four minutes. From there the dial is the photographer's again.
         """
         moved = replace(self, subject_index=_stepped(self.subject_index, direction, SUBJECTS))
+        if moved.uses_filters != self.uses_filters:
+            moved = replace(moved, by_hand=None if moved.uses_filters else self._for_the_night())
         wanted = moved.subject.sweet_spot
         if wanted is None:
             return moved

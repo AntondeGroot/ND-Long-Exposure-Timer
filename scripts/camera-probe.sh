@@ -105,6 +105,21 @@ run_probe() {
     | grep -iE 'bulb|shutterspeed|exposure|remoterelease|capturetarget|eosremote|manualfocus' \
     || echo "(none matched - full list below)"
 
+  # What NO FILTERS writes on SHOOT. The Choice: lines are the exact strings the
+  # camera accepts: the device sends "iso=1600" and "aperture=f/2.8", so those have
+  # to appear here written the same way.
+  echo
+  echo "--- settings NO FILTERS sets: iso and aperture ---"
+  timeout 60 gphoto2 --get-config iso 2>&1 || echo "(failed)"
+  timeout 60 gphoto2 --get-config aperture 2>&1 || echo "(failed)"
+
+  # Read-only, for a SYNC that could check more than it does: whether Auto ISO is
+  # on (its ISO would be wrong), and whether the meter can be read directly.
+  echo
+  echo "--- metering: autoiso and lightmeter ---"
+  timeout 60 gphoto2 --get-config autoiso 2>&1 || echo "(failed)"
+  timeout 60 gphoto2 --get-config lightmeter 2>&1 || echo "(failed)"
+
   echo
   echo "--- full config list ---"
   timeout 60 gphoto2 --list-config 2>&1 || echo "(failed)"

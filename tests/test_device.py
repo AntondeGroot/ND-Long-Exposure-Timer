@@ -1,6 +1,6 @@
 """Tests for what a press does: the time is the input, the recipe is the answer."""
 
-from nd_timer.camera import MeteredExposure
+from nd_timer.camera import CameraSettings, MeteredExposure
 from nd_timer.device import Device
 from nd_timer.exposure import COMMON_FILTERS
 from nd_timer.filter_bag import FilterBag
@@ -41,6 +41,16 @@ def on_the_scenario(device: Device) -> Device:
             return moved
         moved = moved.pressed_down()
     raise AssertionError("never reached the scenario")
+
+
+def in_no_filters(device: Device) -> Device:
+    """The scenario walked right until it is NO FILTERS."""
+    moved = on_the_scenario(device)
+    for _ in range(len(SUBJECTS)):
+        if not moved.uses_filters:
+            return moved
+        moved = moved.pressed_right()
+    raise AssertionError("never reached NO FILTERS")
 
 
 def test_choosing_a_scenario_sets_the_time_it_wants():
@@ -133,10 +143,13 @@ def test_the_lens_ends_bound_which_apertures_the_recipe_may_ask_for():
     # A lens that stops at f/8 is not asked for f/16, however well it would land.
     # The device works inside the kit it was told about, and says how far off it
     # ends up rather than naming an aperture the photographer does not have.
+    # Only while the device is choosing: in NO FILTERS the aperture is the
+    # photographer's own, and the lens ends do not bind a choice made by hand.
     walking = on_the_scenario(synced(aperture_min=4.0, aperture_max=8.0))
 
     for _ in range(len(SUBJECTS)):
-        assert 4.0 <= walking.recipe.aperture <= 8.0
+        if walking.is_auto:
+            assert 4.0 <= walking.recipe.aperture <= 8.0
         walking = walking.pressed_right()
 
 
@@ -276,3 +289,89 @@ def test_shoot_pressed_again_cancels_the_running_exposure():
     running = synced().pressed_shoot(now=10)
 
     assert running.pressed_shoot(now=11).shot is None
+
+
+def test_shoot_in_no_filters_carries_the_manual_settings():
+    # In NO FILTERS the device is the whole exposure, so SHOOT takes the ISO and
+    # aperture on the panel with it for the camera. Synced at ISO 100 f/11, those are
+    # where NO FILTERS starts, and so what the shot must carry.
+    night = in_no_filters(synced())
+
+    shot = night.pressed_shoot(now=0).shot
+
+    assert shot.camera_settings == CameraSettings(iso=100, aperture=11.0)
+
+
+def test_shoot_with_filters_sends_no_settings():
+    # With glass on, the ISO and aperture are an instruction the photographer dials
+    # in, as they always were - the camera's own must be left alone, even on MANUAL.
+    by_hand = synced().pressed_down().pressed_centre()
+
+    assert not by_hand.is_auto
+    assert by_hand.pressed_shoot(now=0).shot.camera_settings is None
+
+
+def test_no_filters_cannot_be_switched_to_auto():
+    # With no glass there is nothing to solve, so AUTO would have nothing to choose:
+    # neither a centre press nor left and right on the band take NO FILTERS off MANUAL.
+    on_band = in_no_filters(synced())
+    while on_band.navigation.selected != layout.AUTO:
+        on_band = on_band.pressed_up()
+
+    for press in (on_band.pressed_centre, on_band.pressed_left, on_band.pressed_right):
+        assert not press().is_auto
+
+
+def test_leaving_no_filters_goes_back_to_auto():
+    # NO FILTERS forced MANUAL, so scrolling back out undoes it: the scenario before
+    # it uses filters again, and the device goes back to choosing them.
+    night = in_no_filters(synced())
+
+    back = night.pressed_left()
+
+    assert back.uses_filters
+    assert back.is_auto
+
+
+def test_entering_no_filters_starts_from_the_synced_camera_settings():
+    # The camera's own ISO and aperture are what it is set to, so NO FILTERS starts
+    # there rather than somewhere the photographer then has to walk back from. A
+    # metered ISO 800 f/4 - not the fallback's 100 and f/11, so the two cannot be
+    # confused. Before any SYNC there is nothing to start from but the fallback.
+    metered = Device().pressed_sync(MeteredExposure(iso=800, aperture=4.0, shutter_seconds=1 / 30), now=0)
+
+    synced_night = in_no_filters(metered).by_hand
+    unsynced_night = in_no_filters(Device()).by_hand
+
+    assert (synced_night.iso, synced_night.aperture) == (800, 4.0)
+    assert (unsynced_night.iso, unsynced_night.aperture) == (100, 11.0)
+
+
+def test_the_no_filters_screen_says_disabled_and_does_not_ask_for_sync():
+    # Unsynced on purpose: everywhere else that means NOT SYNCED in the status bar
+    # and dashes down the column, but NO FILTERS works from nothing measured. Its
+    # settings are shown, the filter row says there is no glass, and nothing nags.
+    screen = in_no_filters(Device()).screen(now=0)
+
+    assert (screen.iso, screen.aperture) == ("100", "f/11")
+    assert screen.nd_label == "DISABLED"
+    assert screen.off_by == "--"
+    assert screen.synced_note == ""
+
+
+def test_choosing_by_hand_can_go_past_the_lens_ends():
+    # The lens ends and the ISO ceiling tell AUTO where to look. On MANUAL the
+    # settings are a decision rather than a search, so walking them is not held to
+    # either: a lens told to stop at f/8 still goes to f/11 when the photographer asks.
+    by_hand = synced(aperture_min=4.0, aperture_max=8.0, iso_max=400).pressed_down().pressed_centre()
+    on_aperture, on_iso = by_hand, by_hand
+    while on_aperture.navigation.selected != layout.APERTURE:
+        on_aperture = on_aperture.pressed_down()
+    while on_iso.navigation.selected != layout.ISO:
+        on_iso = on_iso.pressed_down()
+
+    for _ in range(6):  # two stops in thirds: well past either limit
+        on_aperture, on_iso = on_aperture.pressed_right(), on_iso.pressed_right()
+
+    assert on_aperture.by_hand.aperture > 8.0
+    assert on_iso.by_hand.iso > 400

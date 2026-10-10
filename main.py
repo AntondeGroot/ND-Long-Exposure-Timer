@@ -346,7 +346,7 @@ class Shutter:
         seconds = shot.total_seconds
         if needs_bulb(seconds):
             try:
-                self._running = self._camera.start_bulb_exposure(seconds)
+                self._running = self._camera.start_bulb_exposure(seconds, shot.camera_settings)
             except CameraError as exc:
                 self.failure = str(exc)
             return self.failure
@@ -356,12 +356,12 @@ class Shutter:
         # panel and the buttons for half a minute.
         threading.Thread(
             target=self._captured,
-            args=(nearest_timed_shutter(seconds),),
+            args=(nearest_timed_shutter(seconds), shot.camera_settings),
             daemon=True,
         ).start()
         return None
 
-    def _captured(self, shutter_value: str) -> None:
+    def _captured(self, shutter_value: str, settings) -> None:
         """The timed capture, with somewhere for its failure to go.
 
         A thread that raises takes its traceback to stderr and nothing else
@@ -371,7 +371,7 @@ class Shutter:
         in a stack trace.
         """
         try:
-            self._camera.capture_timed(shutter_value)
+            self._camera.capture_timed(shutter_value, settings)
         except CameraError as exc:
             self.failure = str(exc)
 
