@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           # .python-version is the one declaration of what this ships on; the
           # test suite reads the same file and refuses to run on anything else.
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           # .python-version is the one declaration of what this ships on; the
           # test suite reads the same file and refuses to run on anything else.
