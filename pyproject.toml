@@ -45,14 +45,14 @@ source = ["nd_timer"]
 
 [tool.coverage.report]
 # TODO: raise towards 90, the target in ChecklistForProjects. Pinned just below
-# the measured 86.45% so the gate is green today and can only ratchet upward - a
+# the measured 89.00% so the gate is green today and can only ratchet upward - a
 # floor set above current fails CI on arrival and blocks unrelated work. Move it
 # up whenever the measured figure does; that is the whole point of a ratchet.
 #
 # The number is branch coverage rather than statement coverage, which is why it
 # reads lower than it would elsewhere. The cheapest remaining ground is
-# nd_timer/subjects.py at 84% and nd_timer/ui/navigation.py at 95%.
-fail_under = 86
+# nd_timer/subjects.py at 92% and nd_timer/ui/navigation.py at 95%.
+fail_under = 88
 show_missing = true
 exclude_also = [
     "if TYPE_CHECKING:",

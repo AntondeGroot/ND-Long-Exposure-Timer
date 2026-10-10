@@ -38,6 +38,18 @@ class MeteredExposure:
     shutter_seconds: float
 
 
+@dataclass(frozen=True)
+class CameraSettings:
+    """The ISO and aperture to put on the camera before it exposes.
+
+    Only NO FILTERS sends these: there the device is the whole of the exposure. With
+    filters on, the recipe is an instruction the photographer dials in, as it always was.
+    """
+
+    iso: float
+    aperture: float
+
+
 # The speeds a camera will time itself, in thirds, as it prints them. It runs
 # three rungs past nd_timer.dial's ladder: that one stops at 15s because the
 # device's own dial becomes a clock after it, but the camera keeps going to 30
@@ -155,17 +167,17 @@ class Camera:
             # exposure, so there is no metered shutter speed to read.
             raise CameraError(f"camera reported {values}: {exc}") from exc
 
-    def start_bulb_exposure(self, seconds: float) -> RunningExposure:
+    def start_bulb_exposure(self, seconds: float, settings: CameraSettings | None = None) -> RunningExposure:
         """Open the shutter for `seconds`, returning while it is still open."""
         process = self._popen(
-            [GPHOTO2, *_bulb_arguments(seconds)],
+            [GPHOTO2, *_settings_arguments(settings), *_bulb_arguments(seconds)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
         )
         return RunningExposure(process, seconds)
 
-    def capture_timed(self, shutter_value: str) -> None:
+    def capture_timed(self, shutter_value: str, settings: CameraSettings | None = None) -> None:
         """Take a shot the camera times itself, for anything within its 30s limit.
 
         `shutter_value` is one of the camera's own choices, e.g. "1/60" or "25" -
@@ -173,6 +185,7 @@ class Camera:
         """
         self._capture(
             [
+                *_settings_arguments(settings),
                 "--set-config", "capturetarget=1",
                 "--set-config", f"shutterspeed={shutter_value}",
                 "--trigger-capture",
@@ -249,6 +262,18 @@ class RunningExposure:
         _, stderr = self._process.communicate()
         if self._process.returncode != 0:
             raise CameraError(_first_error_line(stderr or ""))
+
+
+def _settings_arguments(settings: CameraSettings | None) -> list[str]:
+    """ISO and aperture, set in the same invocation as the exposure they are for.
+
+    The same process, because a setting made in one gphoto2 session is not in force in
+    the next. The aperture is written the way Nikon's gphoto2 lists its choices, "f/11";
+    it only takes on a lens the camera can stop down itself.
+    """
+    if settings is None:
+        return []
+    return ["--set-config", f"iso={settings.iso:g}", "--set-config", f"aperture=f/{settings.aperture:g}"]
 
 
 def _bulb_arguments(seconds: float) -> list[str]:

@@ -128,18 +128,23 @@ class FakeCamera:
         self.last_error = None
         return self.metered
 
-    def start_bulb_exposure(self, seconds: float):
+    def start_bulb_exposure(self, seconds: float, settings=None):
         if not self.connected:
             raise self._refused()
         self.last_error = None
-        self.doing = f"bulb, {format_exposure(seconds)}"
+        self.doing = f"bulb, {format_exposure(seconds)}{_set_to(settings)}"
         return _RunningExposure(self)
 
-    def capture_timed(self, shutter_value: str) -> None:
+    def capture_timed(self, shutter_value: str, settings=None) -> None:
         if not self.connected:
             raise self._refused()
         self.last_error = None
-        self.doing = f"timed, {shutter_value}"
+        self.doing = f"timed, {shutter_value}{_set_to(settings)}"
+
+
+def _set_to(settings) -> str:
+    """What NO FILTERS told the camera to use, for the page to show."""
+    return "" if settings is None else f", ISO {settings.iso:g} f/{settings.aperture:g}"
 
 
 class _RunningExposure:

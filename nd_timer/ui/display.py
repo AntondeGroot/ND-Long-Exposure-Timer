@@ -25,6 +25,8 @@ from nd_timer.ui.settings import ENTRY_LABELS, FILTERS, SettingsEntry, SettingsS
 
 NOT_SYNCED = "NOT SYNCED"
 NO_VALUE = "--"
+# What the filter row says in NO FILTERS: there is no glass to choose.
+DISABLED = "DISABLED"
 
 # How often the countdown is allowed to change. E-paper wears a little with
 # every refresh and takes about a second to do one, so a per-second countdown is
@@ -49,13 +51,13 @@ def screen_for(device, now: float):
 def _main_screen(device, now: float) -> MainScreen:
     """The time the photographer asked for, and what it would take to shoot it."""
     seconds = device.exposure_seconds
-    recipe = device.recipe
+    iso, aperture, nd_label, off_by = _working(device)
     return MainScreen(
         mode=device.subject.name,
-        iso=_recipe_value(recipe, lambda r: f"{r.iso:g}"),
-        aperture=_recipe_value(recipe, lambda r: f"f/{r.aperture:g}"),
-        nd_label=_recipe_value(recipe, lambda r: r.filters.short_label),
-        off_by=_recipe_value(recipe, lambda r: r.error_label),
+        iso=iso,
+        aperture=aperture,
+        nd_label=nd_label,
+        off_by=off_by,
         is_auto=device.is_auto,
         selected=device.navigation.selected,
         base_shutter=_metered_shutter(device),
@@ -69,6 +71,23 @@ def _main_screen(device, now: float) -> MainScreen:
         synced_note=_synced_note(device, now),
         battery=device.battery,
         charging=device.charging,
+    )
+
+
+def _working(device) -> tuple[str, str, str, str]:
+    """The ISO, aperture, filter and deviation rows.
+
+    In NO FILTERS they are simply the photographer's settings: no glass, and nothing
+    measured to be off from.
+    """
+    if not device.uses_filters:
+        return f"{device.by_hand.iso:g}", f"f/{device.by_hand.aperture:g}", DISABLED, NO_VALUE
+    recipe = device.recipe
+    return (
+        _recipe_value(recipe, lambda r: f"{r.iso:g}"),
+        _recipe_value(recipe, lambda r: f"f/{r.aperture:g}"),
+        _recipe_value(recipe, lambda r: r.filters.short_label),
+        _recipe_value(recipe, lambda r: r.error_label),
     )
 
 
@@ -174,7 +193,8 @@ def _synced_note(device, now: float) -> str:
     if device.fault is not None:
         return device.fault
     if device.synced_at is None:
-        return NOT_SYNCED
+        # NO FILTERS works from nothing measured, so there is nothing to nag about.
+        return NOT_SYNCED if device.uses_filters else ""
     return f"SYNCED {_age(now - device.synced_at)}"
 
 

@@ -1,8 +1,8 @@
 # ND Long Exposure Timer
 
 A small box on your camera's hot shoe for long exposures with ND filters. You pick the
-exposure time you want; it tells you which filters to put on and sets the ISO and
-aperture to match. No maths, no guessing.
+exposure time you want; it tells you which filters to put on and the ISO and aperture
+to match. No maths, no guessing. At night it is a plain long-exposure timer too.
 
 **Try it in your browser:** https://antondegroot.github.io/ND-Long-Exposure-Timer/
 
@@ -12,6 +12,9 @@ How it works:
 1. Meter the scene on your camera as usual and press **SYNC**.
 2. Pick the total exposure time.
 3. Screw on the filters it lists and press **SHOOT**.
+
+At night, scroll the scenario to **NO FILTERS**: no SYNC needed. Set the time, ISO and
+aperture, and SHOOT puts them on the camera and runs the exposure.
 
 ## Controls
 

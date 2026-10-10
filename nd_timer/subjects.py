@@ -23,6 +23,8 @@ class Subject:
     name: str
     shortest: float | None
     longest: float | None
+    # False for the one scenario that puts no glass on the lens at all.
+    uses_filters: bool = True
 
     @property
     def has_target(self) -> bool:
@@ -88,4 +90,8 @@ SUBJECTS = (
     Subject("NO PEOPLE", 2 * SECONDS_PER_MINUTE, 8 * SECONDS_PER_MINUTE),
     # No target: the calculator without the advice.
     Subject("MANUAL", None, None),
+    # Not a calculator at all: a timer for night shots, where there is nothing to
+    # filter and the time, ISO and aperture are simply what the photographer wants.
+    # Last, so the filter scenarios all sit together before it.
+    Subject("NO FILTERS", None, None, uses_filters=False),
 )
