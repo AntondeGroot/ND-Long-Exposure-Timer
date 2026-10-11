@@ -7,7 +7,7 @@ enough to be worth a screen of their own, and the calculator is the better for
 not carrying them.
 
 The filter list is the same screen one level down, under its own title, so it is
-drawn here too.
+drawn here too - and so is the list of scenarios, opened from the main screen.
 
 The entries arrive already written, the same way every other screen takes its
 numbers: whatever owns a setting knows how to say it, and this only draws it.
@@ -36,6 +36,9 @@ DELAY = "DELAY"
 ABOUT = "ABOUT"
 
 ENTRY_LABELS = (FILTERS, ISO_MAX, APERTURE_MIN, APERTURE_MAX, DELAY, ABOUT)
+
+# The title of the list of scenarios, which is a list screen without being a setting.
+MODES = "MODES"
 
 
 @dataclass(frozen=True)

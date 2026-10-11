@@ -19,6 +19,7 @@ sys.path.insert(0, str(REPO))
 
 from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
 from nd_timer.filter_bag import FilterBag  # noqa: E402
+from nd_timer.subjects import SUBJECTS  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
     DelayScreen,
@@ -202,6 +203,11 @@ CASES = {
     "settings-filters-scrolled": SettingsScreen(
         entries=tuple(SettingsEntry(f.name, TYPICAL_FILTER_BAG.ownership_label(f)) for f in COMMON_FILTERS),
         selected=8, battery=10, title="FILTERS", left_right_change_values=False,
+    ),
+    # The scenarios, opened from the MODE row: a line each, so a long name has room.
+    "modes": SettingsScreen(
+        entries=tuple(SettingsEntry(subject.name, subject.target_label) for subject in SUBJECTS),
+        selected=3, battery=78, title="MODES", left_right_change_values=False,
     ),
 }
 

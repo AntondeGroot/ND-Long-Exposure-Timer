@@ -20,8 +20,9 @@ from nd_timer.exposure import (
     format_exposure,
     needs_bulb,
 )
+from nd_timer.subjects import SUBJECTS
 from nd_timer.ui.screens import CountdownScreen, DelayScreen, MainScreen
-from nd_timer.ui.settings import ENTRY_LABELS, FILTERS, SettingsEntry, SettingsScreen
+from nd_timer.ui.settings import ENTRY_LABELS, FILTERS, MODES, SettingsEntry, SettingsScreen
 
 NOT_SYNCED = "NOT SYNCED"
 NO_VALUE = "--"
@@ -41,6 +42,8 @@ def screen_for(device, now: float):
         if device.shot.is_delaying(now):
             return _delay_screen(device)
         return _countdown_screen(device, now)
+    if device.navigation.on_modes_screen:
+        return _modes_screen(device)
     if device.navigation.on_filters_screen:
         return _filters_screen(device)
     if device.navigation.on_settings_screen:
@@ -158,6 +161,18 @@ def _filters_screen(device) -> SettingsScreen:
         battery=device.battery,
         charging=device.charging,
         title=FILTERS,
+        left_right_change_values=False,
+    )
+
+
+def _modes_screen(device) -> SettingsScreen:
+    """Every scenario with the times it wants, a line each, so a long name has room."""
+    return SettingsScreen(
+        entries=tuple(SettingsEntry(subject.name, subject.target_label) for subject in SUBJECTS),
+        selected=device.navigation.mode_entry,
+        battery=device.battery,
+        charging=device.charging,
+        title=MODES,
         left_right_change_values=False,
     )
 

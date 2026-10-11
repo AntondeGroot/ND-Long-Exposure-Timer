@@ -9,15 +9,18 @@ Which list it is depends on who is choosing the settings, so it is passed in
 rather than known here: on AUTO the ISO and the aperture are answers and the
 five-way walks past them, on MANUAL it stops on them.
 
-Settings and the filter list inside it are lists of the same kind, each ending in
-BACK. They wrap too, so BACK is one press up from the top of either.
+Settings, the filter list inside it and the list of scenarios are lists of the
+same kind, each ending in BACK. They wrap too, so BACK is one press up from the top
+of any of them.
 
 The centre press is the one whose meaning depends on where you are. On settings
 it opens the screen, on FILTERS it opens the filter list, and on BACK it goes back
-one level. Two presses belong to something else, and the app hands them over
-rather than this deciding for them:
+one level. The rest belong to something else, and the app hands them over rather
+than this deciding for them:
 
     navigation.selected == layout.TIME     ->  dial.pressed_centre()
+    navigation.selected == layout.MODE     ->  navigation.opened_modes(the current scenario)
+    navigation.pointed_mode is not None    ->  that scenario, and navigation.closed_modes()
     navigation.pointed_filter is not None  ->  filter_bag.toggled(navigation.pointed_filter)
     otherwise                              ->  navigation.pressed_centre()
 
@@ -29,6 +32,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 
 from nd_timer.exposure import COMMON_FILTERS, NdFilter
+from nd_timer.subjects import SUBJECTS
 from nd_timer.ui import layout
 from nd_timer.ui.settings import ENTRY_LABELS, FILTERS
 
@@ -45,6 +49,8 @@ class Navigation:
     on_settings_screen: bool = False
     filter_entry: int = 0
     on_filters_screen: bool = False
+    mode_entry: int = 0
+    on_modes_screen: bool = False
 
     @property
     def is_on_settings(self) -> bool:
@@ -57,6 +63,20 @@ class Navigation:
             return None
         return COMMON_FILTERS[self.filter_entry]
 
+    @property
+    def pointed_mode(self) -> int | None:
+        """Which scenario's line the five-way is on in the list of them, if it is on one."""
+        if not self.on_modes_screen or _is_back(self.mode_entry, SUBJECTS):
+            return None
+        return self.mode_entry
+
+    def opened_modes(self, current: int) -> Navigation:
+        """The list of scenarios, starting on the one already chosen."""
+        return replace(self, on_modes_screen=True, mode_entry=current)
+
+    def closed_modes(self) -> Navigation:
+        return replace(self, on_modes_screen=False)
+
     def pressed_up(self, selections: tuple = layout.AUTO_SELECTIONS) -> Navigation:
         return self._stepped(UP, selections)
 
@@ -65,6 +85,8 @@ class Navigation:
 
     def pressed_centre(self) -> Navigation:
         """Open what the selection is on, or go back the way you came in."""
+        if self.on_modes_screen:
+            return self.closed_modes() if _is_back(self.mode_entry, SUBJECTS) else self
         if self.on_filters_screen:
             return self._pressed_centre_in_filters()
         if self.on_settings_screen:
@@ -86,6 +108,8 @@ class Navigation:
         return self
 
     def _stepped(self, direction: int, selections: tuple) -> Navigation:
+        if self.on_modes_screen:
+            return replace(self, mode_entry=_stepped_through(self.mode_entry, direction, SUBJECTS))
         if self.on_filters_screen:
             return replace(self, filter_entry=_stepped_through(self.filter_entry, direction, COMMON_FILTERS))
         if self.on_settings_screen:
@@ -99,7 +123,7 @@ def _next_selection(selected: str, direction: int, selections: tuple) -> str:
 
 
 def _stepped_through(index: int, direction: int, entries: tuple) -> int:
-    """One step along a settings list, whose stops are its entries then BACK."""
+    """One step along a list screen, whose stops are its entries then BACK."""
     return _wrapped(index + direction, len(entries) + 1)
 
 

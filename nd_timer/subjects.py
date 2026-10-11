@@ -84,6 +84,9 @@ SUBJECTS = (
     Subject("WATERFALL", 0.25, 2.0),
     # Flattened texture, reflections kept.
     Subject("RIVER", 2.0, 8.0),
+    # A busy place with the people kept, as a blur: long enough that they smear, short
+    # enough that they do not vanish the way they do on NO PEOPLE.
+    Subject("GHOST CROWD", 10.0, 30.0),
     Subject("CLOUDS", 2 * SECONDS_PER_MINUTE, 6 * SECONDS_PER_MINUTE),
     Subject("GLASSY", 1 * SECONDS_PER_MINUTE, 5 * SECONDS_PER_MINUTE),
     # Long enough that anyone walking through leaves no trace.
