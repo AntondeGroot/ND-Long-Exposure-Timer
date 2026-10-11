@@ -32,7 +32,7 @@ jobs:
       # Standard library only: the Python the page runs is installed by Pyodide
       # in the visitor's browser, not here.
       - run: ./scripts/build-simulator-page.py _site
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
