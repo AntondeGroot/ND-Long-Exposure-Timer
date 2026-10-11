@@ -415,27 +415,27 @@
 <text x="1156.2" y="703.2" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">AO3401</text>
 <text x="1156.2" y="723.2" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">on adapter</text>
 </g>
-<path d="M 478.6 502.8 L 628.2 502.8 L 628.2 514.8 A 74.8 26 0 0 1 478.6 514.8 Z" fill="#222" opacity="0.88"/>
+<path d="M 478.6 526.8 L 628.2 526.8 L 628.2 514.8 A 74.8 26 0 0 0 478.6 514.8 Z" fill="#222" opacity="0.88"/>
 <circle cx="498.6" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="498.6" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">C</text>
+<text x="498.6" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">C</text>
 <circle cx="553.4" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="553.4" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">B</text>
+<text x="553.4" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">B</text>
 <circle cx="608.2" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="608.2" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">E</text>
-<text x="553.4" y="494.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">BC337</text>
-<path d="M 917.0 502.8 L 1066.6 502.8 L 1066.6 514.8 A 74.8 26 0 0 1 917.0 514.8 Z" fill="#222" opacity="0.88"/>
+<text x="608.2" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">E</text>
+<text x="553.4" y="502.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">BC337</text>
+<path d="M 917.0 526.8 L 1066.6 526.8 L 1066.6 514.8 A 74.8 26 0 0 0 917.0 514.8 Z" fill="#222" opacity="0.88"/>
 <circle cx="937.0" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="937.0" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">C</text>
+<text x="937.0" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">C</text>
 <circle cx="991.8" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="991.8" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">B</text>
+<text x="991.8" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">B</text>
 <circle cx="1046.6" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
-<text x="1046.6" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">E</text>
-<text x="991.8" y="494.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">BC337</text>
+<text x="1046.6" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">E</text>
+<text x="991.8" y="502.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">BC337</text>
 <text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">This step</text>
 <circle cx="95.0" cy="967.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">BC337 (ring): collector 8B, base 9B, emitter 10B</text>
 <circle cx="95.0" cy="1009.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">BC337 (soft latch): collector 16B, base 17B, emitter 18B</text>
 <text x="80.0" y="1068.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
-<text x="80.0" y="1100.0" font-size="19" fill="#444" text-anchor="start">Transistors: base in the middle, emitter to the right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
+<text x="80.0" y="1100.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
 </svg>
