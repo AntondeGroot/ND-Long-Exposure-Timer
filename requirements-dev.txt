@@ -4,7 +4,7 @@
 #
 # Pinned exactly rather than with >=, so a new release cannot turn CI red on a
 # branch that changed nothing. Ruff especially: a minor version can add rules.
-pillow==11.3.0
+pillow==12.3.0
 pytest==9.1.1
 pytest-cov==7.1.0
 ruff==0.17.0
