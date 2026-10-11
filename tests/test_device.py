@@ -236,6 +236,15 @@ def test_the_countdown_never_says_less_time_is_left_than_there_is():
     assert screen.progress == 0
 
 
+def test_the_age_of_a_sync_is_told_in_whole_minutes():
+    # The light changes over minutes, so seconds would only be panel refreshes.
+    device = synced()
+
+    assert device.screen(now=59).synced_note == "SYNCED now"
+    assert device.screen(now=60).synced_note == "SYNCED 1m"
+    assert device.screen(now=179).synced_note == "SYNCED 2m"
+
+
 def test_a_camera_that_refuses_stops_the_countdown_rather_than_running_it():
     # The worst thing this device could show is a confident countdown against a
     # shutter that never opened: it is the one screen you walk away from.

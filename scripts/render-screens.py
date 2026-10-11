@@ -58,7 +58,7 @@ CASES = {
         mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st", is_auto=True,
         selected="MODE", base_shutter="1/60 s", final_time="0.7 s",
         setting_time=False, shows_nudge_hint=False, time_is_set=False,
-        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 8s", battery=84,
+        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED now", battery=84,
     ),
     # Clouds want minutes, which is past what the camera will time itself. A
     # third of a stop of aperture is what gets it there, and the ISO stays at
@@ -84,7 +84,7 @@ CASES = {
         mode="NO PEOPLE", iso="100", aperture="f/22", nd_label="8+64+1000", off_by="+0.9st", is_auto=True,
         selected="MODE", base_shutter="1/2000 s", final_time="1h",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
-        target="2-8min", direction=-1, is_bulb=True, synced_note="SYNCED 30s", battery=66,
+        target="2-8min", direction=-1, is_bulb=True, synced_note="SYNCED 3m", battery=66,
     ),
     # The same scene with one filter in the filter bag. The time asked for is still the
     # time on screen: a camera in shutter priority takes the shot too.
@@ -92,7 +92,7 @@ CASES = {
         mode="CLOUDS", iso="100", aperture="f/22", nd_label="8", off_by="+8.6st", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="3m 28s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
-        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 12s", battery=58,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 1m", battery=58,
     ),
     # The settings taken over by hand. The device has stopped choosing: ISO and
     # aperture are the photographer's, the filters stay whatever is screwed on,
@@ -101,7 +101,7 @@ CASES = {
         mode="CLOUDS", iso="250", aperture="f/8", nd_label="8+1000", off_by="+2.3st",
         is_auto=False, selected="ISO", base_shutter="1/60 s", final_time="3m 28s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
-        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 40s", battery=74,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 3m", battery=74,
     ),
     # NO FILTERS: a timer for night shots. MANUAL and locked there, the filter row
     # says there is no glass to choose, and nothing measured means no deviation and
@@ -117,7 +117,7 @@ CASES = {
         mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="2m 19s",
         setting_time=False, shows_nudge_hint=True, time_is_set=True,
-        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 30s", battery=78,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 3m", battery=78,
     ),
     # Mid-dial: left and right walk the time, up and down move a second, and the
     # clock face holds its shape while they do.
@@ -125,7 +125,7 @@ CASES = {
         mode="CLOUDS", iso="100", aperture="f/11", nd_label="8+1000", off_by="exact", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="02:19",
         setting_time=True, shows_nudge_hint=True, time_is_set=True,
-        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 30s", battery=78,
+        target="2-6min", direction=0, is_bulb=True, synced_note="SYNCED 3m", battery=78,
     ),
     # The fast end of the dial: waves want a shutter the camera times itself, and
     # the ladder reaches it - the same dial a self-timer would use.
@@ -133,7 +133,7 @@ CASES = {
         mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st", is_auto=True,
         selected="time", base_shutter="1/60 s", final_time="1/8 s",
         setting_time=True, shows_nudge_hint=False, time_is_set=True,
-        target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 4s", battery=82,
+        target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED now", battery=82,
     ),
     # The delay between the press and the shutter, so the tripod stops ringing
     # before anything is recorded. Drawn once and left, which is why nothing on
@@ -150,7 +150,7 @@ CASES = {
         mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st",
         is_auto=True, selected="MODE", base_shutter="1/60 s", final_time="0.7 s",
         setting_time=False, shows_nudge_hint=False, time_is_set=False,
-        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 20s", battery=None,
+        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 5m", battery=None,
     ),
     # On the charger, at the level where the fill edge runs through the bolt -
     # the one case that decides how the bolt has to be drawn.
@@ -158,7 +158,7 @@ CASES = {
         mode="WATERFALL", iso="160", aperture="f/11", nd_label="64", off_by="+0.1st",
         is_auto=True, selected="MODE", base_shutter="1/60 s", final_time="0.7 s",
         setting_time=False, shows_nudge_hint=False, time_is_set=False,
-        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 20s", battery=50,
+        target="1/4-2s", direction=0, is_bulb=False, synced_note="SYNCED 5m", battery=50,
         charging=True,
     ),
     # The camera refused. The countdown is gone rather than running against a
@@ -181,7 +181,7 @@ CASES = {
         mode="WAVES", iso="100", aperture="f/11", nd_label="8", off_by="-0.1st", is_auto=True,
         selected="settings", base_shutter="1/60 s", final_time="1/8 s",
         setting_time=False, shows_nudge_hint=False, time_is_set=True,
-        target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED 4s", battery=10,
+        target="1/15-1/2s", direction=0, is_bulb=False, synced_note="SYNCED now", battery=10,
     ),
     # The shape of the kit: the filter bag, how far the ISO may be pushed, and the two
     # ends of the lens the device is allowed to use.
