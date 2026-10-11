@@ -54,7 +54,7 @@ JST_CABLE = [
     CableWire("yellow", "#fcc419", "GP19", "five-way centre"),
     CableWire("white", "#f8f9fa", "GP26", "SYNC"),
     CableWire("red", "#e03131", "GP21", "SHOOT"),
-    CableWire("black", "#212529", "24C", "GND: SYNC, SHOOT, five-way"),
+    CableWire("black", "#212529", "24A", "GND: SYNC, SHOOT, five-way"),
 ]
 FIRST_BUTTON_WIRE = 7
 
@@ -98,7 +98,7 @@ STEPS = [
         Wire(1, "1D", "button LED + (5V rail)", LED_WIRE),
         Wire(2, "8A", "button LED -", LED_WIRE),
         Wire(3, "15B", "power button switch, NO", SWITCH_WIRE),
-        Wire(6, "24A", "power button switch, COM (GND)", SWITCH_WIRE),
+        Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
         Wire(4, "17F", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),
         Wire(5, "18F", "UPS switch ON pin (SYS, battery), thick wire", POWER_WIRE),
     )),

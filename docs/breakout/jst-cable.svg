@@ -192,7 +192,7 @@
 <text x="932.0" y="845.0" font-size="15" fill="#222" text-anchor="start">SYNC</text>
 <text x="170.0" y="863.0" font-size="15" fill="#222" text-anchor="end">GP21 pad</text>
 <text x="932.0" y="863.0" font-size="15" fill="#222" text-anchor="start">SHOOT</text>
-<text x="170.0" y="881.0" font-size="15" fill="#222" text-anchor="end">24C, GND rail</text>
+<text x="170.0" y="881.0" font-size="15" fill="#222" text-anchor="end">24A, GND rail</text>
 <text x="932.0" y="881.0" font-size="15" fill="#222" text-anchor="start">GND: SYNC, SHOOT, five-way</text>
 <text x="520.0" y="916.0" font-size="19" fill="#444" text-anchor="middle">male + female</text>
 </svg>

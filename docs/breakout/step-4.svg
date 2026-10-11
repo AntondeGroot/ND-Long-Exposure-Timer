@@ -439,8 +439,8 @@
 <text x="498.6" y="466.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
 <circle cx="882.2" cy="514.8" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
 <text x="882.2" y="521.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
-<circle cx="1375.4" cy="460.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
-<text x="1375.4" y="466.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+<circle cx="1375.4" cy="569.6" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
+<text x="1375.4" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
 <circle cx="991.8" cy="734.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
 <text x="991.8" y="740.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
 <circle cx="1046.6" cy="734.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
@@ -461,7 +461,7 @@
 <text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">15B  ->  power button switch, NO</text>
 <circle cx="95.0" cy="1177.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1183.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
-<text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">24A  ->  power button switch, COM (GND)</text>
+<text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">24C  ->  power button switch, COM (GND)</text>
 <circle cx="95.0" cy="1219.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1225.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
 <text x="122.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">17F  ->  UPS switch MIDDLE pin (boost in), thick wire</text>
