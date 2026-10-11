@@ -160,7 +160,7 @@ Check: 19C, 20C and 21C don't beep to each other.
 
 Measure each BC337's pinout first; makers differ. On the diode range the base reads about
 0.7V to both other legs, and the emitter reads slightly higher than the collector.
-Emitters go right.
+Flat face towards row F, round side towards the header: collector left, emitter right.
 
 Check: 8B, 9B, 10B and 16B, 17B, 18B don't beep to each other.
 

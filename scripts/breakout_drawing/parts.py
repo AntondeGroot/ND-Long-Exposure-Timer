@@ -140,13 +140,14 @@ class Transistor:
 
     def draw(self, canvas: Canvas) -> None:
         (x0, y), (x1, _) = point(self.collector), point(self.emitter)
+        # Flat face towards row F, so the legs read C-B-E left to right as the datasheet draws them.
         half = (x1 - x0) / 2 + 20
-        canvas.path(f"M {x0 - 20:.1f} {y - 12:.1f} L {x1 + 20:.1f} {y - 12:.1f} L {x1 + 20:.1f} {y:.1f} "
-                    f"A {half:.1f} 26 0 0 1 {x0 - 20:.1f} {y:.1f} Z", "#222", opacity=0.88)
+        canvas.path(f"M {x0 - 20:.1f} {y + 12:.1f} L {x1 + 20:.1f} {y + 12:.1f} L {x1 + 20:.1f} {y:.1f} "
+                    f"A {half:.1f} 26 0 0 0 {x0 - 20:.1f} {y:.1f} Z", "#222", opacity=0.88)
         for x, letter in [(x0, "C"), ((x0 + x1) / 2, "B"), (x1, "E")]:
             canvas.circle((x, y), 6, "#bbb")
-            canvas.text((x, y + 30), letter, 15, "#fff", anchor="middle", bold=True)
-        canvas.text(((x0 + x1) / 2, y - 20), "BC337", 17, "#fff", anchor="middle", bold=True, halo="#222")
+            canvas.text((x, y + 30), letter, 15, "#fff", anchor="middle", bold=True, halo="#222")
+        canvas.text(((x0 + x1) / 2, y - 12), "BC337", 15, "#fff", anchor="middle", bold=True)
 
     def describe(self) -> str:
         base = _middle_hole(self.collector, self.emitter)

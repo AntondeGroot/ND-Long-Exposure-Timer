@@ -419,5 +419,5 @@
 <circle cx="95.0" cy="967.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">AO3401 on its adapter: source 21C, drain 20C, gate 19C</text>
 <text x="80.0" y="1026.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
-<text x="80.0" y="1058.0" font-size="19" fill="#444" text-anchor="start">Transistors: base in the middle, emitter to the right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
+<text x="80.0" y="1058.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
 </svg>

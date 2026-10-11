@@ -117,6 +117,6 @@ STEPS = [
 NOTES = [
     "Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. "
     "Diode stripe = cathode.",
-    "Transistors: base in the middle, emitter to the right. "
+    "Transistors: flat face towards row F, so C-B-E reads left to right. "
     "MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.",
 ]
