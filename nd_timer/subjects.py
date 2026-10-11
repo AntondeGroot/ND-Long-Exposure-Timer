@@ -80,6 +80,8 @@ SUBJECTS = (
     # Fast water, where the point is that it still reads as water: past about a
     # second the individual crests merge into fog.
     Subject("WAVES", 1 / 15, 0.5),
+    # Waves washing up a beach: long enough that the water turns to mist over the sand.
+    Subject("BEACH WAVE", 2.0, 5.0),
     # Silky but with strands still visible.
     Subject("WATERFALL", 0.25, 2.0),
     # Flattened texture, reflections kept.

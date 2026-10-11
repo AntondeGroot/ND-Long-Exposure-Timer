@@ -54,14 +54,14 @@ def in_no_filters(device: Device) -> Device:
 
 
 def test_choosing_a_scenario_sets_the_time_it_wants():
-    # A scenario is a shortcut to a time rather than a mode of its own: WAVES
-    # wants 1/15 to 1/2, and the dial lands geometrically in the middle of that.
+    # A scenario is a shortcut to a time rather than a mode of its own: BEACH WAVE
+    # wants 2 to 5 seconds, and the dial lands geometrically in the middle of that.
     waves = on_the_scenario(synced())
 
-    waterfall = waves.pressed_right()
+    beach = waves.pressed_right()
 
-    assert waterfall.subject.name == "WATERFALL"
-    assert waterfall.exposure_seconds == waterfall.subject.sweet_spot
+    assert beach.subject.name == "BEACH WAVE"
+    assert beach.exposure_seconds == beach.subject.sweet_spot
 
 
 def test_a_scenario_chosen_from_the_list_sets_its_time_and_goes_back():
@@ -80,12 +80,12 @@ def test_a_scenario_chosen_from_the_list_sets_its_time_and_goes_back():
 
 def test_the_list_of_scenarios_opens_on_the_one_already_chosen():
     # Opening it is often only to look, so it starts where you are rather than at the top.
-    river = on_the_scenario(synced()).pressed_right().pressed_right()
+    waterfall = on_the_scenario(synced()).pressed_right().pressed_right()
 
-    listed = river.pressed_centre()
+    listed = waterfall.pressed_centre()
 
-    assert listed.navigation.mode_entry == river.subject_index
-    assert listed.screen(now=1).entries[listed.navigation.mode_entry].label == "RIVER"
+    assert listed.navigation.mode_entry == waterfall.subject_index
+    assert listed.screen(now=1).entries[listed.navigation.mode_entry].label == "WATERFALL"
 
 
 def test_back_leaves_the_list_of_scenarios_without_changing_anything():
