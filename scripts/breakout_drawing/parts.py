@@ -13,6 +13,8 @@ from . import geometry as g
 from .svg import Canvas
 
 LEG = "#9a9a9a"
+ADAPTER_LENGTH = 4.5  # holes, legs included
+GND_WIRE = "#2f9e44"
 
 
 def point(name: str) -> g.Point:
@@ -163,16 +165,20 @@ class Mosfet:
         return set()
 
     def draw(self, canvas: Canvas) -> None:
-        """Either way round: the gate can be on the left or the right."""
+        """Either way round: the gate can be on the left or the right. The adapter is about
+        4.5 holes long and lies flat from its legs down over the three rows below them."""
         (x_source, y), (x_gate, _) = point(self.source), point(self.gate)
         left, right = min(x_source, x_gate), max(x_source, x_gate)
         middle = (left + right) / 2
-        canvas.rect(left - 24, y - 16, right - left + 48, 42, "#2b5d9b", rx=4, stroke="#0f2e55", stroke_width=2)
-        canvas.rect(middle - 12, y - 8, 24, 16, "#111")
+        top, bottom = y - g.PITCH / 2, y + ADAPTER_LENGTH * g.PITCH - g.PITCH / 2
+        canvas.rect(left - 24, top, right - left + 48, bottom - top, "#2b5d9b", rx=4,
+                    stroke="#0f2e55", stroke_width=2, opacity=0.92)
+        canvas.rect(middle - 16, (y + bottom) / 2 - 22, 32, 22, "#111")
         for x, letter in [(x_source, "S"), (middle, "D"), (x_gate, "G")]:
             canvas.circle((x, y), 6, "#bbb")
             canvas.board_label((x, y - 22), letter, 16)
-        canvas.text((middle, y + 22), "AO3401 on adapter", 13, "#fff", anchor="middle", bold=True)
+        canvas.text((middle, (y + bottom) / 2 + 24), "AO3401", 15, "#fff", anchor="middle", bold=True)
+        canvas.text((middle, (y + bottom) / 2 + 44), "on adapter", 13, "#fff", anchor="middle", bold=True)
 
     def describe(self) -> str:
         drain = _middle_hole(self.source, self.gate)
@@ -181,11 +187,15 @@ class Mosfet:
 
 @dataclass(frozen=True)
 class Jumper:
-    """An insulated wire on the board, along the given route."""
+    """An insulated wire from hole to hole along the given route; dashed when it runs under the board."""
 
     route: tuple[str | g.Point, ...]
     purpose: str
     label_at: g.Point | None = None
+    label: str = "GND wire (insulated)"
+    net: str = "GND"
+    colour: str = GND_WIRE
+    underneath: bool = False
 
     def pads(self) -> set[str]:
         return set()
@@ -193,12 +203,15 @@ class Jumper:
     def draw(self, canvas: Canvas) -> None:
         points = [point(p) if isinstance(p, str) else p for p in self.route]
         d = "M " + " L ".join(f"{x:.1f} {y:.1f}" for x, y in points)
-        canvas.path(d, stroke="#2f9e44", stroke_width=7, stroke_linecap="round", stroke_linejoin="round")
+        dashes = {"stroke_dasharray": "14 9"} if self.underneath else {}
+        canvas.path(d, stroke=self.colour, stroke_width=7, stroke_linecap="round", stroke_linejoin="round",
+                    **dashes)
         if self.label_at:
-            canvas.board_label(self.label_at, "GND jumper (insulated)")
+            canvas.board_label(self.label_at, self.label)
 
     def describe(self) -> str:
-        return f"GND jumper: {self.route[0]} to {self.route[-1]}, {self.purpose}"
+        where = " under the board" if self.underneath else ""
+        return f"{self.net} wire{where}: {self.route[0]} to {self.route[-1]}, {self.purpose}"
 
 
 @dataclass(frozen=True)

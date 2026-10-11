@@ -138,8 +138,8 @@ each colour goes.
 ![Step 1](docs/breakout/step-1.svg)
 
 Stand them up. The GPIO legs go straight into the pads. Both diode stripes go in
-column 15: the one from GP5 in 15A, the upright one in 15C. Then, underneath, bend the
-100k's leg from 16D onto 16C and solder it: that is the bridge.
+column 15: the one from GP5 in 15A, the upright one in 15C. Then, underneath, join 16C
+and 16D with a blob of solder or an offcut leg: that is the bridge.
 
 Check: 16C beeps to 16D.
 
@@ -148,10 +148,11 @@ Check: 16C beeps to 16D.
 ![Step 2](docs/breakout/step-2.svg)
 
 Solder the AO3401 onto the adapter with its pin 1 at the dot. The adapter's legs read
-2-3-1, which is source, drain, gate. The leg marked `1` goes in 16E, so the drain lands
-in 17E and the source in 18E.
+2-3-1, which is source, drain, gate. The leg marked `1` goes in 19C, so the drain lands
+in 20C and the source in 21C. The adapter is about 4.5 holes long: it lies flat over rows
+D-F of columns 19-21, which is why nothing else goes there.
 
-Check: 16E, 17E and 18E don't beep to each other.
+Check: 19C, 20C and 21C don't beep to each other.
 
 #### 3.2.3 Transistors
 
@@ -167,12 +168,13 @@ Check: 8B, 9B, 10B and 16B, 17B, 18B don't beep to each other.
 
 ![Step 4](docs/breakout/step-4.svg)
 
-Two green jumpers: one under row F, one between rows C and D. ④ and ⑤ go to the UPS
+Three insulated wires under the board: two green ones to GND, from 10C and 18C, and an orange
+one from 16E to 19A that takes the gate on to the MOSFET. ④ and ⑤ go to the UPS
 HAT's old power switch pads and
 carry up to 1.5A: use thick wire. With the switch off, the ON pad reads battery voltage,
 the middle pad 0V. Heat-shrink every joint.
 
-Check: 10C and 18C beep to GND; ④ and ⑤ don't beep to each other.
+Check: 10C and 18C beep to GND; 16B beeps to 19C; ④ and ⑤ don't beep to each other.
 
 #### 3.2.5 Button wires
 
