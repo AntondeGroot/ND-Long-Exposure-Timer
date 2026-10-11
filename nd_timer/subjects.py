@@ -88,8 +88,6 @@ SUBJECTS = (
     Subject("GLASSY", 1 * SECONDS_PER_MINUTE, 5 * SECONDS_PER_MINUTE),
     # Long enough that anyone walking through leaves no trace.
     Subject("NO PEOPLE", 2 * SECONDS_PER_MINUTE, 8 * SECONDS_PER_MINUTE),
-    # No target: the calculator without the advice.
-    Subject("MANUAL", None, None),
     # Not a calculator at all: a timer for night shots, where there is nothing to
     # filter and the time, ISO and aperture are simply what the photographer wants.
     # Last, so the filter scenarios all sit together before it.

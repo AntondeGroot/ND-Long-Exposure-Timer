@@ -70,7 +70,7 @@ to look; a setting chosen by hand is a decision, not a search.
 
 ### At night: NO FILTERS
 
-The last scenario, past MANUAL, turns the device into a plain timer for night shots,
+The last scenario, past NO PEOPLE, turns the device into a plain timer for night shots,
 so it is the only thing you need on the camera. There is nothing to filter, so the
 **ND** row says **DISABLED**, the band is **MANUAL** and stays there, and the **DEV**
 row has nothing to measure against. It needs no SYNC either, and does not ask for one.

@@ -72,10 +72,10 @@ CASES = {
     # Before the first SYNC there is no scene to work back from, and the device
     # says so rather than printing a recipe it cannot stand behind.
     "main-not-synced": MainScreen(
-        mode="MANUAL", iso="--", aperture="--", nd_label="--", off_by="--", is_auto=True,
+        mode="WAVES", iso="--", aperture="--", nd_label="--", off_by="--", is_auto=True,
         selected="time", base_shutter="--", final_time="1.0 s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
-        target="", direction=0, is_bulb=False, synced_note="NOT SYNCED", battery=100,
+        target="1/15-1/2s", direction=-1, is_bulb=False, synced_note="NOT SYNCED", battery=100,
     ),
     # An hour at noon, metered at 1/2000: every filter in the filter bag, stopped all
     # the way down, and it still lands most of a stop short - which the row says
