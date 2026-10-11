@@ -70,7 +70,7 @@ to look; a setting chosen by hand is a decision, not a search.
 
 ### At night: NO FILTERS
 
-The last scenario, past MANUAL, turns the device into a plain timer for night shots,
+The last scenario, past NO PEOPLE, turns the device into a plain timer for night shots,
 so it is the only thing you need on the camera. There is nothing to filter, so the
 **ND** row says **DISABLED**, the band is **MANUAL** and stays there, and the **DEV**
 row has nothing to measure against. It needs no SYNC either, and does not ask for one.
@@ -84,6 +84,18 @@ out and the device goes back to AUTO.
 
 The aperture only gets set on a lens the camera can stop down itself; with a manual
 lens, turn its ring to match.
+
+### Choosing a scenario
+
+Press the five-way's centre on **MODE** and every scenario comes up a line each, with
+the times it wants beside it - a better overview than stepping through them one at a
+time, and room for a name like GHOST CROWD that the main screen cannot fit beside its
+carets. The list opens on the one already chosen; the centre press picks a line and goes
+back, and BACK at the bottom goes back without changing anything.
+
+![The scenarios](screens/modes@3x.png)
+
+Left and right on the row still step to the next scenario without opening the list.
 
 ### Setting the time
 
@@ -176,4 +188,5 @@ watch it sit at zero with the shutter still open.
 
 On AUTO the five-way lands on four things - the time, the AUTO/MANUAL band, the scenario
 and settings - because the rows between them are answers rather than controls. On MANUAL
-it stops on the ISO and the aperture too.
+it stops on the ISO and the aperture too. The centre press opens what it is on: the time to set it,
+the scenario for the list of them, settings for settings.

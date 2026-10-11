@@ -80,16 +80,19 @@ SUBJECTS = (
     # Fast water, where the point is that it still reads as water: past about a
     # second the individual crests merge into fog.
     Subject("WAVES", 1 / 15, 0.5),
+    # Waves washing up a beach: long enough that the water turns to mist over the sand.
+    Subject("BEACH WAVE", 2.0, 5.0),
     # Silky but with strands still visible.
     Subject("WATERFALL", 0.25, 2.0),
     # Flattened texture, reflections kept.
     Subject("RIVER", 2.0, 8.0),
+    # A busy place with the people kept, as a blur: long enough that they smear, short
+    # enough that they do not vanish the way they do on NO PEOPLE.
+    Subject("GHOST CROWD", 10.0, 30.0),
     Subject("CLOUDS", 2 * SECONDS_PER_MINUTE, 6 * SECONDS_PER_MINUTE),
     Subject("GLASSY", 1 * SECONDS_PER_MINUTE, 5 * SECONDS_PER_MINUTE),
     # Long enough that anyone walking through leaves no trace.
     Subject("NO PEOPLE", 2 * SECONDS_PER_MINUTE, 8 * SECONDS_PER_MINUTE),
-    # No target: the calculator without the advice.
-    Subject("MANUAL", None, None),
     # Not a calculator at all: a timer for night shots, where there is nothing to
     # filter and the time, ISO and aperture are simply what the photographer wants.
     # Last, so the filter scenarios all sit together before it.

@@ -216,13 +216,16 @@ def draw_value_row(
     label_font = regular(layout.TINY)
     draw.text((layout.LABEL_X, top + 4), label, font=label_font, fill=ink)
 
-    # Carets appear only on the selected row: they say left and right change it,
-    # so a row they do nothing on goes without.
-    text = f"< {value} >" if selected and carets else value
-
     # Whatever is left once the label has had its say.
     label_width = draw.textlength(label, font=label_font)
     available = layout.VALUE_RIGHT_X - layout.LABEL_X - label_width - layout.LABEL_VALUE_GAP
+
+    # Carets appear only on the selected row: they say left and right change it,
+    # so a row they do nothing on goes without. A value too long to share the row
+    # with them keeps the row to itself, because the value is what is being read.
+    with_carets = f"< {value} >"
+    fits = draw.textlength(with_carets, font=bold(layout.ROW_VALUE_SIZES[-1])) <= available
+    text = with_carets if selected and carets and fits else value
 
     draw_right_aligned_fitted(
         draw, layout.VALUE_RIGHT_X, top + 3, text, available, layout.ROW_VALUE_SIZES, fill=ink,

@@ -54,14 +54,60 @@ def in_no_filters(device: Device) -> Device:
 
 
 def test_choosing_a_scenario_sets_the_time_it_wants():
-    # A scenario is a shortcut to a time rather than a mode of its own: WAVES
-    # wants 1/15 to 1/2, and the dial lands geometrically in the middle of that.
+    # A scenario is a shortcut to a time rather than a mode of its own: BEACH WAVE
+    # wants 2 to 5 seconds, and the dial lands geometrically in the middle of that.
     waves = on_the_scenario(synced())
 
-    waterfall = waves.pressed_right()
+    beach = waves.pressed_right()
 
-    assert waterfall.subject.name == "WATERFALL"
-    assert waterfall.exposure_seconds == waterfall.subject.sweet_spot
+    assert beach.subject.name == "BEACH WAVE"
+    assert beach.exposure_seconds == beach.subject.sweet_spot
+
+
+def test_a_scenario_chosen_from_the_list_sets_its_time_and_goes_back():
+    # The list is the same choice as left and right, with room for the long names:
+    # the centre press picks the line it is on and the main screen comes back.
+    listed = on_the_scenario(synced()).pressed_centre()
+    while listed.navigation.mode_entry != [s.name for s in SUBJECTS].index("GHOST CROWD"):
+        listed = listed.pressed_down()
+
+    chosen = listed.pressed_centre()
+
+    assert chosen.subject.name == "GHOST CROWD"
+    assert chosen.exposure_seconds == chosen.subject.sweet_spot
+    assert not chosen.navigation.on_modes_screen
+
+
+def test_the_list_of_scenarios_opens_on_the_one_already_chosen():
+    # Opening it is often only to look, so it starts where you are rather than at the top.
+    waterfall = on_the_scenario(synced()).pressed_right().pressed_right()
+
+    listed = waterfall.pressed_centre()
+
+    assert listed.navigation.mode_entry == waterfall.subject_index
+    assert listed.screen(now=1).entries[listed.navigation.mode_entry].label == "WATERFALL"
+
+
+def test_back_leaves_the_list_of_scenarios_without_changing_anything():
+    # Picking a scenario puts the dial in its middle, so BACK must not count as
+    # picking one: a time dialled far from WAVES' own survives a look at the list.
+    dialled = on_the_scenario(wanting(208))
+    on_back = dialled.pressed_centre().pressed_up()
+
+    returned = on_back.pressed_centre()
+
+    assert not returned.navigation.on_modes_screen
+    assert returned.subject == dialled.subject
+    assert returned.exposure_seconds == dialled.exposure_seconds == 208
+
+
+def test_left_and_right_do_nothing_in_the_list_of_scenarios():
+    # Behind the list, left and right on the scenario row would still step through
+    # them. In the list only the centre press chooses, so its lines have no carets.
+    listed = on_the_scenario(synced()).pressed_centre()
+
+    assert listed.pressed_left() == listed
+    assert listed.pressed_right() == listed
 
 
 def test_the_recipe_is_worked_back_from_the_time_on_screen():

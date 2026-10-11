@@ -221,10 +221,14 @@ class Device:
 
     def pressed_centre(self) -> Device:
         """Routed the way nd_timer.ui.navigation describes it."""
+        if self.navigation.on_modes_screen:
+            return self._pressed_centre_in_modes()
         if self.navigation.selected == layout.TIME:
             return self._with_dial(self.dial.pressed_centre())
         if self.navigation.selected == layout.AUTO:
             return self._toggled_auto()
+        if self.navigation.selected == layout.MODE:
+            return replace(self, navigation=self.navigation.opened_modes(self.subject_index))
         pointed = self.navigation.pointed_filter
         if pointed is not None:
             return replace(self, filter_bag=self.filter_bag.toggled(pointed))
@@ -250,6 +254,12 @@ class Device:
             dial=replace(self.dial, is_being_set=False),
             fault=None,
         )
+
+    def _pressed_centre_in_modes(self) -> Device:
+        """A scenario chosen from the list, or BACK: either way, back to the main screen."""
+        chosen = self.navigation.pointed_mode
+        closed = replace(self, navigation=self.navigation.closed_modes())
+        return closed if chosen is None else closed._chose_scenario(chosen)
 
     def faulted(self, message: str) -> Device:
         """The camera did not do what it was asked, so nothing is exposing.
@@ -288,9 +298,10 @@ class Device:
     def _changed_value(self, direction: int) -> Device:
         """Left and right, wherever the five-way happens to be.
 
-        The filter list is changed by the centre press alone, so nothing here.
+        The filter list and the list of scenarios are changed by the centre press
+        alone, so nothing here.
         """
-        if self.navigation.on_filters_screen:
+        if self.navigation.on_filters_screen or self.navigation.on_modes_screen:
             return self
         if self.navigation.on_settings_screen:
             return self._changed_setting(direction)
@@ -363,13 +374,17 @@ class Device:
         return replace(self, by_hand=replace(self.by_hand, **settings))
 
     def _changed_scenario(self, direction: int) -> Device:
+        """Left and right on the scenario row: the next one along, without the list."""
+        return self._chose_scenario(_stepped(self.subject_index, direction, SUBJECTS))
+
+    def _chose_scenario(self, index: int) -> Device:
         """A scenario is a time: choosing one puts the dial in the middle of it.
 
         Geometrically in the middle, because exposure is a doubling scale - so
         CLOUDS, which wants two to six minutes, starts at 3m 30s rather than at
         four minutes. From there the dial is the photographer's again.
         """
-        moved = replace(self, subject_index=_stepped(self.subject_index, direction, SUBJECTS))
+        moved = replace(self, subject_index=index)
         if moved.uses_filters != self.uses_filters:
             moved = replace(moved, by_hand=None if moved.uses_filters else self._for_the_night())
         wanted = moved.subject.sweet_spot

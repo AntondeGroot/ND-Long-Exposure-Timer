@@ -19,6 +19,7 @@ sys.path.insert(0, str(REPO))
 
 from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
 from nd_timer.filter_bag import FilterBag  # noqa: E402
+from nd_timer.subjects import SUBJECTS  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
     CountdownScreen,
     DelayScreen,
@@ -72,10 +73,10 @@ CASES = {
     # Before the first SYNC there is no scene to work back from, and the device
     # says so rather than printing a recipe it cannot stand behind.
     "main-not-synced": MainScreen(
-        mode="MANUAL", iso="--", aperture="--", nd_label="--", off_by="--", is_auto=True,
+        mode="WAVES", iso="--", aperture="--", nd_label="--", off_by="--", is_auto=True,
         selected="time", base_shutter="--", final_time="1.0 s",
         setting_time=False, shows_nudge_hint=True, time_is_set=False,
-        target="", direction=0, is_bulb=False, synced_note="NOT SYNCED", battery=100,
+        target="1/15-1/2s", direction=-1, is_bulb=False, synced_note="NOT SYNCED", battery=100,
     ),
     # An hour at noon, metered at 1/2000: every filter in the filter bag, stopped all
     # the way down, and it still lands most of a stop short - which the row says
@@ -202,6 +203,11 @@ CASES = {
     "settings-filters-scrolled": SettingsScreen(
         entries=tuple(SettingsEntry(f.name, TYPICAL_FILTER_BAG.ownership_label(f)) for f in COMMON_FILTERS),
         selected=8, battery=10, title="FILTERS", left_right_change_values=False,
+    ),
+    # The scenarios, opened from the MODE row: a line each, so a long name has room.
+    "modes": SettingsScreen(
+        entries=tuple(SettingsEntry(subject.name, subject.target_label) for subject in SUBJECTS),
+        selected=3, battery=78, title="MODES", left_right_change_values=False,
     ),
 }
 
