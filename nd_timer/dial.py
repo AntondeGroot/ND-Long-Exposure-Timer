@@ -35,6 +35,7 @@ from nd_timer.exposure import SECONDS_PER_MINUTE, format_exposure
 #
 # The top rung is 15s because the next speed the camera offers is 20s, and the
 # minute region reads better starting from 16.
+# fmt: off
 LADDER_SECONDS = (
     1 / 125, 1 / 100, 1 / 80, 1 / 60, 1 / 50, 1 / 40, 1 / 30, 1 / 25,
     1 / 20, 1 / 15, 1 / 13, 1 / 10, 1 / 8, 1 / 6, 1 / 5, 1 / 4, 1 / 3,
@@ -42,6 +43,7 @@ LADDER_SECONDS = (
     1.0, 1.3, 1.6, 2.0, 2.5, 3.2,
     4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 15.0,
 )
+# fmt: on
 
 SHORTEST_SECONDS = LADDER_SECONDS[0]
 LONGEST_RUNG_SECONDS = LADDER_SECONDS[-1]

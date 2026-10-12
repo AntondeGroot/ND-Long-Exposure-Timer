@@ -75,12 +75,12 @@ class Projection:
 
     def polygon(self, canvas: Canvas, corners: tuple[Vector, ...], fill: str, stroke: str = "none") -> None:
         points = " ".join(f"{x:.1f},{y:.1f}" for x, y in map(self.point, corners))
-        canvas.add(f'<polygon points="{points}" fill="{fill}" stroke="{stroke}" stroke-width="1.2" '
-                   'stroke-linejoin="round"/>')
+        canvas.add(
+            f'<polygon points="{points}" fill="{fill}" stroke="{stroke}" stroke-width="1.2" stroke-linejoin="round"/>'
+        )
 
 
-def box(x0: float, x1: float, y0: float, y1: float, z0: float, z1: float,
-        top: str, side: str, end: str) -> list[Face]:
+def box(x0: float, x1: float, y0: float, y1: float, z0: float, z1: float, top: str, side: str, end: str) -> list[Face]:
     """The six faces of a box; the two at either end of x get the `end` colour."""
     return [
         Face(((x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)), top),
@@ -117,8 +117,9 @@ def rounded_rect(width: float, height: float, radius: float, points_per_corner: 
     return outline
 
 
-def prism_along_y(outline: list[tuple[float, float]], y_front: float, y_back: float,
-                  front: str, side: str) -> list[Face]:
+def prism_along_y(
+    outline: list[tuple[float, float]], y_front: float, y_back: float, front: str, side: str
+) -> list[Face]:
     """An outline in the x-z plane pushed back from y_front to y_back.
 
     `outline` runs anticlockwise seen from the front (from negative y)."""
@@ -131,8 +132,7 @@ def prism_along_y(outline: list[tuple[float, float]], y_front: float, y_back: fl
     return faces
 
 
-def prism_along_z(outline: list[tuple[float, float]], z_bottom: float, z_top: float,
-                  top: str, side: str) -> list[Face]:
+def prism_along_z(outline: list[tuple[float, float]], z_bottom: float, z_top: float, top: str, side: str) -> list[Face]:
     """An outline in the x-y plane, a slab from z_bottom up to z_top.
 
     `outline` runs anticlockwise seen from above."""
@@ -158,5 +158,8 @@ def _normal(face: Face) -> Vector:
 
 def _centre(face: Face) -> Vector:
     n = len(face.corners)
-    return (sum(c[0] for c in face.corners) / n, sum(c[1] for c in face.corners) / n,
-            sum(c[2] for c in face.corners) / n)
+    return (
+        sum(c[0] for c in face.corners) / n,
+        sum(c[1] for c in face.corners) / n,
+        sum(c[2] for c in face.corners) / n,
+    )

@@ -78,9 +78,7 @@ def draw_fitted(draw: ImageDraw.ImageDraw, centre_x, centre_y, text, max_width, 
     draw.text((centre_x, centre_y), text, font=font, fill=fill, anchor="mm")
 
 
-def draw_right_aligned_fitted(
-    draw: ImageDraw.ImageDraw, right_x, y, text, max_width, sizes, fill=BLACK
-) -> None:
+def draw_right_aligned_fitted(draw: ImageDraw.ImageDraw, right_x, y, text, max_width, sizes, fill=BLACK) -> None:
     """Right-align `text`, shrinking it until it fits `max_width`."""
     font = largest_font_that_fits(draw, text, max_width, sizes)
     width = draw.textlength(text, font=font)
@@ -102,9 +100,7 @@ BOLT_ROWS = (
     ".##..",
     "##...",
 )
-BOLT = tuple(
-    (x, y) for y, row in enumerate(BOLT_ROWS) for x, on in enumerate(row) if on == "#"
-)
+BOLT = tuple((x, y) for y, row in enumerate(BOLT_ROWS) for x, on in enumerate(row) if on == "#")
 BOLT_WIDTH = len(BOLT_ROWS[0])
 
 
@@ -228,5 +224,11 @@ def draw_value_row(
     text = with_carets if selected and carets and fits else value
 
     draw_right_aligned_fitted(
-        draw, layout.VALUE_RIGHT_X, top + 3, text, available, layout.ROW_VALUE_SIZES, fill=ink,
+        draw,
+        layout.VALUE_RIGHT_X,
+        top + 3,
+        text,
+        available,
+        layout.ROW_VALUE_SIZES,
+        fill=ink,
     )

@@ -29,9 +29,15 @@ DATA_CABLE = Cable(
     socket=USB_A,
     socket_caption="for the camera's cable",
     plug_caption="into the Pi's data port, marked USB",
-    wires=(CableWire(1, "red", RED), CableWire(2, "white", WHITE), CableWire(3, "blue", BLUE),
-           CableWire(5, "black", BLACK)),
-    notes=("Cable lengths not to scale.", HEAT_SHRINK_NOTE,
-           "Socket wire colours vary between makers: check white and blue against the socket's D- and D+ "
-           "with the meter."),
+    wires=(
+        CableWire(1, "red", RED),
+        CableWire(2, "white", WHITE),
+        CableWire(3, "blue", BLUE),
+        CableWire(5, "black", BLACK),
+    ),
+    notes=(
+        "Cable lengths not to scale.",
+        HEAT_SHRINK_NOTE,
+        "Socket wire colours vary between makers: check white and blue against the socket's D- and D+ with the meter.",
+    ),
 )

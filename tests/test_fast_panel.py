@@ -75,15 +75,32 @@ def test_init_speaks_the_vendor_drivers_sequence_byte_for_byte(panel):
 
     assert spi.transcript == [
         ("cmd", 0x12),
-        ("cmd", 0x01), ("data", [0xF9]), ("data", [0x00]), ("data", [0x00]),
-        ("cmd", 0x11), ("data", [0x03]),
-        ("cmd", 0x44), ("data", [0x00]), ("data", [15]),
-        ("cmd", 0x45), ("data", [0x00]), ("data", [0x00]), ("data", [249]), ("data", [0x00]),
-        ("cmd", 0x4E), ("data", [0x00]),
-        ("cmd", 0x4F), ("data", [0x00]), ("data", [0x00]),
-        ("cmd", 0x3C), ("data", [0x05]),
-        ("cmd", 0x21), ("data", [0x00]), ("data", [0x80]),
-        ("cmd", 0x18), ("data", [0x80]),
+        ("cmd", 0x01),
+        ("data", [0xF9]),
+        ("data", [0x00]),
+        ("data", [0x00]),
+        ("cmd", 0x11),
+        ("data", [0x03]),
+        ("cmd", 0x44),
+        ("data", [0x00]),
+        ("data", [15]),
+        ("cmd", 0x45),
+        ("data", [0x00]),
+        ("data", [0x00]),
+        ("data", [249]),
+        ("data", [0x00]),
+        ("cmd", 0x4E),
+        ("data", [0x00]),
+        ("cmd", 0x4F),
+        ("data", [0x00]),
+        ("data", [0x00]),
+        ("cmd", 0x3C),
+        ("data", [0x05]),
+        ("cmd", 0x21),
+        ("data", [0x00]),
+        ("data", [0x80]),
+        ("cmd", 0x18),
+        ("data", [0x80]),
     ]
     # Power first, then the 1-0-1 hardware reset the datasheet asks for.
     assert gpio.writes[:4] == [
@@ -133,8 +150,10 @@ def test_display_writes_the_frame_then_runs_the_update_sequence(panel):
     epd.display(bytes([0xAB, 0xCD]))
 
     assert spi.transcript == [
-        ("cmd", 0x24), ("data", [0xAB, 0xCD]),
-        ("cmd", 0x22), ("data", [0xF7]),
+        ("cmd", 0x24),
+        ("data", [0xAB, 0xCD]),
+        ("cmd", 0x22),
+        ("data", [0xF7]),
         ("cmd", 0x20),
     ]
 

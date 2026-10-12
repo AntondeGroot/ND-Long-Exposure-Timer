@@ -24,18 +24,26 @@ BULLET = "#555"
 def overview() -> str:
     """The whole build at once: what the board looks like when it is finished."""
     wires = [part for step in STEPS for part in step.parts if isinstance(part, Wire)]
-    return _page("Breakout Pi Zero - the whole build",
-                 done=[], current=[part for step in STEPS for part in step.parts],
-                 legend_title="Wires that leave the board", legend=wires)
+    return _page(
+        "Breakout Pi Zero - the whole build",
+        done=[],
+        current=[part for step in STEPS for part in step.parts],
+        legend_title="Wires that leave the board",
+        legend=wires,
+    )
 
 
 def step_page(number: int) -> str:
     """Step `number`, counting from 1."""
     step = STEPS[number - 1]
-    done = [part for earlier in STEPS[:number - 1] for part in earlier.parts]
-    return _page(f"Breakout board, step {number} of {len(STEPS)}: {step.title}",
-                 done=done, current=list(step.parts),
-                 legend_title="This step", legend=list(step.parts))
+    done = [part for earlier in STEPS[: number - 1] for part in earlier.parts]
+    return _page(
+        f"Breakout board, step {number} of {len(STEPS)}: {step.title}",
+        done=done,
+        current=list(step.parts),
+        legend_title="This step",
+        legend=list(step.parts),
+    )
 
 
 def _page(title: str, done: list[Part], current: list[Part], legend_title: str, legend: list[Part]) -> str:
@@ -55,8 +63,12 @@ def _page(title: str, done: list[Part], current: list[Part], legend_title: str, 
 
 def _draw_title(canvas: Canvas, title: str) -> None:
     canvas.text((40, 60), title, 34, bold=True)
-    canvas.text((40, 100), "Top view, header at the top. Strips: rows A-C and D-F of each column are joined; "
-                "nothing else is.", 21, "#444")
+    canvas.text(
+        (40, 100),
+        "Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.",
+        21,
+        "#444",
+    )
 
 
 def _highlighted_pads(parts: Iterable[Part]) -> dict[str, str]:

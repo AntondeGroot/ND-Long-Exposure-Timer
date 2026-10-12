@@ -397,6 +397,7 @@ class Shutter:
 # last - "ERROR: could not claim the USB device" truncates to "COULD NOT",
 # which says nothing - so the bar names the kind of problem and the journal
 # keeps the words.
+# fmt: off
 CAMERA_FAULTS = (
     ("detect", "NO CAMERA"),        # nothing plugged in, or it is asleep
     ("claim", "CAM BUSY"),          # something else holds the USB session
@@ -407,6 +408,7 @@ CAMERA_FAULTS = (
     ("timed out", "CAM TIMEOUT"),
     ("bulb", "BULB FAILED"),
 )
+# fmt: on
 CAMERA_FAULT_OTHERWISE = "CAMERA ERR"
 
 
@@ -447,8 +449,7 @@ def applied(device: Device, press: str, camera: Camera, panel: Panel, now: float
     return getattr(device, f"pressed_{press}")()
 
 
-def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
-            shutter: Shutter, now: float) -> Device:
+def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera, shutter: Shutter, now: float) -> Device:
     """One turn of the loop: drain the presses, move the shutter, draw."""
     # Noted before any press can clear it, so that an ending can be told apart
     # from a cancelling afterwards.
@@ -482,8 +483,14 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
     return device
 
 
-def run(device: Device, buttons: Buttons, panel: Panel, camera: Camera,
-        led: StatusLed | None = None, settings_file: SettingsFile | None = None) -> None:
+def run(
+    device: Device,
+    buttons: Buttons,
+    panel: Panel,
+    camera: Camera,
+    led: StatusLed | None = None,
+    settings_file: SettingsFile | None = None,
+) -> None:
     """Presses in, frames out, until something asks it to stop.
 
     The screen is worked out when the device has changed - which a press does,

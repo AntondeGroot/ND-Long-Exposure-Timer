@@ -49,12 +49,13 @@ def badge(canvas: Canvas, centre: g.Point, number: int, colour: str, radius: flo
     size = 17 if radius >= 15 else 14
     light = _is_light(colour)
     canvas.circle(centre, radius, colour, "#555" if light else "#fff", 3)
-    canvas.text(_offset(centre, 0, size / 3 + 0.5), str(number), size, "#111" if light else "#fff",
-                anchor="middle", bold=True)
+    canvas.text(
+        _offset(centre, 0, size / 3 + 0.5), str(number), size, "#111" if light else "#fff", anchor="middle", bold=True
+    )
 
 
 def _is_light(colour: str) -> bool:
-    red, green, blue = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
+    red, green, blue = (int(colour[i : i + 2], 16) for i in (1, 3, 5))
     return 0.299 * red + 0.587 * green + 0.114 * blue > 170
 
 
@@ -74,9 +75,11 @@ class Resistor:
         a, b = point(self.leg_a), point(self.leg_b)
         canvas.line(a, b, LEG, 4)
         x, y = _midpoint(a, b)
-        canvas.add(f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, b):.1f})">'
-                   '<rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" '
-                   'stroke="#7a6440" stroke-width="2"/></g>')
+        canvas.add(
+            f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, b):.1f})">'
+            '<rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" '
+            'stroke="#7a6440" stroke-width="2"/></g>'
+        )
         canvas.board_label(self.label_at, self.value)
 
     def describe(self) -> str:
@@ -99,10 +102,12 @@ class Diode:
         a, k = point(self.anode), point(self.cathode)
         canvas.line(a, k, LEG, 4)
         x, y = _midpoint(a, k)
-        canvas.add(f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, k):.1f})">'
-                   '<rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" '
-                   'stroke="#3b1b14" stroke-width="2"/>'
-                   '<rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>')
+        canvas.add(
+            f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, k):.1f})">'
+            '<rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" '
+            'stroke="#3b1b14" stroke-width="2"/>'
+            '<rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>'
+        )
         canvas.board_label(self.label_at, "BAT85", 16)
 
     def describe(self) -> str:
@@ -142,8 +147,12 @@ class Transistor:
         (x0, y), (x1, _) = point(self.collector), point(self.emitter)
         # Flat face towards row F, so the legs read C-B-E left to right as the datasheet draws them.
         half = (x1 - x0) / 2 + 20
-        canvas.path(f"M {x0 - 20:.1f} {y + 12:.1f} L {x1 + 20:.1f} {y + 12:.1f} L {x1 + 20:.1f} {y:.1f} "
-                    f"A {half:.1f} 26 0 0 0 {x0 - 20:.1f} {y:.1f} Z", "#222", opacity=0.88)
+        canvas.path(
+            f"M {x0 - 20:.1f} {y + 12:.1f} L {x1 + 20:.1f} {y + 12:.1f} L {x1 + 20:.1f} {y:.1f} "
+            f"A {half:.1f} 26 0 0 0 {x0 - 20:.1f} {y:.1f} Z",
+            "#222",
+            opacity=0.88,
+        )
         for x, letter in [(x0, "C"), ((x0 + x1) / 2, "B"), (x1, "E")]:
             canvas.circle((x, y), 6, "#bbb")
             canvas.text((x, y + 30), letter, 15, "#fff", anchor="middle", bold=True, halo="#222")
@@ -172,8 +181,17 @@ class Mosfet:
         left, right = min(x_source, x_gate), max(x_source, x_gate)
         middle = (left + right) / 2
         top, bottom = y - g.PITCH / 2, y + ADAPTER_LENGTH * g.PITCH - g.PITCH / 2
-        canvas.rect(left - 24, top, right - left + 48, bottom - top, "#2b5d9b", rx=4,
-                    stroke="#0f2e55", stroke_width=2, opacity=0.92)
+        canvas.rect(
+            left - 24,
+            top,
+            right - left + 48,
+            bottom - top,
+            "#2b5d9b",
+            rx=4,
+            stroke="#0f2e55",
+            stroke_width=2,
+            opacity=0.92,
+        )
         canvas.rect(middle - 16, (y + bottom) / 2 - 22, 32, 22, "#111")
         for x, letter in [(x_source, "S"), (middle, "D"), (x_gate, "G")]:
             canvas.circle((x, y), 6, "#bbb")
@@ -205,8 +223,7 @@ class Jumper:
         points = [point(p) if isinstance(p, str) else p for p in self.route]
         d = "M " + " L ".join(f"{x:.1f} {y:.1f}" for x, y in points)
         dashes = {"stroke_dasharray": "14 9"} if self.underneath else {}
-        canvas.path(d, stroke=self.colour, stroke_width=7, stroke_linecap="round", stroke_linejoin="round",
-                    **dashes)
+        canvas.path(d, stroke=self.colour, stroke_width=7, stroke_linecap="round", stroke_linejoin="round", **dashes)
         if self.label_at:
             canvas.board_label(self.label_at, self.label)
 

@@ -81,17 +81,25 @@ def _usb_a_opening(view: Projection, canvas: Canvas) -> None:
 
 
 USB_C = SocketSpec(
-    name="USB-C socket", scale=16,
-    flange=stadium(13.0, 8.0), flange_depth=2.0,  # well proud of the body: the lip against the wall
-    body_width=9.2, body_height=5.2, body_back=8.6,
+    name="USB-C socket",
+    scale=16,
+    flange=stadium(13.0, 8.0),
+    flange_depth=2.0,  # well proud of the body: the lip against the wall
+    body_width=9.2,
+    body_height=5.2,
+    body_back=8.6,
     wire_x={"red": -1.4, "black": 1.4},
     opening=_usb_c_opening,
 )
 
 USB_A = SocketSpec(
-    name="USB-A socket", scale=11,
-    flange=rounded_rect(18.0, 11.0, 1.6), flange_depth=2.2,
-    body_width=15.0, body_height=8.6, body_back=13.0,
+    name="USB-A socket",
+    scale=11,
+    flange=rounded_rect(18.0, 11.0, 1.6),
+    flange_depth=2.2,
+    body_width=15.0,
+    body_height=8.6,
+    body_back=13.0,
     wire_x={"red": -3.0, "white": -1.0, "blue": 1.0, "black": 3.0},
     opening=_usb_a_opening,
 )
