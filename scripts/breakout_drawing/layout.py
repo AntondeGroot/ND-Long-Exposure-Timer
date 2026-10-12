@@ -26,7 +26,8 @@ REGIONS = [
 ]
 
 PAD_COLOURS = {"GP22": RING, "GP5": LATCH, "GP6": LATCH} | dict.fromkeys(
-    ["GP12", "GP13", "GP16", "GP20", "GP19", "GP26", "GP21"], BUTTON_PAD)
+    ["GP12", "GP13", "GP16", "GP20", "GP19", "GP26", "GP21"], BUTTON_PAD
+)
 
 LABEL_ROW_Y = g.ORIGIN_Y + 530  # between the pad names and row A
 
@@ -75,48 +76,78 @@ BELOW_ROW_F = g.ORIGIN_Y + 852
 # bridge, and a wire under the board takes it on to the gate leg in 19C.
 GATE_WIRE = "#f76707"
 STEPS = [
-    Step("Resistors, diodes and the bridge", (
-        Resistor("1k", "GP22", "9A", (g.column_x(9) + 30, LABEL_ROW_Y)),
-        Resistor("10k", "GP6", "17A", (g.column_x(18) + 4, LABEL_ROW_Y)),
-        Resistor("10k", "16F", "15F", (g.column_x(14) - 6, g.row_y("F") + 6)),
-        Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16)),
-        Diode("GP5", "15A", (g.column_x(14) + 10, LABEL_ROW_Y), "sense"),
-        Diode("15D", "15C", (g.column_x(14), BETWEEN_C_AND_D + 6), "start"),
-        SolderBridge("16C", "16D"),
-    )),
-    Step("The AO3401 on its adapter", (
-        Mosfet("21C", "19C"),
-    )),
-    Step("The two BC337s", (
-        Transistor("8B", "10B", "ring"),
-        Transistor("16B", "18B", "soft latch"),
-    )),
-    Step("The wires under the board, and the wires that leave it", (
-        Jumper(("10C", (g.column_x(10) + g.PITCH / 2, g.row_y("C") + 22),
-                (g.column_x(10) + g.PITCH / 2, BELOW_ROW_F), (g.column_x(23), BELOW_ROW_F), "23D"),
-               "the ring transistor's emitter", (g.column_x(11.2), BELOW_ROW_F - 10),
-               label="GND wires (under the board)", underneath=True),
-        Jumper(("18C", (g.column_x(18) + g.PITCH / 2, BETWEEN_C_AND_D),
-                (g.column_x(22) + g.PITCH / 2, BETWEEN_C_AND_D), "23C"),
-               "the soft latch transistor's emitter", underneath=True),
-        Jumper(("16E", (g.column_x(18.5), g.row_y("E")), (g.column_x(18.5), g.row_y("A")), "19A"),
-               "the gate on to the MOSFET's gate leg", net="Gate", colour=GATE_WIRE, underneath=True),
-        Wire(1, "1C", "button LED + (5V rail)", LED_WIRE),
-        Wire(2, "8C", "button LED -", LED_WIRE),
-        Wire(3, "15B", "power button switch, NO", SWITCH_WIRE),
-        Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
-        Wire(4, "20A", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),
-        Wire(5, "21A", "UPS switch ON pin (SYS, battery), thick wire", POWER_WIRE),
-    )),
-    Step("The button wires: one half of the JST cable", tuple(
-        Wire(number, wire.at, wire.button, wire.colour, wire.name)
-        for number, wire in enumerate(JST_CABLE, start=FIRST_BUTTON_WIRE)
-    )),
+    Step(
+        "Resistors, diodes and the bridge",
+        (
+            Resistor("1k", "GP22", "9A", (g.column_x(9) + 30, LABEL_ROW_Y)),
+            Resistor("10k", "GP6", "17A", (g.column_x(18) + 4, LABEL_ROW_Y)),
+            Resistor("10k", "16F", "15F", (g.column_x(14) - 6, g.row_y("F") + 6)),
+            Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16)),
+            Diode("GP5", "15A", (g.column_x(14) + 10, LABEL_ROW_Y), "sense"),
+            Diode("15D", "15C", (g.column_x(14), BETWEEN_C_AND_D + 6), "start"),
+            SolderBridge("16C", "16D"),
+        ),
+    ),
+    Step("The AO3401 on its adapter", (Mosfet("21C", "19C"),)),
+    Step(
+        "The two BC337s",
+        (
+            Transistor("8B", "10B", "ring"),
+            Transistor("16B", "18B", "soft latch"),
+        ),
+    ),
+    Step(
+        "The wires under the board, and the wires that leave it",
+        (
+            Jumper(
+                (
+                    "10C",
+                    (g.column_x(10) + g.PITCH / 2, g.row_y("C") + 22),
+                    (g.column_x(10) + g.PITCH / 2, BELOW_ROW_F),
+                    (g.column_x(23), BELOW_ROW_F),
+                    "23D",
+                ),
+                "the ring transistor's emitter",
+                (g.column_x(11.2), BELOW_ROW_F - 10),
+                label="GND wires (under the board)",
+                underneath=True,
+            ),
+            Jumper(
+                (
+                    "18C",
+                    (g.column_x(18) + g.PITCH / 2, BETWEEN_C_AND_D),
+                    (g.column_x(22) + g.PITCH / 2, BETWEEN_C_AND_D),
+                    "23C",
+                ),
+                "the soft latch transistor's emitter",
+                underneath=True,
+            ),
+            Jumper(
+                ("16E", (g.column_x(18.5), g.row_y("E")), (g.column_x(18.5), g.row_y("A")), "19A"),
+                "the gate on to the MOSFET's gate leg",
+                net="Gate",
+                colour=GATE_WIRE,
+                underneath=True,
+            ),
+            Wire(1, "1C", "button LED + (5V rail)", LED_WIRE),
+            Wire(2, "8C", "button LED -", LED_WIRE),
+            Wire(3, "15B", "power button switch, NO", SWITCH_WIRE),
+            Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
+            Wire(4, "20A", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),
+            Wire(5, "21A", "UPS switch ON pin (SYS, battery), thick wire", POWER_WIRE),
+        ),
+    ),
+    Step(
+        "The button wires: one half of the JST cable",
+        tuple(
+            Wire(number, wire.at, wire.button, wire.colour, wire.name)
+            for number, wire in enumerate(JST_CABLE, start=FIRST_BUTTON_WIRE)
+        ),
+    ),
 ]
 
 NOTES = [
-    "Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. "
-    "Diode stripe = cathode.",
+    "Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.",
     "Transistors: flat face towards row F, so C-B-E reads left to right. "
     "MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.",
 ]

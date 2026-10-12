@@ -124,9 +124,7 @@ class Battery:
         if volts is None:
             return None
 
-        self._smoothed = volts if self._smoothed is None else (
-            self._smoothed + SMOOTHING * (volts - self._smoothed)
-        )
+        self._smoothed = volts if self._smoothed is None else (self._smoothed + SMOOTHING * (volts - self._smoothed))
         return percent_from(self._smoothed)
 
     def charge(self) -> Charge | None:

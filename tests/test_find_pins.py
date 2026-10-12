@@ -95,8 +95,9 @@ def wiring():
 
 def test_it_reports_the_pin_each_button_was_pressed_on(capsys, wiring):
     # The whole job: press them in the order it asks, get the block back.
-    _, status = run_finder(FakeChip([wiring[name] for name in
-                                          ("up", "down", "left", "right", "centre", "sync", "shoot")]))
+    _, status = run_finder(
+        FakeChip([wiring[name] for name in ("up", "down", "left", "right", "centre", "sync", "shoot")])
+    )
     printed = capsys.readouterr().out
 
     assert status == 0
@@ -107,8 +108,9 @@ def test_it_reports_the_pin_each_button_was_pressed_on(capsys, wiring):
 def test_a_pin_something_else_holds_is_skipped_rather_than_fatal(capsys, wiring):
     # SPI and the e-paper own several pins, and claiming one of those raises.
     # Losing a candidate is not a reason to stop looking at the rest.
-    chip = FakeChip([wiring[name] for name in
-                     ("up", "down", "left", "right", "centre", "sync", "shoot")], busy=(18, 23))
+    chip = FakeChip(
+        [wiring[name] for name in ("up", "down", "left", "right", "centre", "sync", "shoot")], busy=(18, 23)
+    )
     _, status = run_finder(chip)
     printed = capsys.readouterr().out
 
@@ -119,8 +121,9 @@ def test_a_pin_something_else_holds_is_skipped_rather_than_fatal(capsys, wiring)
 def test_a_pin_already_low_is_ignored_because_it_can_never_show_a_press(capsys, wiring):
     # Wired to ground, or driven by something else: either way it reads low for
     # ever, and watching it would report it as the answer to the first question.
-    chip = FakeChip([wiring[name] for name in
-                     ("up", "down", "left", "right", "centre", "sync", "shoot")], grounded=(22,))
+    chip = FakeChip(
+        [wiring[name] for name in ("up", "down", "left", "right", "centre", "sync", "shoot")], grounded=(22,)
+    )
     _, status = run_finder(chip)
     printed = capsys.readouterr().out
 

@@ -43,8 +43,13 @@ SOLDER, PIN = "#ced4da", "#f1f3f5"
 def header_page() -> str:
     canvas = Canvas(WIDTH, HEIGHT)
     canvas.text((40, 60), "Last: the 40-pin header", 30, bold=True)
-    canvas.text((40, 98), "The female header goes underneath, where it plugs onto the Pi. Its pins come up through "
-                "the board: solder them on top.", 19, "#444")
+    canvas.text(
+        (40, 98),
+        "The female header goes underneath, where it plugs onto the Pi. Its pins come up through "
+        "the board: solder them on top.",
+        19,
+        "#444",
+    )
     VIEWPORT.paint(canvas, _header_body())
     _board(canvas)
     _flat_circles(canvas, _proto_pads(), 0.75, COPPER, DRILL)
@@ -67,8 +72,10 @@ def _pin_positions() -> list[tuple[float, float]]:
 def _board(canvas: Canvas) -> None:
     """A slab with rounded corners, like the Pi Zero it sits on. The rounded edge is many
     thin faces, outlined in their own colour so no seams show; the top gets a real outline."""
-    outline = [(x + BOARD_LENGTH / 2, y + BOARD_WIDTH / 2)
-               for x, y in rounded_rect(BOARD_LENGTH, BOARD_WIDTH, CORNER_RADIUS, points_per_corner=8)]
+    outline = [
+        (x + BOARD_LENGTH / 2, y + BOARD_WIDTH / 2)
+        for x, y in rounded_rect(BOARD_LENGTH, BOARD_WIDTH, CORNER_RADIUS, points_per_corner=8)
+    ]
     VIEWPORT.paint(canvas, prism_along_z(outline, -BOARD_THICKNESS, 0.0, GREEN_TOP, GREEN_SIDE), stroke=GREEN_SIDE)
     VIEWPORT.polygon(canvas, tuple((x, y, 0.0) for x, y in outline), GREEN_TOP, stroke=EDGE)
 
@@ -87,8 +94,9 @@ def _proto_pads() -> list[tuple[float, float]]:
     return [(x, y) for x in columns for y in rows]
 
 
-def _flat_circles(canvas: Canvas, centres: list[tuple[float, float]], radius: float, fill: str,
-                  drill: str | None) -> None:
+def _flat_circles(
+    canvas: Canvas, centres: list[tuple[float, float]], radius: float, fill: str, drill: str | None
+) -> None:
     for x, y in centres:
         VIEWPORT.polygon(canvas, _circle(x, y, radius), fill)
         if drill:
@@ -96,5 +104,7 @@ def _flat_circles(canvas: Canvas, centres: list[tuple[float, float]], radius: fl
 
 
 def _circle(x: float, y: float, radius: float, points: int = 14) -> tuple[Vector, ...]:
-    return tuple((x + radius * math.cos(2 * math.pi * i / points), y + radius * math.sin(2 * math.pi * i / points),
-                  0.02) for i in range(points))
+    return tuple(
+        (x + radius * math.cos(2 * math.pi * i / points), y + radius * math.sin(2 * math.pi * i / points), 0.02)
+        for i in range(points)
+    )

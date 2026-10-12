@@ -47,10 +47,12 @@ BUTTONS = ("up", "down", "left", "right", "centre", "sync", "shoot")
 
 # Where each candidate comes out on the 40-pin header, because that is what you
 # are looking at with a wire in your hand.
+# fmt: off
 HEADER_PIN = {
     4: 7, 5: 29, 6: 31, 12: 32, 13: 33, 16: 36, 18: 12,
     19: 35, 20: 38, 21: 40, 22: 15, 23: 16, 26: 37, 27: 13,
 }
+# fmt: on
 
 WATCH_LOG = "/tmp/found-pins.log"
 

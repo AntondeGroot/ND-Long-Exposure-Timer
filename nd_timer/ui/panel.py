@@ -25,9 +25,7 @@ def to_panel_image(frame: Image.Image, rotation: int = 0) -> Image.Image:
     """The frame as the panel will hold it: landscape, one bit deep."""
     rotated = frame.rotate(rotation, expand=True) if rotation else frame
     if rotated.size != (PANEL_WIDTH, PANEL_HEIGHT):
-        raise ValueError(
-            f"rotated frame is {rotated.size}, panel wants {(PANEL_WIDTH, PANEL_HEIGHT)}"
-        )
+        raise ValueError(f"rotated frame is {rotated.size}, panel wants {(PANEL_WIDTH, PANEL_HEIGHT)}")
     return rotated
 
 

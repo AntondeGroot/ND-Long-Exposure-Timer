@@ -21,12 +21,14 @@ SALT_CHARS = ALPHABET[2:]
 DEFAULT_ROUNDS = 5000
 
 # The spec shuffles the 64 digest bytes into this order before base64 encoding.
+# fmt: off
 _GROUPS = [
     (0, 21, 42), (22, 43, 1), (44, 2, 23), (3, 24, 45), (25, 46, 4), (47, 5, 26),
     (6, 27, 48), (28, 49, 7), (50, 8, 29), (9, 30, 51), (31, 52, 10), (53, 11, 32),
     (12, 33, 54), (34, 55, 13), (56, 14, 35), (15, 36, 57), (37, 58, 16), (59, 17, 38),
     (18, 39, 60), (40, 61, 19), (62, 20, 41),
 ]
+# fmt: on
 
 
 def _encode(digest):
@@ -93,14 +95,30 @@ def make_salt(length=16):
 # each cross-checked against glibc: OpenSSL 3.4.1 for the default-rounds case and
 # libcrypt (via perl) for the rounds= cases.
 VECTORS = [
-    ("Hello world!", "saltstring", DEFAULT_ROUNDS,
-     "$6$saltstring$svn8UoSVapNtMuq1ukKS4tPQd8iKwSMHWjl/O817G3uBnIFNjnQJuesI68u4OTLiBFdcbYEdFCoEOfaS35inz1"),
-    ("Hello world!", "saltstringsaltstring", 10000,
-     "$6$rounds=10000$saltstringsaltst$OW1/O6BYHV6BcXZu8QVeXbDWra3Oeqh0sbHbbMCVNSnCM/UrjmM0Dp8vOuZeHBy/YTBmSK6H9qs/y3RnOaw5v."),
-    ("a short string", "toolongsaltstring", 1400,
-     "$6$rounds=1400$toolongsaltstrin$JZj2ZhmKy0ewUWKOX79nDxgSHqOf.66NOKp/YVNTFSCJ7pbZeDOTF9Korsxj.E./lK0eYE5mVrIebv3rTGYbK1"),
-    ("a short string", "toolongsaltstring", DEFAULT_ROUNDS,
-     "$6$toolongsaltstrin$BlmL1qgiT7LmskajFpTr8VKepTs4Gv.u/7NmhnnB3D6aivtwtkK.OELpa.W/umS4osfOA.PI4lFhAB3dMhPuv1"),
+    (
+        "Hello world!",
+        "saltstring",
+        DEFAULT_ROUNDS,
+        "$6$saltstring$svn8UoSVapNtMuq1ukKS4tPQd8iKwSMHWjl/O817G3uBnIFNjnQJuesI68u4OTLiBFdcbYEdFCoEOfaS35inz1",
+    ),
+    (
+        "Hello world!",
+        "saltstringsaltstring",
+        10000,
+        "$6$rounds=10000$saltstringsaltst$OW1/O6BYHV6BcXZu8QVeXbDWra3Oeqh0sbHbbMCVNSnCM/UrjmM0Dp8vOuZeHBy/YTBmSK6H9qs/y3RnOaw5v.",
+    ),
+    (
+        "a short string",
+        "toolongsaltstring",
+        1400,
+        "$6$rounds=1400$toolongsaltstrin$JZj2ZhmKy0ewUWKOX79nDxgSHqOf.66NOKp/YVNTFSCJ7pbZeDOTF9Korsxj.E./lK0eYE5mVrIebv3rTGYbK1",
+    ),
+    (
+        "a short string",
+        "toolongsaltstring",
+        DEFAULT_ROUNDS,
+        "$6$toolongsaltstrin$BlmL1qgiT7LmskajFpTr8VKepTs4Gv.u/7NmhnnB3D6aivtwtkK.OELpa.W/umS4osfOA.PI4lFhAB3dMhPuv1",
+    ),
 ]
 
 
@@ -117,6 +135,7 @@ def self_test():
     # A round trip through the system's own crypt, where it is trustworthy.
     try:
         import crypt
+
         reference = crypt.crypt("Hello world!", "$6$saltstring")
         if reference and reference.startswith("$6$") and len(reference) > 20:
             match = reference == VECTORS[0][3]

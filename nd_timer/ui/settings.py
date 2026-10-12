@@ -110,7 +110,11 @@ def _draw_entries(draw: ImageDraw.ImageDraw, screen: SettingsScreen) -> None:
     for row, index in enumerate(range(first, last)):
         entry = screen.entries[index]
         render.draw_value_row(
-            draw, layout.settings_row_top(row), entry.label, entry.value, index == screen.selected,
+            draw,
+            layout.settings_row_top(row),
+            entry.label,
+            entry.value,
+            index == screen.selected,
             carets=screen.left_right_change_values,
         )
 

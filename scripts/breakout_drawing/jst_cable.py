@@ -55,14 +55,18 @@ def _cut(canvas: Canvas, top: float) -> None:
     _tinned_ends(canvas, WIRE_END_X, top, pointing_right=True)
     _female_loose(canvas, FEMALE_LOOSE_X, top)
     y0, y1 = _wire_y(top, 0) - 22, _wire_y(top, len(COLOURS) - 1) + 22
-    canvas.add(f'<line x1="{CUT_X}" y1="{y0}" x2="{CUT_X}" y2="{y1}" stroke="{CUT}" stroke-width="4" '
-               'stroke-dasharray="10 7"/>')
+    canvas.add(
+        f'<line x1="{CUT_X}" y1="{y0}" x2="{CUT_X}" y2="{y1}" stroke="{CUT}" stroke-width="4" stroke-dasharray="10 7"/>'
+    )
     canvas.text((CUT_X, y1 + 26), "cut here", 20, CUT, anchor="middle", bold=True)
 
 
 def _soldered(canvas: Canvas, top: float) -> None:
-    _panel_title(canvas, top, "2. Plug the female onto the male, then solder each cut end to the pin facing "
-                              "its colour and heat-shrink it")
+    _panel_title(
+        canvas,
+        top,
+        "2. Plug the female onto the male, then solder each cut end to the pin facing its colour and heat-shrink it",
+    )
     free_x, male_x = 200, 470
     female_x = male_x + CONNECTOR_WIDTH
     joint_x = female_x + CONNECTOR_WIDTH + 14
@@ -139,8 +143,7 @@ def _female(canvas: Canvas, x: float, top: float) -> None:
 
 def _female_loose(canvas: Canvas, x: float, top: float) -> None:
     _female(canvas, x, top)
-    canvas.text((x + CONNECTOR_WIDTH / 2, _wire_y(top, len(COLOURS) - 1) + 40), "loose", 17, "#444",
-                anchor="middle")
+    canvas.text((x + CONNECTOR_WIDTH / 2, _wire_y(top, len(COLOURS) - 1) + 40), "loose", 17, "#444", anchor="middle")
 
 
 def _heat_shrink(canvas: Canvas, x: float, top: float) -> None:

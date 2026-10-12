@@ -37,6 +37,11 @@ jobs:
       # failure, which is the whole point of a zero-warning policy.
       - name: ruff
         run: ruff check --output-format=github .
+      # Fails on any file the formatter would change, so formatting is never a
+      # reviewer's job. Hand-laid tables (the shutter ladders, gphoto2 flag
+      # pairs) sit between `# fmt: off` and `# fmt: on` to keep their shape.
+      - name: ruff format
+        run: ruff format --check --diff .
 
   tests:
     name: tests

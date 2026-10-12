@@ -82,9 +82,7 @@ def test_iso_is_priced_by_where_it_sits_rather_than_by_how_far_it_moved():
     # Metered at 800 - a reading taken before the camera was on the tripod. Base
     # ISO is where a several-minute exposure wants to be, so coming down to it
     # is free, and the recipe does it rather than treating 800 as home.
-    recipe = recipe_for(
-        208, metered_shutter=1 / 60, metered_iso=800, metered_aperture=4.0, choices=CHOICES
-    )
+    recipe = recipe_for(208, metered_shutter=1 / 60, metered_iso=800, metered_aperture=4.0, choices=CHOICES)
 
     assert recipe.iso == 100
 

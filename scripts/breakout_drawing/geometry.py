@@ -16,9 +16,11 @@ HEADER_X, HEADER_ROW_YS = 225, (192, 247)
 HEADER_COLUMNS = 20
 
 PAD_Y = ORIGIN_Y + 410
+# fmt: off
 PADS = ["SCL", "SDA", "TX", "RX", "GP4", "GP17", "GP18", "GP27", "GP22", "GP23",
         "MOSI", "MISO", "SCLK", "CE0", "CE1", "GP25", "GP5", "GP6", "GP12", "GP13",
         "GP16", "GP20", "GP19", "GP26", "GP21"]
+# fmt: on
 
 ROWS = "ABCDEF"
 RAIL_ROWS = "ABCD"

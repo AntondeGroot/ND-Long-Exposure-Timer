@@ -35,9 +35,7 @@ BRIDGE = '<script src="simulator-browser.js"></script>\n'
 
 
 def tracked(prefixes: tuple[str, ...]) -> list[str]:
-    listed = subprocess.run(
-        ["git", "ls-files", "--", *prefixes], cwd=REPO, check=True, capture_output=True, text=True
-    )
+    listed = subprocess.run(["git", "ls-files", "--", *prefixes], cwd=REPO, check=True, capture_output=True, text=True)
     return listed.stdout.split()
 
 

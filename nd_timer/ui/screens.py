@@ -97,9 +97,7 @@ def render_main(screen: MainScreen):
     frame = render.blank_frame()
     draw = ImageDraw.Draw(frame)
 
-    render.draw_status_bar(
-        draw, screen.synced_note, screen.battery, _hand_set_tag(screen), screen.charging
-    )
+    render.draw_status_bar(draw, screen.synced_note, screen.battery, _hand_set_tag(screen), screen.charging)
     _draw_answer(draw, screen)
     _draw_toggle(draw, screen)
     _draw_parameter_list(draw, screen)
@@ -121,8 +119,12 @@ def _draw_toggle(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
     ink = WHITE if selected else BLACK
     word = "AUTO" if screen.is_auto else "MANUAL"
     render.draw_centred(
-        draw, layout.CENTRE_X, layout.TOGGLE_TOP + 3,
-        f"\u25c0 {word} \u25b6" if selected else word, render.bold(layout.SMALL), fill=ink,
+        draw,
+        layout.CENTRE_X,
+        layout.TOGGLE_TOP + 3,
+        f"\u25c0 {word} \u25b6" if selected else word,
+        render.bold(layout.SMALL),
+        fill=ink,
     )
     draw.line((0, layout.TOGGLE_BOTTOM, WIDTH, layout.TOGGLE_BOTTOM), fill=BLACK)
 
@@ -166,8 +168,13 @@ def _draw_final_time(draw: ImageDraw.ImageDraw, screen: MainScreen, ink: int) ->
         _draw_setting_arrows(draw, ink)
 
     render.draw_fitted(
-        draw, layout.CENTRE_X, layout.ANSWER_CENTRE_Y,
-        screen.final_time, _answer_width(screen), layout.HERO_SIZES, fill=ink,
+        draw,
+        layout.CENTRE_X,
+        layout.ANSWER_CENTRE_Y,
+        screen.final_time,
+        _answer_width(screen),
+        layout.HERO_SIZES,
+        fill=ink,
     )
 
 
@@ -217,9 +224,7 @@ def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> 
     # Triangles rather than letters: at 9px a "v" reads as text, an arrow reads
     # as an instruction. DejaVu has both glyphs.
     arrow = {1: " ▲", -1: " ▼"}.get(screen.direction, "")
-    render.draw_centred(
-        draw, centre, layout.TARGET_Y, f"aim {screen.target}{arrow}", render.regular(layout.TINY)
-    )
+    render.draw_centred(draw, centre, layout.TARGET_Y, f"aim {screen.target}{arrow}", render.regular(layout.TINY))
 
 
 def _draw_bulb_badge(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen, ink: int) -> None:
@@ -261,9 +266,7 @@ def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
     }
 
     for row, label in enumerate(layout.ROWS):
-        render.draw_value_row(
-            draw, layout.row_top(row), label, values[label], label == screen.selected
-        )
+        render.draw_value_row(draw, layout.row_top(row), label, values[label], label == screen.selected)
 
 
 def render_delay(screen: DelayScreen):
@@ -282,15 +285,11 @@ def render_delay(screen: DelayScreen):
 
     render.draw_status_bar(draw, screen.mode.upper(), screen.battery, charging=screen.charging)
 
-    render.draw_fitted(
-        draw, layout.CENTRE_X, 66, screen.exposure, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES
-    )
+    render.draw_fitted(draw, layout.CENTRE_X, 66, screen.exposure, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES)
     badge = "BULB" if screen.is_bulb else "TIMED"
     render.draw_centred(draw, layout.CENTRE_X, 100, badge, render.bold(layout.SMALL))
 
-    render.draw_centred(
-        draw, layout.CENTRE_X, 140, f"{screen.delay} delay before", render.regular(layout.SMALL)
-    )
+    render.draw_centred(draw, layout.CENTRE_X, 140, f"{screen.delay} delay before", render.regular(layout.SMALL))
     render.draw_centred(draw, layout.CENTRE_X, 156, "exposure begins", render.regular(layout.SMALL))
 
     render.draw_banner_footer(draw, "HOLD TO CANCEL")

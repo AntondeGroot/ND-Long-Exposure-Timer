@@ -40,11 +40,13 @@ STANDARD_ISOS = (100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1
 #
 # Which of these a given lens actually has is a setting, because no lens has all
 # of them: the ends are named by their f-numbers, so the lowest is the widest.
+# fmt: off
 APERTURES = (
     1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5,
     4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0,
     11.0, 13.0, 14.0, 16.0, 18.0, 20.0, 22.0,
 )
+# fmt: on
 
 # Three thresholds, in stops, for three different questions.
 #
@@ -172,8 +174,13 @@ def recipe_for(
     for aperture in apertures:
         for iso in isos:
             candidate = _best_filtration(
-                wanted_seconds, metered_shutter, metered_iso, metered_aperture,
-                choices, iso, aperture,
+                wanted_seconds,
+                metered_shutter,
+                metered_iso,
+                metered_aperture,
+                choices,
+                iso,
+                aperture,
             )
             rank = _rank(candidate, metered_aperture)
             if best_rank is None or rank < best_rank:
@@ -200,9 +207,7 @@ def _best_filtration(
         working_aperture=aperture,
     )
     choice = _nearest_choice(choices, math.log2(wanted_seconds / unfiltered))
-    return recipe_of(
-        wanted_seconds, metered_shutter, metered_iso, metered_aperture, choice, iso, aperture
-    )
+    return recipe_of(wanted_seconds, metered_shutter, metered_iso, metered_aperture, choice, iso, aperture)
 
 
 def recipe_of(

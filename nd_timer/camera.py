@@ -55,6 +55,7 @@ class CameraSettings:
 # device's own dial becomes a clock after it, but the camera keeps going to 30
 # before bulb is the only option left. Snapping to the wrong end of that gap is
 # most of a stop.
+# fmt: off
 TIMED_SHUTTERS = (
     1 / 125, 1 / 100, 1 / 80, 1 / 60, 1 / 50, 1 / 40, 1 / 30, 1 / 25,
     1 / 20, 1 / 15, 1 / 13, 1 / 10, 1 / 8, 1 / 6, 1 / 5, 1 / 4, 1 / 3,
@@ -62,6 +63,7 @@ TIMED_SHUTTERS = (
     1.0, 1.3, 1.6, 2.0, 2.5, 3.2,
     4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 15.0, 20.0, 25.0, 30.0,
 )
+# fmt: on
 
 
 def nearest_timed_shutter(seconds: float) -> str:
@@ -112,11 +114,7 @@ def parse_aperture(text: str) -> float:
 
 def current_values(gphoto_output: str) -> list[str]:
     """The `Current:` value from each config block, in the order they were asked for."""
-    return [
-        line.partition(":")[2].strip()
-        for line in gphoto_output.splitlines()
-        if line.startswith("Current:")
-    ]
+    return [line.partition(":")[2].strip() for line in gphoto_output.splitlines() if line.startswith("Current:")]
 
 
 class Camera:
@@ -140,6 +138,7 @@ class Camera:
         Three separate gphoto2 calls would mean three PTP sessions - several
         seconds each on a Pi Zero, for no benefit.
         """
+        # fmt: off
         output = self._capture(
             [
                 "--get-config", "iso",
@@ -148,12 +147,11 @@ class Camera:
             ],
             timeout=READ_TIMEOUT_SECONDS,
         )
+        # fmt: on
 
         values = current_values(output)
         if len(values) != 3:
-            raise CameraError(
-                f"expected iso, aperture and shutter speed, got {len(values)} values"
-            )
+            raise CameraError(f"expected iso, aperture and shutter speed, got {len(values)} values")
 
         raw_iso, raw_aperture, raw_shutter = values
         try:
@@ -183,6 +181,7 @@ class Camera:
         `shutter_value` is one of the camera's own choices, e.g. "1/60" or "25" -
         the arithmetic's exact answer has to be snapped to the dial first.
         """
+        # fmt: off
         self._capture(
             [
                 *_settings_arguments(settings),
@@ -192,6 +191,7 @@ class Camera:
             ],
             timeout=READ_TIMEOUT_SECONDS,
         )
+        # fmt: on
 
     def _capture(self, arguments: list[str], timeout: int) -> str:
         try:
@@ -283,6 +283,7 @@ def _bulb_arguments(seconds: float) -> list[str]:
     setting rather than something the camera remembers, and splitting the open
     from the close tears down the session while the shutter is open.
     """
+    # fmt: off
     return [
         "--set-config", "capturetarget=1",   # keep the frame on the camera's card
         "--set-config", "bulb=1",            # open
@@ -290,3 +291,4 @@ def _bulb_arguments(seconds: float) -> list[str]:
         "--set-config", "bulb=0",            # close
         "--wait-event", f"{POST_EXPOSURE_SETTLE_SECONDS}s",
     ]
+    # fmt: on

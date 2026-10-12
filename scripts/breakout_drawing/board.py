@@ -41,9 +41,14 @@ def draw_region(canvas: Canvas, region: Region) -> None:
     x0, x1 = g.column_x(region.first_column) - 36, g.column_x(region.last_column) + 36
     top_x0, top_x1 = g.pad(region.first_pad)[0] - 27, g.pad(region.last_pad)[0] + 27
     y0, y_step, y1 = g.PAD_Y - 26, g.row_y("A") - 36, g.row_y(region.last_row) + 36
-    canvas.path(f"M {top_x0:.1f} {y0} H {top_x1:.1f} V {y_step:.1f} H {x1:.1f} V {y1:.1f} "
-                f"H {x0:.1f} V {y_step:.1f} H {top_x0:.1f} Z",
-                stroke=region.colour, stroke_width=4, stroke_dasharray="14 8", stroke_linejoin="round")
+    canvas.path(
+        f"M {top_x0:.1f} {y0} H {top_x1:.1f} V {y_step:.1f} H {x1:.1f} V {y1:.1f} "
+        f"H {x0:.1f} V {y_step:.1f} H {top_x0:.1f} Z",
+        stroke=region.colour,
+        stroke_width=4,
+        stroke_dasharray="14 8",
+        stroke_linejoin="round",
+    )
     middle = (g.column_x(region.first_column) + g.column_x(region.last_column)) / 2
     canvas.text((middle, g.ORIGIN_Y + 955), region.title, 24, region.colour, anchor="middle", bold=True)
 
@@ -55,8 +60,7 @@ def _draw_outline(canvas: Canvas) -> None:
 
 
 def _draw_header(canvas: Canvas) -> None:
-    canvas.rect(g.HEADER_X - 27, g.HEADER_ROW_YS[0] - 27, 1095, 105, "none",
-                stroke=SILKSCREEN, stroke_width=3)
+    canvas.rect(g.HEADER_X - 27, g.HEADER_ROW_YS[0] - 27, 1095, 105, "none", stroke=SILKSCREEN, stroke_width=3)
     for i in range(g.HEADER_COLUMNS):
         for y in g.HEADER_ROW_YS:
             centre = (g.HEADER_X + g.PITCH * i, y)
@@ -74,8 +78,10 @@ def _draw_pads(canvas: Canvas, highlighted: dict[str, str]) -> None:
             canvas.circle(centre, 16, COPPER)
         canvas.circle(centre, 7, DRILL)
         weight = ' font-weight="bold"' if colour else ""
-        canvas.add(f'<text transform="translate({centre[0] + 7:.1f},{g.PAD_Y + 30}) rotate(-90)" '
-                   f'text-anchor="end" font-size="20"{weight} fill="{colour or SILKSCREEN}">{name}</text>')
+        canvas.add(
+            f'<text transform="translate({centre[0] + 7:.1f},{g.PAD_Y + 30}) rotate(-90)" '
+            f'text-anchor="end" font-size="20"{weight} fill="{colour or SILKSCREEN}">{name}</text>'
+        )
 
 
 def _draw_rails_and_strips(canvas: Canvas) -> None:
@@ -94,8 +100,9 @@ def _draw_rails_and_strips(canvas: Canvas) -> None:
 
 def _draw_rail_box(canvas: Canvas, columns: list[int], label: str) -> None:
     x0, x1 = g.column_x(columns[0]) - 28, g.column_x(columns[-1]) + 28
-    canvas.rect(x0, g.row_y("A") - 30, x1 - x0, g.row_y("D") - g.row_y("A") + 60, "none",
-                stroke=SILKSCREEN, stroke_width=2.5)
+    canvas.rect(
+        x0, g.row_y("A") - 30, x1 - x0, g.row_y("D") - g.row_y("A") + 60, "none", stroke=SILKSCREEN, stroke_width=2.5
+    )
     canvas.text(((x0 + x1) / 2, g.row_y("D") + 62), label, 20, SILKSCREEN, anchor="middle")
 
 

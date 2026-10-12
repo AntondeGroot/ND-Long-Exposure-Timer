@@ -34,9 +34,11 @@ def letter_f() -> list[int]:
     """A big F in the top-left, drawn the same way the screens are drawn."""
     frame = Image.new("1", (WIDTH, HEIGHT), 1)
     draw = ImageDraw.Draw(frame)
+    # fmt: off
     draw.rectangle((12, 12, 34, 170), fill=0)   # stem, down the left
     draw.rectangle((12, 12, 105, 34), fill=0)   # top arm, the long one
     draw.rectangle((12, 78, 80, 100), fill=0)   # middle arm, shorter
+    # fmt: on
     return list(frame.tobytes())
 
 

@@ -14,8 +14,9 @@ def test_the_settings_survive_a_restart(tmp_path):
     # Every setting moved off its default, so a restore that silently fell back to
     # the defaults for any one of them would show here.
     filter_bag = FilterBag((FILTERS_BY_NAME["ND8"], FILTERS_BY_NAME["ND1000"]))
-    before = replace(Device(), filter_bag=filter_bag, iso_max=1600, aperture_min=2.8, aperture_max=16.0,
-                     delay_seconds=15.0)
+    before = replace(
+        Device(), filter_bag=filter_bag, iso_max=1600, aperture_min=2.8, aperture_max=16.0, delay_seconds=15.0
+    )
     path = tmp_path / "settings.json"
     SettingsFile(path).save_if_changed(before)
 

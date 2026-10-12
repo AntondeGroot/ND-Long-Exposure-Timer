@@ -76,6 +76,7 @@ ISO_CHOICES = (100, 200, 400, 800, 1600)
 
 DEFAULT_CAMERA = MeteredExposure(iso=100, aperture=11.0, shutter_seconds=1 / 60)
 
+
 class VirtualClock:
     """Wall-clock time that can be run fast, so a long exposure can be watched.
 
@@ -223,16 +224,12 @@ class Simulator:
         """
         with self._lock:
             now = self._now()
-            self.device = runtime.stepped(
-                self.device, self.buttons, self.panel, self.camera, self.shutter, now
-            )
+            self.device = runtime.stepped(self.device, self.buttons, self.panel, self.camera, self.shutter, now)
             self.panel.show(self.device.screen(now))
 
     def set_camera(self, iso: float, aperture: float, shutter: float, connected: bool) -> None:
         with self._lock:
-            self.camera.metered = MeteredExposure(
-                iso=iso, aperture=aperture, shutter_seconds=shutter
-            )
+            self.camera.metered = MeteredExposure(iso=iso, aperture=aperture, shutter_seconds=shutter)
             self.camera.connected = connected
 
     def set_battery(self, percent: int | None, charging: bool) -> None:
@@ -361,8 +358,7 @@ class Handler(BaseHTTPRequestHandler):
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--speed", type=float, default=60.0,
-                        help="how fast the clock runs while an exposure is open")
+    parser.add_argument("--speed", type=float, default=60.0, help="how fast the clock runs while an exposure is open")
     parser.add_argument("--no-browser", action="store_true")
     arguments = parser.parse_args()
 

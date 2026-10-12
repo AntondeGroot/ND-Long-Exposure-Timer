@@ -68,8 +68,10 @@ def _wire(canvas: Canvas, socket: PanelSocket, wire: CableWire) -> None:
     reach = math.hypot(approach_x - x0, end_y - y0) * 0.4
     along = math.hypot(ahead_x - x0, ahead_y - y0)
     handle_x, handle_y = x0 + (ahead_x - x0) / along * reach, y0 + (ahead_y - y0) / along * reach
-    d = (f"M {x0:.1f} {y0:.1f} C {handle_x:.1f} {handle_y:.1f} {approach_x - reach:.1f} {end_y:.1f} "
-         f"{approach_x:.1f} {end_y:.1f} L {end_x:.1f} {end_y:.1f}")
+    d = (
+        f"M {x0:.1f} {y0:.1f} C {handle_x:.1f} {handle_y:.1f} {approach_x - reach:.1f} {end_y:.1f} "
+        f"{approach_x:.1f} {end_y:.1f} L {end_x:.1f} {end_y:.1f}"
+    )
     canvas.path(d, stroke=OUTLINE, stroke_width=12, stroke_linecap="round")
     canvas.path(d, stroke=wire.colour, stroke_width=9, stroke_linecap="round")
 
@@ -79,8 +81,9 @@ def _captions(canvas: Canvas, cable: Cable) -> None:
     canvas.text((x, y), cable.socket.name, 18, "#444", anchor="middle", bold=True)
     canvas.text((x, y + 24), cable.socket_caption, 16, "#666", anchor="middle")
     below_plug = LEGEND_TOP + PINS * LEGEND_LINE + 120
-    canvas.text((PLUG.origin_x + 60, below_plug), "micro-USB plug, wide side up", 18, "#444", anchor="middle",
-                bold=True)
+    canvas.text(
+        (PLUG.origin_x + 60, below_plug), "micro-USB plug, wide side up", 18, "#444", anchor="middle", bold=True
+    )
     canvas.text((PLUG.origin_x + 60, below_plug + 24), cable.plug_caption, 16, "#666", anchor="middle")
 
 
@@ -94,8 +97,9 @@ def _legend(canvas: Canvas, used: set[int]) -> None:
     canvas.text((LEGEND_X, LEGEND_TOP - 30), "pads", 16, "#444", bold=True)
     for line, pin in enumerate(range(1, PINS + 1)):
         label = f"{pin}  {PIN_NAMES[pin]}" + ("" if pin in used else ", not used")
-        canvas.text((LEGEND_X, LEGEND_TOP + line * LEGEND_LINE), label, 17, "#222" if pin in used else UNUSED,
-                    bold=pin in used)
+        canvas.text(
+            (LEGEND_X, LEGEND_TOP + line * LEGEND_LINE), label, 17, "#222" if pin in used else UNUSED, bold=pin in used
+        )
 
 
 def _notes(canvas: Canvas, notes: tuple[str, ...]) -> None:
