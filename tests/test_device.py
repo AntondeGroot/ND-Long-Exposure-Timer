@@ -239,6 +239,21 @@ def test_shoot_waits_for_the_tripod_before_it_opens_the_shutter():
     assert device.ticked(now=20).shot is None
 
 
+def test_shoot_before_sync_still_takes_the_shot_at_the_dialled_time():
+    # Deliberate: without a reading there is no recipe, but the device is still a
+    # good timer - for a photographer who knows their settings, or a camera that
+    # cannot meter. The screen has already said NOT SYNCED; SHOOT does not refuse.
+    # The camera keeps whatever is on it: only NO FILTERS sends settings.
+    unsynced = Device(filter_bag=TYPICAL_FILTER_BAG)
+    assert unsynced.screen(now=0).synced_note == "NOT SYNCED"
+
+    shooting = unsynced.pressed_shoot(now=0)
+
+    assert shooting.shot is not None
+    assert shooting.shot.total_seconds == unsynced.exposure_seconds
+    assert shooting.shot.camera_settings is None
+
+
 def test_a_delay_of_nothing_opens_the_shutter_on_the_press():
     # For a remote release, or for a shot that will not wait.
     immediate = synced(delay_seconds=0.0).pressed_shoot(now=10)

@@ -113,6 +113,13 @@ run_probe() {
   timeout 60 gphoto2 --get-config iso 2>&1 || echo "(failed)"
   timeout 60 gphoto2 --get-config aperture 2>&1 || echo "(failed)"
 
+  # What a timed shot sends. nearest_timed_shutter builds "1/60" or "25" itself, and
+  # rounds the third stops on the way (1.3s goes out as "1", 0.4s as "1/2"); the
+  # Choice: lines show how the camera really writes them, so it can send those.
+  echo
+  echo "--- shutter speeds a timed shot can send ---"
+  timeout 60 gphoto2 --get-config shutterspeed 2>&1 || echo "(failed)"
+
   # Read-only, for a SYNC that could check more than it does: whether Auto ISO is
   # on (its ISO would be wrong), and whether the meter can be read directly.
   echo

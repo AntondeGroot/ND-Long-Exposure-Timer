@@ -44,15 +44,13 @@ branch = true
 source = ["nd_timer"]
 
 [tool.coverage.report]
-# TODO: raise towards 90, the target in ChecklistForProjects. Pinned just below
-# the measured 89.00% so the gate is green today and can only ratchet upward - a
-# floor set above current fails CI on arrival and blocks unrelated work. Move it
-# up whenever the measured figure does; that is the whole point of a ratchet.
+# At 90, the target in ChecklistForProjects, with the measured figure at 90.55%.
+# A ratchet: move it up whenever the measured figure does, never down - a floor
+# only means something if it cannot be lowered to let a change through.
 #
 # The number is branch coverage rather than statement coverage, which is why it
-# reads lower than it would elsewhere. The cheapest remaining ground is
-# nd_timer/subjects.py at 92% and nd_timer/ui/navigation.py at 95%.
-fail_under = 88
+# reads lower than it would elsewhere.
+fail_under = 90
 show_missing = true
 exclude_also = [
     "if TYPE_CHECKING:",
@@ -126,8 +124,9 @@ source_paths = ["nd_timer"]
 also_copy = ["main.py", "scripts", "docs", "assets", ".python-version", "pytest.ini"]
 
 [tool.mutation]
-# Read by scripts/mutation-score.py, which CI runs after mutmut. TODO: raise towards
-# 80, the top of the 70-80% target in ChecklistForProjects. Pinned just below the
-# measured 77.8% so the gate is green today and can only ratchet upward. The most
-# survivors are in nd_timer/ui/display.py, nd_timer/camera.py and nd_timer/subjects.py.
-fail_under = 77
+# Read by scripts/mutation-score.py, which CI runs after mutmut. Past the 70-80%
+# target in ChecklistForProjects and pinned just below the measured 81.8%, so it
+# can only ratchet upward. The most survivors are in nd_timer/camera.py,
+# nd_timer/fast_panel.py, nd_timer/device.py, nd_timer/boot_splash.py and
+# nd_timer/battery.py.
+fail_under = 81
