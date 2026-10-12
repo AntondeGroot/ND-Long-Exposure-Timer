@@ -17,6 +17,7 @@ RING = "#e8590c"
 LATCH = "#0b3a8c"
 BUTTON_PAD = "#99e9f2"
 LED_WIRE = "#c92a2a"
+LED_GROUND_WIRE = "#212529"
 SWITCH_WIRE = "#6741d9"
 POWER_WIRE = "#d6336c"
 
@@ -130,7 +131,7 @@ STEPS = [
                 underneath=True,
             ),
             Wire(1, "1C", "button LED + (5V rail)", LED_WIRE),
-            Wire(2, "8C", "button LED -", LED_WIRE),
+            Wire(2, "8C", "button LED -", LED_GROUND_WIRE, "black"),
             Wire(3, "15B", "power button switch, NO", SWITCH_WIRE),
             Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
             Wire(4, "20A", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),

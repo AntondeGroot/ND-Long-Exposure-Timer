@@ -431,13 +431,13 @@
 <text x="1046.6" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">E</text>
 <text x="991.8" y="502.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">BC337</text>
 </g>
-<path d="M 608.2 569.6 L 635.6 591.6 L 635.6 762.0 L 1320.6 762.0 L 1320.6 624.4" fill="none" stroke="#2f9e44" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 608.2 569.6 L 635.6 591.6 L 635.6 762.0 L 1320.6 762.0 L 1320.6 624.4" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <text x="674.0" y="752.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">GND wires (under the board)</text>
-<path d="M 1046.6 569.6 L 1074.0 597.0 L 1293.2 597.0 L 1320.6 569.6" fill="none" stroke="#2f9e44" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 1046.6 569.6 L 1074.0 597.0 L 1293.2 597.0 L 1320.6 569.6" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <path d="M 937.0 679.2 L 1074.0 679.2 L 1074.0 460.0 L 1101.4 460.0" fill="none" stroke="#f76707" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <circle cx="115.0" cy="569.6" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
 <text x="115.0" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
-<circle cx="498.6" cy="569.6" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
+<circle cx="498.6" cy="569.6" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="498.6" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
 <circle cx="882.2" cy="514.8" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
 <text x="882.2" y="521.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
@@ -457,9 +457,9 @@
 <circle cx="95.0" cy="1093.0" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
 <text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">1C  ->  button LED + (5V rail)</text>
-<circle cx="95.0" cy="1135.0" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
+<circle cx="95.0" cy="1135.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1141.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
-<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">8C  ->  button LED -</text>
+<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">8C  ->  button LED - (black)</text>
 <circle cx="95.0" cy="1177.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1183.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
 <text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">15B  ->  power button switch, NO</text>

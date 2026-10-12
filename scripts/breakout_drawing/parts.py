@@ -14,7 +14,7 @@ from .svg import Canvas
 
 LEG = "#9a9a9a"
 ADAPTER_LENGTH = 4.5  # holes, legs included
-GND_WIRE = "#2f9e44"
+GND_WIRE = "#212529"
 
 
 def point(name: str) -> g.Point:

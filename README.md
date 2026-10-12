@@ -131,7 +131,9 @@ each colour goes.
 - Holes are column then row: `21C` is column 21, row C.
 - Numbered circles are wires that leave the board.
 
-![The whole build](docs/breakout/overview.svg)
+The first drawing is a preview of the finished board. Build it in the five steps that follow.
+
+![Preview of the finished board](docs/breakout/overview.svg)
 
 #### 3.2.1 Resistors and diodes
 
@@ -168,7 +170,7 @@ Check: 8B, 9B, 10B and 16B, 17B, 18B don't beep to each other.
 
 ![Step 4](docs/breakout/step-4.svg)
 
-Three insulated wires under the board: two green ones to GND, from 10C and 18C, and an orange
+Three insulated wires under the board: two black ones to GND, from 10C and 18C, and an orange
 one from 16E to 19A that takes the gate on to the MOSFET. ④ and ⑤ go to the UPS
 HAT's old power switch pads and
 carry up to 1.5A: use thick wire. With the switch off, the ON pad reads battery voltage,
