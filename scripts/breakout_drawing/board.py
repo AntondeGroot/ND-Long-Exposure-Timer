@@ -17,7 +17,8 @@ GRID_NOTE = "#555"
 @dataclass(frozen=True)
 class Region:
     """A dashed outline: strips first_column..last_column down to last_row, and a narrower
-    top reaching up around the GPIO pads the region uses."""
+    top reaching up around the GPIO pads the region uses. When the last pad sits over the
+    last column, the two share one straight right edge, just clear of that column's strip."""
 
     title: str
     colour: str
@@ -41,6 +42,8 @@ def draw_region(canvas: Canvas, region: Region) -> None:
     x0, x1 = g.column_x(region.first_column) - 36, g.column_x(region.last_column) + 36
     top_x0, top_x1 = g.pad(region.first_pad)[0] - 27, g.pad(region.last_pad)[0] + 27
     y0, y_step, y1 = g.PAD_Y - 26, g.row_y("A") - 36, g.row_y(region.last_row) + 36
+    if top_x1 > g.column_x(region.last_column) - g.PITCH / 2:
+        top_x1 = x1 = g.column_x(region.last_column) + 17
     canvas.path(
         f"M {top_x0:.1f} {y0} H {top_x1:.1f} V {y_step:.1f} H {x1:.1f} V {y1:.1f} "
         f"H {x0:.1f} V {y_step:.1f} H {top_x0:.1f} Z",
