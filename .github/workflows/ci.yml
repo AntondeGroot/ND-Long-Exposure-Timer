@@ -42,6 +42,10 @@ jobs:
       # pairs) sit between `# fmt: off` and `# fmt: on` to keep their shape.
       - name: ruff format
         run: ruff format --check --diff .
+      # The import contracts in pyproject.toml: which part of nd_timer may lean on
+      # which, and that the logic never pulls in the Pi's hardware.
+      - name: import contracts
+        run: lint-imports
 
   tests:
     name: tests
