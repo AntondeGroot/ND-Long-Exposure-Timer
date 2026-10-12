@@ -21,14 +21,19 @@ git config core.hooksPath .githooks                       # once: the gates belo
 ./.venv/bin/ruff check .                # the same lint CI runs, zero tolerance
 ./.venv/bin/ruff format .               # CI fails on anything this would change
 ./.venv/bin/lint-imports                # the import contracts: which module may import which
+./.venv/bin/mutmut run && ./.venv/bin/mutmut export-cicd-stats \
+  && ./scripts/mutation-score.py        # would the tests notice a bug? about a minute
 ./scripts/render-screens.py             # after a deliberate UI change, then commit the images
 ```
 
-All four gates are what CI enforces, so a green run here is a green run there. The settings
+All five gates are what CI enforces, so a green run here is a green run there. The settings
 live in `pyproject.toml` rather than in the workflow for exactly that reason.
 
 The hooks in `.githooks/` run them for you: lint, formatting and the import contracts
 before each commit, the test suite before each push. `--no-verify` skips them once.
+
+When the mutation score drops, `./.venv/bin/mutmut browse` lists the mutants that
+survived: each one is a small change to the code that no test noticed.
 
 ### Trying it without the hardware
 

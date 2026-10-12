@@ -118,3 +118,16 @@ type = "forbidden"
 # drag the Pi's runtime loop into everything the package's own tests import.
 source_modules = ["nd_timer"]
 forbidden_modules = ["main", "scripts"]
+
+[tool.mutmut]
+source_paths = ["nd_timer"]
+# mutmut runs the suite from a copy of the repository in mutants/. The tests also
+# read main.py, the scripts, the golden images and .python-version, so those go too.
+also_copy = ["main.py", "scripts", "docs", "assets", ".python-version", "pytest.ini"]
+
+[tool.mutation]
+# Read by scripts/mutation-score.py, which CI runs after mutmut. TODO: raise towards
+# 80, the top of the 70-80% target in ChecklistForProjects. Pinned just below the
+# measured 77.8% so the gate is green today and can only ratchet upward. The most
+# survivors are in nd_timer/ui/display.py, nd_timer/camera.py and nd_timer/subjects.py.
+fail_under = 77

@@ -64,3 +64,24 @@ jobs:
       # so that running pytest locally gates exactly as CI does.
       - name: pytest
         run: pytest -q --cov
+
+  mutation:
+    name: mutation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      # Its own job, so a weak test shows as its own red cross rather than as a
+      # failed test run. A couple of minutes: every mutant is a run of the suite.
+      # The progress line redraws thousands of times, so only its end is kept.
+      - name: mutmut
+        run: mutmut run 2>&1 | tail -c 600
+      - name: mutation score
+        run: |
+          mutmut export-cicd-stats
+          python scripts/mutation-score.py
