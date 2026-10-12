@@ -1,0 +1,14 @@
+#!/bin/sh
+# The lint job from CI, before the commit exists rather than after the push.
+# Checks the whole tree, not only the staged files: a contract between modules
+# can break in a file nobody touched. Enabled per clone with
+#   git config core.hooksPath .githooks
+# and skipped for one commit with --no-verify.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+bin=.venv/bin
+[ -x "$bin/ruff" ] || { echo "pre-commit: no $bin/ruff - see docs/development.md" >&2; exit 1; }
+
+"$bin/ruff" check .
+"$bin/ruff" format --check .
+"$bin/lint-imports"

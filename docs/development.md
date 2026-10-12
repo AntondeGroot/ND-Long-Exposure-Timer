@@ -15,6 +15,7 @@ when you mean it.
 brew install python@3.13                                  # once
 $(brew --prefix python@3.13)/bin/python3.13 -m venv .venv
 ./.venv/bin/pip install -r requirements-dev.txt
+git config core.hooksPath .githooks                       # once: the gates below, before commit and push
 
 ./.venv/bin/python -m pytest -q --cov   # tests, golden images and the coverage floor
 ./.venv/bin/ruff check .                # the same lint CI runs, zero tolerance
@@ -25,6 +26,9 @@ $(brew --prefix python@3.13)/bin/python3.13 -m venv .venv
 
 All four gates are what CI enforces, so a green run here is a green run there. The settings
 live in `pyproject.toml` rather than in the workflow for exactly that reason.
+
+The hooks in `.githooks/` run them for you: lint, formatting and the import contracts
+before each commit, the test suite before each push. `--no-verify` skips them once.
 
 ### Trying it without the hardware
 
