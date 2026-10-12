@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1388" width="1510" height="1388" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="1388" fill="#ffffff"/>
-<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout Pi Zero - the whole build</text>
-<text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1682" width="1510" height="1682" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1682" fill="#ffffff"/>
+<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Preview: the finished board, built in 5 steps</text>
+<text x="40.0" y="100.0" font-size="21" fill="#c92a2a" text-anchor="start" font-weight="bold">Don't solder from this picture: follow steps 1 to 5 in order.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
 <circle cx="1372.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
@@ -431,13 +431,13 @@
 <circle cx="1046.6" cy="514.8" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
 <text x="1046.6" y="544.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#222" stroke-width="4" paint-order="stroke">E</text>
 <text x="991.8" y="502.8" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">BC337</text>
-<path d="M 608.2 569.6 L 635.6 591.6 L 635.6 762.0 L 1320.6 762.0 L 1320.6 624.4" fill="none" stroke="#2f9e44" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 608.2 569.6 L 635.6 591.6 L 635.6 762.0 L 1320.6 762.0 L 1320.6 624.4" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <text x="674.0" y="752.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">GND wires (under the board)</text>
-<path d="M 1046.6 569.6 L 1074.0 597.0 L 1293.2 597.0 L 1320.6 569.6" fill="none" stroke="#2f9e44" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 1046.6 569.6 L 1074.0 597.0 L 1293.2 597.0 L 1320.6 569.6" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <path d="M 937.0 679.2 L 1074.0 679.2 L 1074.0 460.0 L 1101.4 460.0" fill="none" stroke="#f76707" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <circle cx="115.0" cy="569.6" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
 <text x="115.0" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
-<circle cx="498.6" cy="569.6" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
+<circle cx="498.6" cy="569.6" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="498.6" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
 <circle cx="882.2" cy="514.8" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
 <text x="882.2" y="521.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
@@ -463,49 +463,60 @@
 <text x="1405.2" y="325.2" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
 <circle cx="1375.4" cy="460.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
 <text x="1375.4" y="466.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">Wires that leave the board</text>
-<circle cx="95.0" cy="967.0" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="973.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
-<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">1C  ->  button LED + (5V rail)</text>
-<circle cx="875.0" cy="967.0" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="973.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
-<text x="902.0" y="974.0" font-size="20" fill="#222" text-anchor="start">8C  ->  button LED -</text>
-<circle cx="95.0" cy="1009.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="1015.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
-<text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">15B  ->  power button switch, NO</text>
-<circle cx="875.0" cy="1009.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="1015.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
-<text x="902.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">24C  ->  power button switch, COM (GND)</text>
-<circle cx="95.0" cy="1051.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="1057.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
-<text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">20A  ->  UPS switch MIDDLE pin (boost in), thick wire</text>
-<circle cx="875.0" cy="1051.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="1057.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
-<text x="902.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">21A  ->  UPS switch ON pin (SYS, battery), thick wire</text>
-<circle cx="95.0" cy="1093.0" r="15" fill="#7048e8" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP12 pad  ->  five-way up (purple)</text>
-<circle cx="875.0" cy="1093.0" r="15" fill="#1c7ed6" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="1099.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-<text x="902.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">GP13 pad  ->  five-way down (blue)</text>
-<circle cx="95.0" cy="1135.0" r="15" fill="#0ca678" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="1141.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">GP16 pad  ->  five-way left (green)</text>
-<circle cx="875.0" cy="1135.0" r="15" fill="#f76707" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="1141.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
-<text x="902.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">GP20 pad  ->  five-way right (orange)</text>
-<circle cx="95.0" cy="1177.0" r="15" fill="#fcc419" stroke="#555" stroke-width="3"/>
-<text x="95.0" y="1183.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">11</text>
-<text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">GP19 pad  ->  five-way centre (yellow)</text>
-<circle cx="875.0" cy="1177.0" r="15" fill="#f8f9fa" stroke="#555" stroke-width="3"/>
-<text x="875.0" y="1183.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">12</text>
-<text x="902.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">GP26 pad  ->  SYNC (white)</text>
-<circle cx="95.0" cy="1219.0" r="15" fill="#e03131" stroke="#fff" stroke-width="3"/>
-<text x="95.0" y="1225.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
-<text x="122.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">GP21 pad  ->  SHOOT (red)</text>
-<circle cx="875.0" cy="1219.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
-<text x="875.0" y="1225.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
-<text x="902.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">24A  ->  GND: SYNC, SHOOT, five-way (black)</text>
-<text x="80.0" y="1278.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
-<text x="80.0" y="1310.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
+<text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">Built in these steps, each drawn on its own below</text>
+<circle cx="95.0" cy="967.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">Step 1: Resistors, diodes and the bridge</text>
+<circle cx="95.0" cy="1009.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">Step 2: The AO3401 on its adapter</text>
+<circle cx="95.0" cy="1051.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">Step 3: The two BC337s</text>
+<circle cx="95.0" cy="1093.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">Step 4: The wires under the board, and the wires that leave it</text>
+<circle cx="95.0" cy="1135.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">Step 5: The button wires: one half of the JST cable</text>
+<text x="80.0" y="1224.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">Wires that leave the board</text>
+<circle cx="95.0" cy="1261.0" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
+<text x="95.0" y="1267.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text x="122.0" y="1268.0" font-size="20" fill="#222" text-anchor="start">1C  ->  button LED + (5V rail)</text>
+<circle cx="875.0" cy="1261.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
+<text x="875.0" y="1267.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text x="902.0" y="1268.0" font-size="20" fill="#222" text-anchor="start">8C  ->  button LED - (black)</text>
+<circle cx="95.0" cy="1303.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
+<text x="95.0" y="1309.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text x="122.0" y="1310.0" font-size="20" fill="#222" text-anchor="start">15B  ->  power button switch, NO</text>
+<circle cx="875.0" cy="1303.0" r="15" fill="#6741d9" stroke="#fff" stroke-width="3"/>
+<text x="875.0" y="1309.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+<text x="902.0" y="1310.0" font-size="20" fill="#222" text-anchor="start">24C  ->  power button switch, COM (GND)</text>
+<circle cx="95.0" cy="1345.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
+<text x="95.0" y="1351.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text x="122.0" y="1352.0" font-size="20" fill="#222" text-anchor="start">20A  ->  UPS switch MIDDLE pin (boost in), thick wire</text>
+<circle cx="875.0" cy="1345.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
+<text x="875.0" y="1351.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<text x="902.0" y="1352.0" font-size="20" fill="#222" text-anchor="start">21A  ->  UPS switch ON pin (SYS, battery), thick wire</text>
+<circle cx="95.0" cy="1387.0" r="15" fill="#7048e8" stroke="#fff" stroke-width="3"/>
+<text x="95.0" y="1393.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
+<text x="122.0" y="1394.0" font-size="20" fill="#222" text-anchor="start">GP12 pad  ->  five-way up (purple)</text>
+<circle cx="875.0" cy="1387.0" r="15" fill="#1c7ed6" stroke="#fff" stroke-width="3"/>
+<text x="875.0" y="1393.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+<text x="902.0" y="1394.0" font-size="20" fill="#222" text-anchor="start">GP13 pad  ->  five-way down (blue)</text>
+<circle cx="95.0" cy="1429.0" r="15" fill="#0ca678" stroke="#fff" stroke-width="3"/>
+<text x="95.0" y="1435.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+<text x="122.0" y="1436.0" font-size="20" fill="#222" text-anchor="start">GP16 pad  ->  five-way left (green)</text>
+<circle cx="875.0" cy="1429.0" r="15" fill="#f76707" stroke="#fff" stroke-width="3"/>
+<text x="875.0" y="1435.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
+<text x="902.0" y="1436.0" font-size="20" fill="#222" text-anchor="start">GP20 pad  ->  five-way right (orange)</text>
+<circle cx="95.0" cy="1471.0" r="15" fill="#fcc419" stroke="#555" stroke-width="3"/>
+<text x="95.0" y="1477.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">11</text>
+<text x="122.0" y="1478.0" font-size="20" fill="#222" text-anchor="start">GP19 pad  ->  five-way centre (yellow)</text>
+<circle cx="875.0" cy="1471.0" r="15" fill="#f8f9fa" stroke="#555" stroke-width="3"/>
+<text x="875.0" y="1477.2" font-size="17" fill="#111" text-anchor="middle" font-weight="bold">12</text>
+<text x="902.0" y="1478.0" font-size="20" fill="#222" text-anchor="start">GP26 pad  ->  SYNC (white)</text>
+<circle cx="95.0" cy="1513.0" r="15" fill="#e03131" stroke="#fff" stroke-width="3"/>
+<text x="95.0" y="1519.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">13</text>
+<text x="122.0" y="1520.0" font-size="20" fill="#222" text-anchor="start">GP21 pad  ->  SHOOT (red)</text>
+<circle cx="875.0" cy="1513.0" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
+<text x="875.0" y="1519.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
+<text x="902.0" y="1520.0" font-size="20" fill="#222" text-anchor="start">24A  ->  GND: SYNC, SHOOT, five-way (black)</text>
+<text x="80.0" y="1572.0" font-size="19" fill="#444" text-anchor="start">Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.</text>
+<text x="80.0" y="1604.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
 </svg>
