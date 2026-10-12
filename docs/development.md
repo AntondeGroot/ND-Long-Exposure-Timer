@@ -19,10 +19,11 @@ $(brew --prefix python@3.13)/bin/python3.13 -m venv .venv
 ./.venv/bin/python -m pytest -q --cov   # tests, golden images and the coverage floor
 ./.venv/bin/ruff check .                # the same lint CI runs, zero tolerance
 ./.venv/bin/ruff format .               # CI fails on anything this would change
+./.venv/bin/lint-imports                # the import contracts: which module may import which
 ./scripts/render-screens.py             # after a deliberate UI change, then commit the images
 ```
 
-All three gates are what CI enforces, so a green run here is a green run there. The settings
+All four gates are what CI enforces, so a green run here is a green run there. The settings
 live in `pyproject.toml` rather than in the workflow for exactly that reason.
 
 ### Trying it without the hardware

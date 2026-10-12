@@ -1,4 +1,4 @@
-# Lint and coverage configuration. Test configuration stays in pytest.ini.
+# Lint, import-contract and coverage configuration. Test configuration stays in pytest.ini.
 #
 # There is no package to build here: the Pi runs main.py by path and imports
 # nd_timer from the repository root, so this file exists only to hold tool
@@ -62,3 +62,59 @@ exclude_also = [
     # the same code with the guard deleted.
     'if __name__ == "__main__":',
 ]
+
+[tool.importlinter]
+root_packages = ["nd_timer"]
+# Needed for the hardware contract: lgpio and spidev are only installed on the Pi, so
+# they appear as external names rather than as modules the graph could resolve.
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "The device sits on its domain, never the other way round"
+type = "layers"
+# Each layer may import the ones below it and none above. A `|` row holds siblings
+# that may not import each other either: the dial, the recipe and the filter bag
+# each stand on exposure alone.
+layers = [
+    "nd_timer.saved_settings",
+    "nd_timer.device",
+    "nd_timer.ui",
+    "nd_timer.recipe | nd_timer.dial | nd_timer.filter_bag | nd_timer.subjects | nd_timer.camera",
+    "nd_timer.exposure",
+]
+
+[[tool.importlinter.contracts]]
+name = "The screens draw; the drawing does not know the screens"
+type = "layers"
+containers = ["nd_timer.ui"]
+layers = [
+    "display | navigation",
+    "screens | settings | panel",
+    "render",
+    "layout",
+]
+
+[[tool.importlinter.contracts]]
+name = "The logic runs without the hardware"
+type = "forbidden"
+# What the simulator, the tests and CI run. Pulling the GPIO, SPI or battery code
+# into any of it would make it importable only on the Pi.
+source_modules = [
+    "nd_timer.saved_settings",
+    "nd_timer.device",
+    "nd_timer.ui",
+    "nd_timer.recipe",
+    "nd_timer.dial",
+    "nd_timer.filter_bag",
+    "nd_timer.subjects",
+    "nd_timer.exposure",
+]
+forbidden_modules = ["lgpio", "spidev", "nd_timer.fast_panel", "nd_timer.boot_splash", "nd_timer.battery"]
+
+[[tool.importlinter.contracts]]
+name = "The package never reaches back into the programs built on it"
+type = "forbidden"
+# main.py and the scripts import nd_timer. The reverse would be a cycle, and it would
+# drag the Pi's runtime loop into everything the package's own tests import.
+source_modules = ["nd_timer"]
+forbidden_modules = ["main", "scripts"]
