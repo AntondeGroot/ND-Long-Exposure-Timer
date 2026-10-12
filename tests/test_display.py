@@ -132,3 +132,12 @@ def test_each_list_screen_has_its_title_entries_and_carets():
     assert (screen.title, screen.left_right_change_values, screen.selected) == ("MODES", False, 1)
     assert (screen.entries[1].label, screen.entries[1].value) == ("BEACH WAVE", "2-5s")
     assert (screen.battery, screen.charging) == (55, True)
+
+
+def test_the_countdown_screen_carries_the_shot():
+    # Once the shutter is open the frame still says which scenario this is, that the
+    # camera is on bulb for a five-minute shot, and how the battery is doing.
+    device = Device(battery=48, charging=True, shot=Shot(total_seconds=300, started_at=0))
+    screen = screen_for(device, now=30)
+    assert (screen.mode, screen.is_bulb) == ("WAVES", True)
+    assert (screen.battery, screen.charging) == (48, True)
