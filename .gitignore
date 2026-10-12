@@ -220,3 +220,6 @@ __marimo__/
 
 # The simulator page, built by scripts/build-simulator-page.py
 _site/
+
+# mutmut works on a copy of the repository here
+mutants/

@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from nd_timer.recipe import recipe_for
+
 # Set this to run the suite on a different Python on purpose - checking whether
 # the code is ready for a version the Pi has not moved to yet, say. It has to be
 # a decision: the drift this guards against went unnoticed for months precisely
@@ -71,3 +73,14 @@ def pytest_configure(config: pytest.Config) -> None:
     """
     del config  # the hook's signature, not something we need
     _check_python_version()
+
+
+@pytest.fixture(autouse=True)
+def _an_empty_recipe_cache():
+    """Each test solves its own recipes rather than reading another test's answers.
+
+    recipe_for keeps the last answers it gave, which is right on the device and
+    wrong in a suite: a test would pass on a recipe some earlier test worked out,
+    and under mutation testing every mutant in the solver would survive on them.
+    """
+    recipe_for.cache_clear()
