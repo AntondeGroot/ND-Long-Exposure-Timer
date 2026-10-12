@@ -6,6 +6,7 @@ The numbers come from AB Electronics' mechanical drawing of the Breakout Pi Zero
 
 from __future__ import annotations
 
+UNITS_PER_MM = 21.45
 ORIGIN_X, ORIGIN_Y = -150, -90
 PITCH = 54.8  # 0.1 inch
 

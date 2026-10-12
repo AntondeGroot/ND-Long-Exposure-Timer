@@ -15,6 +15,16 @@ from .svg import Canvas
 LEG = "#9a9a9a"
 ADAPTER_LENGTH = 4.5  # holes, legs included
 GND_WIRE = "#212529"
+# Seen from above a part stood on end is a circle as wide as its body. These are the
+# parts in hand: 1/8W resistors, 3.5mm long and 1.8mm across, and BAT85s in DO-35 glass,
+# 3.8mm long and about 1.9mm across.
+# Stood up, both are about 5mm tall, which clears the e-paper display on the header above;
+# a 1W resistor (10x4mm) stood up does not.
+RESISTOR_DIAMETER = 1.8 * g.UNITS_PER_MM
+DIODE_DIAMETER = 1.9 * g.UNITS_PER_MM
+# A part lying flat is drawn slimmer than life: to scale it hides the holes around it,
+# and nothing stands next to it for its true width to matter.
+LYING_LENGTH, LYING_WIDTH = 50, 16
 
 
 def point(name: str) -> g.Point:
@@ -44,6 +54,33 @@ def _angle(a: g.Point, b: g.Point) -> float:
     return math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
 
 
+def _standing(canvas: Canvas, base: g.Point, top_leg_to: g.Point, diameter: float, fill: str, rim: str) -> None:
+    """A part stood on end over `base`, seen from above: its body, and the leg that comes
+    out of the top and bends over down into the other hole."""
+    canvas.circle(base, diameter / 2, fill, rim, 2)
+    canvas.line(base, top_leg_to, LEG, 4)
+    canvas.circle(base, 4, LEG)
+
+
+def _lying(canvas: Canvas, a: g.Point, b: g.Point, fill: str, rim: str, stripe_at_b: str | None = None) -> None:
+    """A part lying flat from `a` to `b`, seen from above: its legs and, halfway, its body -
+    with a stripe of that colour at the `b` end, for a diode's cathode."""
+    canvas.line(a, b, LEG, 4)
+    x, y = _midpoint(a, b)
+    length, width, stripe = LYING_LENGTH, LYING_WIDTH, LYING_LENGTH / 6
+    band = (
+        f'<rect x="{length / 2 - 2 * stripe:.1f}" y="{-width / 2:.1f}" width="{stripe:.1f}" '
+        f'height="{width}" fill="{stripe_at_b}"/>'
+        if stripe_at_b
+        else ""
+    )
+    canvas.add(
+        f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, b):.1f})">'
+        f'<rect x="{-length / 2:.1f}" y="{-width / 2:.1f}" width="{length}" height="{width}" '
+        f'rx="5" fill="{fill}" stroke="{rim}" stroke-width="2"/>{band}</g>'
+    )
+
+
 def badge(canvas: Canvas, centre: g.Point, number: int, colour: str, radius: float = 15) -> None:
     """A numbered circle; light fills (a white or yellow wire) get dark text and a dark rim."""
     size = 17 if radius >= 15 else 14
@@ -61,57 +98,57 @@ def _is_light(colour: str) -> bool:
 
 @dataclass(frozen=True)
 class Resistor:
-    """Stood up (hairpin), so a short span is fine: one leg straight in, the other bent over."""
+    """Stood up (hairpin) over leg_a, so a short span is fine: one leg straight in under the
+    body, the other bent over its top. Or lying flat, which needs its legs three holes apart."""
 
     value: str
     leg_a: str
     leg_b: str
     label_at: g.Point
+    lying: bool = False
 
     def pads(self) -> set[str]:
         return {leg for leg in (self.leg_a, self.leg_b) if leg in g.PADS}
 
     def draw(self, canvas: Canvas) -> None:
         a, b = point(self.leg_a), point(self.leg_b)
-        canvas.line(a, b, LEG, 4)
-        x, y = _midpoint(a, b)
-        canvas.add(
-            f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, b):.1f})">'
-            '<rect x="-21" y="-9" width="42" height="18" rx="8" fill="#e7cfa0" '
-            'stroke="#7a6440" stroke-width="2"/></g>'
-        )
+        if self.lying:
+            _lying(canvas, a, b, "#e7cfa0", "#7a6440")
+        else:
+            _standing(canvas, a, b, RESISTOR_DIAMETER, "#e7cfa0", "#7a6440")
         canvas.board_label(self.label_at, self.value)
 
     def describe(self) -> str:
-        return f"{self.value} resistor: {place(self.leg_a)} to {place(self.leg_b)}"
+        how = "lying flat" if self.lying else f"standing on {place(self.leg_a)}"
+        return f"{self.value} resistor: {place(self.leg_a)} to {place(self.leg_b)}, {how}"
 
 
 @dataclass(frozen=True)
 class Diode:
-    """A BAT85: the stripe is the cathode."""
+    """A BAT85, the stripe at its cathode. Stood up (hairpin) over its anode, so the stripe is
+    the end on top - or lying flat, which needs its legs three holes apart."""
 
     anode: str
     cathode: str
     label_at: g.Point
     role: str
+    lying: bool = False
 
     def pads(self) -> set[str]:
         return {leg for leg in (self.anode, self.cathode) if leg in g.PADS}
 
     def draw(self, canvas: Canvas) -> None:
         a, k = point(self.anode), point(self.cathode)
-        canvas.line(a, k, LEG, 4)
-        x, y = _midpoint(a, k)
-        canvas.add(
-            f'<g transform="translate({x:.1f},{y:.1f}) rotate({_angle(a, k):.1f})">'
-            '<rect x="-17" y="-8" width="34" height="16" rx="5" fill="#7a3b2e" '
-            'stroke="#3b1b14" stroke-width="2"/>'
-            '<rect x="7" y="-8" width="6" height="16" fill="#e6e6e6"/></g>'
-        )
+        if self.lying:
+            _lying(canvas, a, k, "#7a3b2e", "#3b1b14", stripe_at_b="#e6e6e6")
+        else:
+            _standing(canvas, a, k, DIODE_DIAMETER, "#7a3b2e", "#e6e6e6")
         canvas.board_label(self.label_at, "BAT85", 16)
 
     def describe(self) -> str:
-        return f"BAT85 ({self.role}): anode {place(self.anode)}, stripe {place(self.cathode)}"
+        anode = place(self.anode)
+        how = "lying flat" if self.lying else f"standing on {anode}"
+        return f"BAT85 ({self.role}): anode {anode}, stripe {place(self.cathode)}, {how}"
 
 
 @dataclass(frozen=True)

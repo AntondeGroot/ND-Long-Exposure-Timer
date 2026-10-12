@@ -22,8 +22,8 @@ SWITCH_WIRE = "#6741d9"
 POWER_WIRE = "#d6336c"
 
 REGIONS = [
-    Region("Region 1: button ring", RING, 8, 10, "C", "GP22", "GP22"),
-    Region("Region 2: soft latch", LATCH, 15, 21, "F", "GP5", "GP6"),
+    Region("Region 1: button ring", RING, 3, 9, "C", "GP22", "GP22"),
+    Region("Region 2: soft latch", LATCH, 13, 21, "F", "GP5", "GP6"),
 ]
 
 PAD_COLOURS = {"GP22": RING, "GP5": LATCH, "GP6": LATCH} | dict.fromkeys(
@@ -68,33 +68,39 @@ class Step:
 
 
 BETWEEN_C_AND_D = (g.row_y("C") + g.row_y("D")) / 2
+BETWEEN_E_AND_F = (g.row_y("E") + g.row_y("F")) / 2
 BELOW_ROW_F = g.ORIGIN_Y + 852
 
 # The MOSFET adapter is about 4.5 holes long: its legs go in row C and it lies flat over
 # rows D-F of its columns, so nothing else goes there - only wires under the board pass.
-# It sits right of the rest of the soft latch, which keeps the parts that reach up to the
-# GP5 and GP6 pads in columns 15-18. The gate is column 16, top and bottom, joined by a
+# It sits right of the rest of the soft latch, which keeps to columns 13-16, two columns
+# clear of the adapter and the 100k. The gate is column 14, top and bottom, joined by a
 # bridge, and a wire under the board takes it on to the gate leg in 19C.
 GATE_WIRE = "#f76707"
 STEPS = [
     Step(
         "Resistors, diodes and the bridge",
         (
-            Resistor("1k", "GP22", "9A", (g.column_x(9) + 30, LABEL_ROW_Y)),
-            Resistor("10k", "GP6", "17A", (g.column_x(18) + 4, LABEL_ROW_Y)),
-            Resistor("10k", "16F", "15F", (g.column_x(14) - 6, g.row_y("F") + 6)),
+            # Flat: GP22 to the ring transistor's base strip is about 13mm, too long a leg to
+            # bend over the top. The leg at the GP22 end passes close to the GP27 pad, so it
+            # gets a sleeve of heat-shrink.
+            Resistor("1k", "GP22", "4A", (g.column_x(6.5), LABEL_ROW_Y), lying=True),
+            # Flat, like the 1k: from the GP6 and GP5 pads to their strips is 9mm and 11mm.
+            Resistor("10k", "GP6", "15A", (g.column_x(16.6), LABEL_ROW_Y), lying=True),
+            Resistor("10k", "14F", "13F", (g.column_x(12) - 6, g.row_y("F") + 6)),
             Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16)),
-            Diode("GP5", "15A", (g.column_x(14) + 10, LABEL_ROW_Y), "sense"),
-            Diode("15D", "15C", (g.column_x(14), BETWEEN_C_AND_D + 6), "start"),
-            SolderBridge("16C", "16D"),
+            Diode("GP5", "13A", (g.column_x(13.6), LABEL_ROW_Y), "sense", lying=True),
+            # Flat along column 13, over 13C and 13D: one hole apart it could only stand.
+            Diode("13E", "13B", (g.column_x(11.7), BETWEEN_C_AND_D + 6), "start", lying=True),
+            SolderBridge("14C", "14D"),
         ),
     ),
     Step("The AO3401 on its adapter", (Mosfet("21C", "19C"),)),
     Step(
         "The two BC337s",
         (
-            Transistor("8B", "10B", "ring"),
-            Transistor("16B", "18B", "soft latch"),
+            Transistor("3B", "5B", "ring"),
+            Transistor("14B", "16B", "soft latch"),
         ),
     ),
     Step(
@@ -102,21 +108,21 @@ STEPS = [
         (
             Jumper(
                 (
-                    "10C",
-                    (g.column_x(10) + g.PITCH / 2, g.row_y("C") + 22),
-                    (g.column_x(10) + g.PITCH / 2, BELOW_ROW_F),
+                    "5C",
+                    (g.column_x(5) + g.PITCH / 2, g.row_y("C") + 22),
+                    (g.column_x(5) + g.PITCH / 2, BELOW_ROW_F),
                     (g.column_x(23), BELOW_ROW_F),
                     "23D",
                 ),
                 "the ring transistor's emitter",
-                (g.column_x(11.2), BELOW_ROW_F - 10),
+                (g.column_x(8.5), BELOW_ROW_F - 10),
                 label="GND wires (under the board)",
                 underneath=True,
             ),
             Jumper(
                 (
-                    "18C",
-                    (g.column_x(18) + g.PITCH / 2, BETWEEN_C_AND_D),
+                    "16C",
+                    (g.column_x(16) + g.PITCH / 2, BETWEEN_C_AND_D),
                     (g.column_x(22) + g.PITCH / 2, BETWEEN_C_AND_D),
                     "23C",
                 ),
@@ -124,15 +130,30 @@ STEPS = [
                 underneath=True,
             ),
             Jumper(
-                ("16E", (g.column_x(18.5), g.row_y("E")), (g.column_x(18.5), g.row_y("A")), "19A"),
+                ("14E", (g.column_x(18.5), g.row_y("E")), (g.column_x(18.5), g.row_y("A")), "19A"),
                 "the gate on to the MOSFET's gate leg",
                 net="Gate",
                 colour=GATE_WIRE,
                 underneath=True,
             ),
+            Jumper(
+                (
+                    "13C",
+                    (g.column_x(12) + g.PITCH / 2, g.row_y("C")),
+                    (g.column_x(12) + g.PITCH / 2, BETWEEN_E_AND_F),
+                    (g.column_x(3), BETWEEN_E_AND_F),
+                    "3F",
+                ),
+                "the power button's NO strip on to 3D",
+                net="Switch",
+                colour=SWITCH_WIRE,
+                underneath=True,
+            ),
+            # The power button's wires all leave from the left edge, next to each other, so
+            # they run straight off the board and clear of the parts when it is fitted.
             Wire(1, "1C", "button LED + (5V rail)", LED_WIRE),
-            Wire(2, "8C", "button LED -", LED_GROUND_WIRE, "black"),
-            Wire(3, "15B", "power button switch, NO", SWITCH_WIRE),
+            Wire(2, "3C", "button LED -", LED_GROUND_WIRE, "black"),
+            Wire(3, "3D", "power button switch, NO", SWITCH_WIRE),
             Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
             Wire(4, "20A", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),
             Wire(5, "21A", "UPS switch ON pin (SYS, battery), thick wire", POWER_WIRE),
@@ -148,7 +169,8 @@ STEPS = [
 ]
 
 NOTES = [
-    "Resistors and diodes stand up (hairpin); the GPIO ones have one leg in the pad itself. Diode stripe = cathode.",
+    "The parts from the GPIO pads and the start diode lie flat; the other two resistors stand up (hairpin). "
+    "Diode stripe = cathode.",
     "Transistors: flat face towards row F, so C-B-E reads left to right. "
     "MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.",
 ]

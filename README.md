@@ -49,7 +49,7 @@ those, it comes down to about €64.
 | BC337 NPN transistor (TO-92) | 2 |
 | AO3401 P-channel MOSFET (SOT-23) + SOT-23 to SIP3 adapter | 1 |
 | BAT85 Schottky diode | 2 |
-| Resistors: 1kΩ, 10kΩ, 10kΩ, 100kΩ | 4 |
+| Resistors, 1/8W (3.5x1.8mm; the 1W ones are too big to fit it on the board): 1kΩ, 10kΩ, 10kΩ, 100kΩ | 4 |
 | USB-C power-only socket | 1 |
 | Micro-USB solder plug, 5 pin (one for power, one for the camera) | 2 |
 | USB-A socket, 4 pin | 1 |
@@ -139,11 +139,23 @@ The first drawing is a preview of the finished board. Build it in the five steps
 
 ![Step 1](docs/breakout/step-1.svg)
 
-Stand them up. The GPIO legs go straight into the pads. Both diode stripes go in
-column 15: the one from GP5 in 15A, the upright one in 15C. Then, underneath, join 16C
-and 16D with a blob of solder or an offcut leg: that is the bridge.
+Use 1/8W resistors (about 3.5x1.8mm). Most parts lie flat. The three that start at a
+GPIO pad do, because their strips are too far away for a bent-over leg: the 1k from GP22
+to 4A (about 13mm), the 10k from GP6 to 15A and the BAT85 from GP5 to 13A. Put heat-shrink
+on the 1k's leg at the GP22 end, which passes close to the GP27 pad. The start diode lies
+along column 13 from 13E to 13B, over 13C and 13D. Both diode stripes go in column 13:
+13A and 13B.
 
-Check: 16C beeps to 16D.
+The other two resistors, the 10k from 14F to 13F and the 100k from 19B to 21B, are too
+close together to lie flat, so they stand up: the body goes over the hole the drawing
+puts its circle on, and the other leg bends over the top and down into its hole. Standing,
+they are about 5mm tall, which clears the e-paper display on the header above; a 1W
+resistor (10x4mm) stood up does not.
+
+Then, underneath, join 14C and 14D with a blob of solder or an offcut leg: that is the
+bridge.
+
+Check: 14C beeps to 14D.
 
 #### 3.2.2 MOSFET
 
@@ -164,19 +176,23 @@ Measure each BC337's pinout first; makers differ. On the diode range the base re
 0.7V to both other legs, and the emitter reads slightly higher than the collector.
 Flat face towards row F, round side towards the header: collector left, emitter right.
 
-Check: 8B, 9B, 10B and 16B, 17B, 18B don't beep to each other.
+Check: 3B, 4B, 5B and 14B, 15B, 16B don't beep to each other.
 
 #### 3.2.4 Wires
 
 ![Step 4](docs/breakout/step-4.svg)
 
-Three insulated wires under the board: two black ones to GND, from 10C and 18C, and an orange
-one from 16E to 19A that takes the gate on to the MOSFET. ④ and ⑤ go to the UPS
-HAT's old power switch pads and
+Four insulated wires under the board: two black ones to GND, from 5C and 16C; an orange
+one from 14E to 19A that takes the gate on to the MOSFET; and a purple one from 13C to 3F
+that brings the power button's switch strip over to ③. 13C sits under the start diode, so
+put that end in from underneath and solder it there. That puts ①, ② and ③ side by side at
+the left edge, so the power button's wires run straight off the board, clear of the parts,
+when you move it about while fitting it. ④ and ⑤ go to the UPS HAT's old power switch pads and
 carry up to 1.5A: use thick wire. With the switch off, the ON pad reads battery voltage,
 the middle pad 0V. Heat-shrink every joint.
 
-Check: 10C and 18C beep to GND; 16B beeps to 19C; ④ and ⑤ don't beep to each other.
+Check: 5C and 16C beep to GND; 14B beeps to 19C; 13C beeps to 3D; ④ and ⑤
+don't beep to each other.
 
 #### 3.2.5 Button wires
 
