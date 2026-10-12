@@ -1,0 +1,10 @@
+#!/bin/sh
+# The tests job from CI: the suite, the golden images and the coverage floor.
+# Too slow to want on every commit, cheap enough before a push. Skipped for
+# one push with --no-verify.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+bin=.venv/bin
+[ -x "$bin/python" ] || { echo "pre-push: no $bin/python - see docs/development.md" >&2; exit 1; }
+
+"$bin/python" -m pytest -q --cov
