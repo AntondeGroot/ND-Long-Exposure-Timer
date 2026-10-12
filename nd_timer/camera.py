@@ -12,7 +12,6 @@ So every operation is exactly one invocation, with its actions chained.
 from __future__ import annotations
 
 import subprocess
-import time
 from dataclasses import dataclass
 
 GPHOTO2 = "gphoto2"
@@ -127,11 +126,6 @@ class Camera:
         self._run = runner
         self._popen = popen
 
-    def is_connected(self) -> bool:
-        detected = self._capture(["--auto-detect"], timeout=20)
-        # The first two lines are the header and its underline.
-        return any(line.strip() for line in detected.splitlines()[2:])
-
     def read_metered_exposure(self) -> MeteredExposure:
         """What SYNC fetches: the camera's current settings, in one invocation.
 
@@ -173,7 +167,7 @@ class Camera:
             stderr=subprocess.PIPE,
             text=True,
         )
-        return RunningExposure(process, seconds)
+        return RunningExposure(process)
 
     def capture_timed(self, shutter_value: str, settings: CameraSettings | None = None) -> None:
         """Take a shot the camera times itself, for anything within its 30s limit.
@@ -221,33 +215,14 @@ def _first_error_line(output: str) -> str:
 
 
 class RunningExposure:
-    """A shutter that is currently open, and the clock the UI counts down from.
+    """A bulb exposure in progress: the gphoto2 process holding the shutter open.
 
-    The gphoto2 process blocks for the whole exposure, so it runs in the
-    background and this reports progress from our own clock. That is the honest
-    source anyway: the Pi is the timer on a bulb shot.
+    Only something to call off. The countdown is the device's own, worked out from
+    the shot it started, so nothing here keeps time.
     """
 
-    def __init__(self, process, total_seconds: float, clock=time.monotonic) -> None:
+    def __init__(self, process) -> None:
         self._process = process
-        self._clock = clock
-        self._started_at = clock()
-        self.total_seconds = total_seconds
-
-    @property
-    def elapsed_seconds(self) -> float:
-        return self._clock() - self._started_at
-
-    @property
-    def remaining_seconds(self) -> float:
-        return max(0.0, self.total_seconds - self.elapsed_seconds)
-
-    @property
-    def progress(self) -> float:
-        """How far through, from 0 to 1, for the progress bar."""
-        if self.total_seconds <= 0:
-            return 1.0
-        return min(1.0, self.elapsed_seconds / self.total_seconds)
 
     def is_running(self) -> bool:
         return self._process.poll() is None
@@ -256,12 +231,6 @@ class RunningExposure:
         """Abort the shot. Terminating gphoto2 closes the session and the shutter."""
         if self.is_running():
             self._process.terminate()
-
-    def wait(self) -> None:
-        """Block until the exposure finishes, raising if gphoto2 failed."""
-        _, stderr = self._process.communicate()
-        if self._process.returncode != 0:
-            raise CameraError(_first_error_line(stderr or ""))
 
 
 def _settings_arguments(settings: CameraSettings | None) -> list[str]:
