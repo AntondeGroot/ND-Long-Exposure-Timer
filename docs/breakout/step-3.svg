@@ -395,15 +395,14 @@
 <line x1="827.4" y1="734.0" x2="772.6" y2="734.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <circle cx="827.4" cy="734.0" r="4" fill="#9a9a9a" stroke="none" stroke-width="0"/>
 <text x="711.8" y="740.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
-<circle cx="1101.4" cy="514.8" r="19.305" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/>
 <line x1="1101.4" y1="514.8" x2="1211.0" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<circle cx="1101.4" cy="514.8" r="4" fill="#9a9a9a" stroke="none" stroke-width="0"/>
+<g transform="translate(1156.2,514.8) rotate(0.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
 <text x="1156.2" y="498.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100k</text>
 <line x1="966.8" y1="320.0" x2="772.6" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <g transform="translate(869.7,390.0) rotate(144.2)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
 <text x="805.5" y="440.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
-<line x1="772.6" y1="679.2" x2="772.6" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(772.6,597.0) rotate(-90.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
+<line x1="772.6" y1="679.2" x2="772.6" y2="569.6" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(772.6,624.4) rotate(-90.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
 <text x="701.4" y="603.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
 <rect x="816.4" y="569.6" width="22.0" height="54.8" fill="#c7c7c7" rx="10" stroke="#7d7d7d" stroke-width="2"/>
 <rect x="1077.4" y="542.2" width="157.6" height="246.6" fill="#2b5d9b" rx="4" stroke="#0f2e55" stroke-width="2" opacity="0.92"/>
@@ -438,6 +437,6 @@
 <text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">BC337 (ring): collector 3B, base 4B, emitter 5B</text>
 <circle cx="95.0" cy="1009.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">BC337 (soft latch): collector 14B, base 15B, emitter 16B</text>
-<text x="80.0" y="1068.0" font-size="19" fill="#444" text-anchor="start">The parts from the GPIO pads and the start diode lie flat; the other two resistors stand up (hairpin). Diode stripe = cathode.</text>
+<text x="80.0" y="1068.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). Diode stripe = cathode.</text>
 <text x="80.0" y="1100.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
 </svg>

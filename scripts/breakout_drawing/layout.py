@@ -88,10 +88,12 @@ STEPS = [
             # Flat, like the 1k: from the GP6 and GP5 pads to their strips is 9mm and 11mm.
             Resistor("10k", "GP6", "15A", (g.column_x(16.6), LABEL_ROW_Y), lying=True),
             Resistor("10k", "14F", "13F", (g.column_x(12) - 6, g.row_y("F") + 6)),
-            Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16)),
+            # Flat over column 20: two holes apart is just enough for a 3.5mm body.
+            Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16), lying=True),
             Diode("GP5", "13A", (g.column_x(13.6), LABEL_ROW_Y), "sense", lying=True),
-            # Flat along column 13, over 13C and 13D: one hole apart it could only stand.
-            Diode("13E", "13B", (g.column_x(11.7), BETWEEN_C_AND_D + 6), "start", lying=True),
+            # Flat along column 13 over 13D, its legs bent right at the body. That leaves 13B
+            # free on top for the switch wire.
+            Diode("13E", "13C", (g.column_x(11.7), BETWEEN_C_AND_D + 6), "start", lying=True),
             SolderBridge("14C", "14D"),
         ),
     ),
@@ -138,8 +140,8 @@ STEPS = [
             ),
             Jumper(
                 (
-                    "13C",
-                    (g.column_x(12) + g.PITCH / 2, g.row_y("C")),
+                    "13B",
+                    (g.column_x(12) + g.PITCH / 2, g.row_y("B")),
                     (g.column_x(12) + g.PITCH / 2, BETWEEN_E_AND_F),
                     (g.column_x(3), BETWEEN_E_AND_F),
                     "3F",
@@ -155,8 +157,8 @@ STEPS = [
             Wire(2, "3C", "button LED -", LED_GROUND_WIRE, "black"),
             Wire(3, "3D", "power button switch, NO", SWITCH_WIRE),
             Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
-            Wire(4, "20A", "UPS switch MIDDLE pin (boost in), thick wire", POWER_WIRE),
-            Wire(5, "21A", "UPS switch ON pin (SYS, battery), thick wire", POWER_WIRE),
+            Wire(4, "20A", "UPS switch MIDDLE pin (boost in)", POWER_WIRE),
+            Wire(5, "21A", "UPS switch ON pin (SYS, battery)", POWER_WIRE),
         ),
     ),
     Step(
@@ -169,7 +171,7 @@ STEPS = [
 ]
 
 NOTES = [
-    "The parts from the GPIO pads and the start diode lie flat; the other two resistors stand up (hairpin). "
+    "Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). "
     "Diode stripe = cathode.",
     "Transistors: flat face towards row F, so C-B-E reads left to right. "
     "MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.",

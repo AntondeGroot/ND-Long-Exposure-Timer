@@ -1,6 +1,7 @@
-# The gate for every pull request. Two jobs rather than one so a red cross says
-# which gate failed without opening the log, and so both can be required
-# separately in the repository ruleset.
+# The gate for every pull request. A job per gate, so a red cross says which gate
+# failed without opening the log; the last job, `ci passed`, waits for all of them,
+# and is the one check the repository ruleset requires. A gate added here then only
+# needs adding to its `needs`, never to the ruleset.
 name: CI
 
 on:
@@ -85,3 +86,21 @@ jobs:
         run: |
           mutmut export-cicd-stats
           python scripts/mutation-score.py
+
+  # The one required check. `always()` makes it run even when a gate failed or was
+  # cancelled - otherwise it would be skipped, and a skipped required check counts
+  # as passed. It passes only when every gate it waits for succeeded.
+  ci-passed:
+    name: ci
+    if: always()
+    needs: [lint, tests, mutation]
+    runs-on: ubuntu-latest
+    steps:
+      - name: every gate passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "gates: $RESULTS"
+          for result in $RESULTS; do
+            [ "$result" = success ] || exit 1
+          done

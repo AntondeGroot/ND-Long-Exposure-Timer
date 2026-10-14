@@ -395,15 +395,14 @@
 <line x1="827.4" y1="734.0" x2="772.6" y2="734.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <circle cx="827.4" cy="734.0" r="4" fill="#9a9a9a" stroke="none" stroke-width="0"/>
 <text x="711.8" y="740.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
-<circle cx="1101.4" cy="514.8" r="19.305" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/>
 <line x1="1101.4" y1="514.8" x2="1211.0" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<circle cx="1101.4" cy="514.8" r="4" fill="#9a9a9a" stroke="none" stroke-width="0"/>
+<g transform="translate(1156.2,514.8) rotate(0.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
 <text x="1156.2" y="498.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100k</text>
 <line x1="966.8" y1="320.0" x2="772.6" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <g transform="translate(869.7,390.0) rotate(144.2)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
 <text x="805.5" y="440.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
-<line x1="772.6" y1="679.2" x2="772.6" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(772.6,597.0) rotate(-90.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
+<line x1="772.6" y1="679.2" x2="772.6" y2="569.6" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(772.6,624.4) rotate(-90.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
 <text x="701.4" y="603.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
 <rect x="816.4" y="569.6" width="22.0" height="54.8" fill="#c7c7c7" rx="10" stroke="#7d7d7d" stroke-width="2"/>
 <rect x="1077.4" y="542.2" width="157.6" height="246.6" fill="#2b5d9b" rx="4" stroke="#0f2e55" stroke-width="2" opacity="0.92"/>
@@ -437,7 +436,7 @@
 <text x="526.0" y="752.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">GND wires (under the board)</text>
 <path d="M 937.0 569.6 L 964.4 597.0 L 1293.2 597.0 L 1320.6 569.6" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <path d="M 827.4 679.2 L 1074.0 679.2 L 1074.0 460.0 L 1101.4 460.0" fill="none" stroke="#f76707" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
-<path d="M 772.6 569.6 L 745.2 569.6 L 745.2 706.6 L 224.6 706.6 L 224.6 734.0" fill="none" stroke="#6741d9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 772.6 514.8 L 745.2 514.8 L 745.2 706.6 L 224.6 706.6 L 224.6 734.0" fill="none" stroke="#6741d9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <circle cx="115.0" cy="569.6" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
 <text x="115.0" y="575.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
 <circle cx="224.6" cy="569.6" r="15" fill="#212529" stroke="#fff" stroke-width="3"/>
@@ -458,7 +457,7 @@
 <circle cx="95.0" cy="1051.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">Gate wire under the board: 14E to 19A, the gate on to the MOSFET's gate leg</text>
 <circle cx="95.0" cy="1093.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">Switch wire under the board: 13C to 3F, the power button's NO strip on to 3D</text>
+<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">Switch wire under the board: 13B to 3F, the power button's NO strip on to 3D</text>
 <circle cx="95.0" cy="1135.0" r="15" fill="#c92a2a" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1141.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
 <text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">1C  ->  button LED + (5V rail)</text>
@@ -473,10 +472,10 @@
 <text x="122.0" y="1268.0" font-size="20" fill="#222" text-anchor="start">24C  ->  power button switch, COM (GND)</text>
 <circle cx="95.0" cy="1303.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1309.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
-<text x="122.0" y="1310.0" font-size="20" fill="#222" text-anchor="start">20A  ->  UPS switch MIDDLE pin (boost in), thick wire</text>
+<text x="122.0" y="1310.0" font-size="20" fill="#222" text-anchor="start">20A  ->  UPS switch MIDDLE pin (boost in)</text>
 <circle cx="95.0" cy="1345.0" r="15" fill="#d6336c" stroke="#fff" stroke-width="3"/>
 <text x="95.0" y="1351.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
-<text x="122.0" y="1352.0" font-size="20" fill="#222" text-anchor="start">21A  ->  UPS switch ON pin (SYS, battery), thick wire</text>
-<text x="80.0" y="1404.0" font-size="19" fill="#444" text-anchor="start">The parts from the GPIO pads and the start diode lie flat; the other two resistors stand up (hairpin). Diode stripe = cathode.</text>
+<text x="122.0" y="1352.0" font-size="20" fill="#222" text-anchor="start">21A  ->  UPS switch ON pin (SYS, battery)</text>
+<text x="80.0" y="1404.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). Diode stripe = cathode.</text>
 <text x="80.0" y="1436.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
 </svg>
