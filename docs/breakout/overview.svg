@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1682" width="1510" height="1682" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="1682" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1714" width="1510" height="1714" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1714" fill="#ffffff"/>
 <text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Preview: the finished board, built in 5 steps</text>
 <text x="40.0" y="100.0" font-size="21" fill="#c92a2a" text-anchor="start" font-weight="bold">Don't solder from this picture: follow steps 1 to 5 in order.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
@@ -520,5 +520,6 @@
 <text x="875.0" y="1519.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">14</text>
 <text x="902.0" y="1520.0" font-size="20" fill="#222" text-anchor="start">24A  ->  GND: SYNC, SHOOT, five-way (black)</text>
 <text x="80.0" y="1572.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). Diode stripe = cathode.</text>
-<text x="80.0" y="1604.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
+<text x="80.0" y="1604.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
+<text x="80.0" y="1636.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>

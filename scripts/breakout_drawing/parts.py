@@ -238,7 +238,7 @@ class Mosfet:
 
     def describe(self) -> str:
         drain = _middle_hole(self.source, self.gate)
-        return f"AO3401 on its adapter: source {self.source}, drain {drain}, gate {self.gate}"
+        return f"AO3401 on its adapter, on a 1x3 header: source {self.source}, drain {drain}, gate {self.gate}"
 
 
 @dataclass(frozen=True)

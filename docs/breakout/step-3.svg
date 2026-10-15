@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1178" width="1510" height="1178" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="1178" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1210" width="1510" height="1210" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1210" fill="#ffffff"/>
 <text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 3 of 5: The two BC337s</text>
 <text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
@@ -438,5 +438,6 @@
 <circle cx="95.0" cy="1009.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">BC337 (soft latch): collector 14B, base 15B, emitter 16B</text>
 <text x="80.0" y="1068.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). Diode stripe = cathode.</text>
-<text x="80.0" y="1100.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
+<text x="80.0" y="1100.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
+<text x="80.0" y="1132.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>

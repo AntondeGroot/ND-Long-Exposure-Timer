@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1514" width="1510" height="1514" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="1514" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1546" width="1510" height="1546" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1546" fill="#ffffff"/>
 <text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 4 of 5: The wires under the board, and the wires that leave it</text>
 <text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
@@ -477,5 +477,6 @@
 <text x="95.0" y="1351.2" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
 <text x="122.0" y="1352.0" font-size="20" fill="#222" text-anchor="start">21A  ->  UPS switch ON pin (SYS, battery)</text>
 <text x="80.0" y="1404.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). Diode stripe = cathode.</text>
-<text x="80.0" y="1436.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right. MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.</text>
+<text x="80.0" y="1436.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
+<text x="80.0" y="1468.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>
