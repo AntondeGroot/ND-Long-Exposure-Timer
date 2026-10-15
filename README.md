@@ -48,6 +48,7 @@ those, it comes down to about €64.
 | 12x12mm momentary tactile button (TLYCRQJXF), for SYNC and SHOOT | 2 |
 | BC337 NPN transistor (TO-92) | 2 |
 | AO3401 P-channel MOSFET (SOT-23) + SOT-23 to SIP3 adapter | 1 |
+| Pin header, 1x3, straight, 2.54mm (to stand the adapter on) | 1 |
 | BAT85 Schottky diode | 2 |
 | Resistors, 1/8W (3.5x1.8mm; the 1W ones are too big to fit it on the board): 1kΩ, 10kΩ, 10kΩ, 100kΩ | 4 |
 | USB-C power-only socket | 1 |
@@ -97,7 +98,7 @@ Acrylic sheet\
 
 </details>
 
-Tools: soldering iron, multimeter, 3D printer.
+Tools: soldering iron, multimeter, fine-tipped tweezers (for the AO3401), 3D printer.
 
 ## 2. Print
 
@@ -162,10 +163,14 @@ Check: 14C beeps to 14D.
 
 ![Step 2](docs/breakout/step-2.svg)
 
-Solder the AO3401 onto the adapter with its pin 1 at the dot. The adapter's legs read
-2-3-1, which is source, drain, gate. The leg marked `1` goes in 19C, so the drain lands
-in 20C and the source in 21C. The adapter is about 4.5 holes long: it lies flat over rows
-D-F of columns 19-21, which is why nothing else goes there.
+The AO3401 is too small to hold with your fingers. Pick it up with tweezers, place it on
+the adapter with its pin 1 at the dot, and keep it pressed down with the tweezers while
+you solder the first pin; that one joint then holds it for the other two. The adapter goes
+onto the board on a straight 1x3 pin header: header into 19C-21C, adapter on top of it,
+parallel to the board, reaching out over rows D-F of columns 19-21, which is why nothing
+else goes there. Its holes read 2-3-1, which is source, drain, gate. The hole marked `1`
+goes over 19C, so the drain lands in 20C and the source in 21C. On the header it sits
+about 5mm high, as tall as the standing 10k.
 
 Check: 19C, 20C and 21C don't beep to each other.
 

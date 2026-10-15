@@ -71,8 +71,9 @@ BETWEEN_C_AND_D = (g.row_y("C") + g.row_y("D")) / 2
 BETWEEN_E_AND_F = (g.row_y("E") + g.row_y("F")) / 2
 BELOW_ROW_F = g.ORIGIN_Y + 852
 
-# The MOSFET adapter is about 4.5 holes long: its legs go in row C and it lies flat over
-# rows D-F of its columns, so nothing else goes there - only wires under the board pass.
+# The MOSFET adapter is about 4.5 holes long: it stands on a 1x3 header in row C and lies
+# parallel over rows D-F of its columns, so nothing else goes there - only wires under the
+# board pass.
 # It sits right of the rest of the soft latch, which keeps to columns 13-16, two columns
 # clear of the adapter and the 100k. The gate is column 14, top and bottom, joined by a
 # bridge, and a wire under the board takes it on to the gate leg in 19C.
@@ -173,6 +174,6 @@ STEPS = [
 NOTES = [
     "Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). "
     "Diode stripe = cathode.",
-    "Transistors: flat face towards row F, so C-B-E reads left to right. "
-    "MOSFET adapter: legs 2-3-1 are source, drain, gate; leg 1 in 19C. It lies flat over rows D-F.",
+    "Transistors: flat face towards row F, so C-B-E reads left to right.",
+    "MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.",
 ]
