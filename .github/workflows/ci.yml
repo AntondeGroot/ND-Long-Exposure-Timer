@@ -32,7 +32,12 @@ jobs:
           python-version-file: .python-version
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - run: pip install -r requirements-dev.txt
+      # Wheels only: a dependency with no wheel for this Python fails here with
+      # "No matching distribution" instead of quietly building from source on
+      # every run. That is also what holds back a Renovate Python bump until
+      # the wheels exist. A block scalar, because YAML reads the ": " as a key.
+      - run: |
+          pip install --only-binary=:all: -r requirements-dev.txt
       # --output-format=github puts each violation on the diff as an annotation
       # rather than only in the log. No --exit-zero anywhere: a warning is a
       # failure, which is the whole point of a zero-warning policy.
@@ -60,7 +65,8 @@ jobs:
           python-version-file: .python-version
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - run: pip install -r requirements-dev.txt
+      - run: |
+          pip install --only-binary=:all: -r requirements-dev.txt
       # Coverage settings, including the fail_under floor, live in pyproject.toml
       # so that running pytest locally gates exactly as CI does.
       - name: pytest
@@ -76,7 +82,8 @@ jobs:
           python-version-file: .python-version
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - run: pip install -r requirements-dev.txt
+      - run: |
+          pip install --only-binary=:all: -r requirements-dev.txt
       # Its own job, so a weak test shows as its own red cross rather than as a
       # failed test run. A couple of minutes: every mutant is a run of the suite.
       # The progress line redraws thousands of times, so only its end is kept.
