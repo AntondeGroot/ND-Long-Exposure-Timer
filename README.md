@@ -141,18 +141,17 @@ The first drawing is a preview of the finished board. Build it in the five steps
 
 ![Step 1](docs/breakout/step-1.svg)
 
-Use 1/8W resistors (about 3.5x1.8mm). Most parts lie flat. The three that start at a
-GPIO pad do, because their strips are too far away for a bent-over leg: the 1k from GP22
+Use 1/8W resistors (about 3.5x1.8mm). Every part lies flat. The three that start at a
+GPIO pad have to anyway, because their strips are too far away for a bent-over leg: the 1k from GP22
 to 4A (about 13mm), the 10k from GP6 to 15A and the BAT85 from GP5 to 13A. Put heat-shrink
 on the 1k's leg at the GP22 end, which passes close to the GP27 pad. The start diode lies
-along column 13 from 13E to 13C, over 13D, with its legs bent right at the body. Both
-diode stripes go in column 13: 13A and 13C.
+diagonally from 12E to 13C, with its legs bent right at the body. Both diode stripes go
+in column 13: 13A and 13C.
 
 The 100k lies flat too, from 19B to 21B over column 20: two holes apart is just enough
-for its body. Only the 10k from 14F to 13F, one hole apart, stands up: the body goes over
-14F, where the drawing puts its circle, and the other leg bends over the top and down into
-13F. Standing, it is about 5mm tall, which clears the e-paper display on the header above;
-a 1W resistor (10x4mm) stood up does not.
+for its body. The 10k from 12F to 14F lies flat the same way, over 13F. Nothing in columns
+9-16 of rows D-F may stand up: the e-paper HAT's connector hangs over them and leaves 4mm,
+and a 1/8W resistor stood up is about 5mm tall.
 
 Then, underneath, join 14C and 14D with a blob of solder or an offcut leg: that is the
 bridge.
@@ -170,7 +169,7 @@ onto the board on a straight 1x3 pin header: header into 19C-21C, adapter on top
 parallel to the board, reaching out over rows D-F of columns 19-21, which is why nothing
 else goes there. Its holes read 2-3-1, which is source, drain, gate. The hole marked `1`
 goes over 19C, so the drain lands in 20C and the source in 21C. On the header it sits
-about 5mm high, as tall as the standing 10k.
+about 5mm high, clear of the display's connector, which ends at column 16.
 
 Check: 19C, 20C and 21C don't beep to each other.
 
