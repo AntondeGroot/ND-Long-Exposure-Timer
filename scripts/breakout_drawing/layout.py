@@ -23,7 +23,7 @@ POWER_WIRE = "#d6336c"
 
 REGIONS = [
     Region("Region 1: button ring", RING, 3, 9, "C", "GP22", "GP22"),
-    Region("Region 2: soft latch", LATCH, 13, 21, "F", "GP5", "GP6"),
+    Region("Region 2: soft latch", LATCH, 12, 21, "F", "GP5", "GP6"),
 ]
 
 PAD_COLOURS = {"GP22": RING, "GP5": LATCH, "GP6": LATCH} | dict.fromkeys(
@@ -74,7 +74,7 @@ BELOW_ROW_F = g.ORIGIN_Y + 852
 # The MOSFET adapter is about 4.5 holes long: it stands on a 1x3 header in row C and lies
 # parallel over rows D-F of its columns, so nothing else goes there - only wires under the
 # board pass.
-# It sits right of the rest of the soft latch, which keeps to columns 13-16, two columns
+# It sits right of the rest of the soft latch, which keeps to columns 12-16, two columns
 # clear of the adapter and the 100k. The gate is column 14, top and bottom, joined by a
 # bridge, and a wire under the board takes it on to the gate leg in 19C.
 GATE_WIRE = "#f76707"
@@ -88,13 +88,16 @@ STEPS = [
             Resistor("1k", "GP22", "4A", (g.column_x(6.5), LABEL_ROW_Y), lying=True),
             # Flat, like the 1k: from the GP6 and GP5 pads to their strips is 9mm and 11mm.
             Resistor("10k", "GP6", "15A", (g.column_x(16.6), LABEL_ROW_Y), lying=True),
-            Resistor("10k", "14F", "13F", (g.column_x(12) - 6, g.row_y("F") + 6)),
+            # Flat from the gate strip to column 12, the junction with the start diode.
+            # Standing it would be 5mm tall, and columns 9-16 of rows D-F sit under the
+            # e-paper HAT's connector, which leaves 4mm.
+            Resistor("10k", "12F", "14F", (g.column_x(13), g.row_y("F") - 16), lying=True),
             # Flat over column 20: two holes apart is just enough for a 3.5mm body.
             Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16), lying=True),
             Diode("GP5", "13A", (g.column_x(13.6), LABEL_ROW_Y), "sense", lying=True),
-            # Flat along column 13 over 13D, its legs bent right at the body. That leaves 13B
-            # free on top for the switch wire.
-            Diode("13E", "13C", (g.column_x(11.7), BETWEEN_C_AND_D + 6), "start", lying=True),
+            # Flat and diagonal from the junction in column 12 to the switch strip, its legs
+            # bent right at the body. That leaves 13B free on top for the switch wire.
+            Diode("12E", "13C", (g.column_x(11.3), BETWEEN_C_AND_D + 6), "start", lying=True),
             SolderBridge("14C", "14D"),
         ),
     ),
@@ -172,8 +175,8 @@ STEPS = [
 ]
 
 NOTES = [
-    "Every resistor and diode lies flat except the 10k from 14F to 13F, which stands up (hairpin). "
-    "Diode stripe = cathode.",
+    "Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's "
+    "connector, 4mm up. Diode stripe = cathode.",
     "Transistors: flat face towards row F, so C-B-E reads left to right.",
     "MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.",
 ]

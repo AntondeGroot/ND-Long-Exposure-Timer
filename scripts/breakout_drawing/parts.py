@@ -18,8 +18,8 @@ GND_WIRE = "#212529"
 # Seen from above a part stood on end is a circle as wide as its body. These are the
 # parts in hand: 1/8W resistors, 3.5mm long and 1.8mm across, and BAT85s in DO-35 glass,
 # 3.8mm long and about 1.9mm across.
-# Stood up, both are about 5mm tall, which clears the e-paper display on the header above;
-# a 1W resistor (10x4mm) stood up does not.
+# Stood up, both are about 5mm tall: clear of the e-paper display on the header above, but
+# not of its connector, which hangs down to 4mm over columns 9-16 of rows D-F.
 RESISTOR_DIAMETER = 1.8 * g.UNITS_PER_MM
 DIODE_DIAMETER = 1.9 * g.UNITS_PER_MM
 # A part lying flat is drawn slimmer than life: to scale it hides the holes around it,
