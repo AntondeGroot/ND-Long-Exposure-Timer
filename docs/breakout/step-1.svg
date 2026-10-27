@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1420" width="1510" height="1420" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="1420" fill="#ffffff"/>
-<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 1 of 5: Resistors, diodes and the bridge</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1336" width="1510" height="1336" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1336" fill="#ffffff"/>
+<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 1 of 6: The wires under the board, and the bridge</text>
 <text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
@@ -112,9 +112,9 @@
 <circle cx="473.6" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="473.6" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(480.6,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP27</text>
-<circle cx="528.4" cy="320.0" r="16" fill="#d9b04a" stroke="#e8590c" stroke-width="6"/>
+<circle cx="528.4" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="528.4" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(535.4,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#e8590c">GP22</text>
+<text transform="translate(535.4,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP22</text>
 <circle cx="583.2" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="583.2" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(590.2,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP23</text>
@@ -136,12 +136,12 @@
 <circle cx="912.0" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="912.0" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(919.0,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP25</text>
-<circle cx="966.8" cy="320.0" r="16" fill="#d9b04a" stroke="#0b3a8c" stroke-width="6"/>
+<circle cx="966.8" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="966.8" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(973.8,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#0b3a8c">GP5</text>
-<circle cx="1021.6" cy="320.0" r="16" fill="#d9b04a" stroke="#0b3a8c" stroke-width="6"/>
+<text transform="translate(973.8,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP5</text>
+<circle cx="1021.6" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="1021.6" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
-<text transform="translate(1028.6,350) rotate(-90)" text-anchor="end" font-size="20" font-weight="bold" fill="#0b3a8c">GP6</text>
+<text transform="translate(1028.6,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP6</text>
 <circle cx="1076.4" cy="320.0" r="16" fill="#d9b04a" stroke="none" stroke-width="0"/>
 <circle cx="1076.4" cy="320.0" r="7" fill="#1b1b1b" stroke="none" stroke-width="0"/>
 <text transform="translate(1083.4,350) rotate(-90)" text-anchor="end" font-size="20" fill="#e9f3ee">GP12</text>
@@ -386,41 +386,24 @@
 <text x="964.4" y="865.0" font-size="24" fill="#0b3a8c" text-anchor="middle" font-weight="bold">Region 2: soft latch</text>
 <g opacity="0.3">
 </g>
-<line x1="528.4" y1="320.0" x2="279.4" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(403.9,390.0) rotate(150.7)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="416.4" y="440.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">1k</text>
-<line x1="1021.6" y1="320.0" x2="882.2" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(951.9,390.0) rotate(134.9)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="969.9" y="440.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
-<line x1="717.8" y1="734.0" x2="827.4" y2="734.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(772.6,734.0) rotate(0.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="772.6" y="718.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10k</text>
-<line x1="1101.4" y1="514.8" x2="1211.0" y2="514.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(1156.2,514.8) rotate(0.0)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#e7cfa0" stroke="#7a6440" stroke-width="2"/></g>
-<text x="1156.2" y="498.8" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100k</text>
-<line x1="966.8" y1="320.0" x2="772.6" y2="460.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(869.7,390.0) rotate(144.2)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
-<text x="805.5" y="440.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
-<line x1="717.8" y1="679.2" x2="772.6" y2="569.6" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
-<g transform="translate(745.2,624.4) rotate(-63.4)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
-<text x="679.4" y="603.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
+<path d="M 334.2 569.6 L 361.6 569.6 L 361.6 412.0 L 1320.6 412.0 L 1320.6 460.0" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<text x="635.6" y="439.0" font-size="17" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">GND wires (under the board)</text>
+<path d="M 937.0 569.6 L 964.4 597.0 L 1293.2 597.0 L 1320.6 569.6" fill="none" stroke="#212529" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 827.4 679.2 L 854.8 679.2 L 854.8 460.0 L 1101.4 460.0" fill="none" stroke="#f76707" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
+<path d="M 772.6 514.8 L 745.2 514.8 L 745.2 706.6 L 224.6 706.6 L 224.6 734.0" fill="none" stroke="#6741d9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <rect x="816.4" y="569.6" width="22.0" height="54.8" fill="#c7c7c7" rx="10" stroke="#7d7d7d" stroke-width="2"/>
 <text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">This step</text>
 <circle cx="95.0" cy="967.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">1k resistor: GP22 pad to 4A, lying flat</text>
+<text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">GND wire under the board: 5C to 23A, the ring transistor's emitter</text>
 <circle cx="95.0" cy="1009.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">10k resistor: GP6 pad to 15A, lying flat</text>
+<text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">GND wire under the board: 16C to 23C, the soft latch transistor's emitter</text>
 <circle cx="95.0" cy="1051.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">10k resistor: 12F to 14F, lying flat</text>
+<text x="122.0" y="1058.0" font-size="20" fill="#222" text-anchor="start">Gate wire under the board: 14E to 19A, the gate on to the MOSFET's gate leg</text>
 <circle cx="95.0" cy="1093.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">100k resistor: 19B to 21B, lying flat</text>
+<text x="122.0" y="1100.0" font-size="20" fill="#222" text-anchor="start">Switch wire under the board: 13B to 3F, the power button's NO strip on to 3D</text>
 <circle cx="95.0" cy="1135.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">BAT85 (sense): anode GP5 pad, stripe 13A, lying flat</text>
-<circle cx="95.0" cy="1177.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">BAT85 (start): anode 12E, stripe 13C, lying flat</text>
-<circle cx="95.0" cy="1219.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">bridge: 14C to 14D on the underside, joining the gate's two strips</text>
-<text x="80.0" y="1278.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
-<text x="80.0" y="1310.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
-<text x="80.0" y="1342.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
+<text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">bridge: 14C to 14D on the underside, joining the gate's two strips</text>
+<text x="80.0" y="1194.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
+<text x="80.0" y="1226.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
+<text x="80.0" y="1258.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>

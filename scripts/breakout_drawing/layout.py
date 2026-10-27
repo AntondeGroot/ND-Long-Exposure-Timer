@@ -1,8 +1,9 @@
 """The build: every part, the hole it goes in, and the step it is soldered in.
 
-This is the one place to change the layout. Low parts go on first so the board still
-lies flat for the next ones; the wires come last, when nothing else needs the iron
-near them.
+This is the one place to change the layout. The wires under the board go on first,
+while there is room to route them and nothing else gives the meter a second path when
+checking them. Then the low parts, so the board still lies flat for the next ones, and
+the wires that leave the board last, so they don't hang in the way.
 """
 
 from __future__ import annotations
@@ -69,7 +70,7 @@ class Step:
 
 BETWEEN_C_AND_D = (g.row_y("C") + g.row_y("D")) / 2
 BETWEEN_E_AND_F = (g.row_y("E") + g.row_y("F")) / 2
-BELOW_ROW_F = g.ORIGIN_Y + 852
+ABOVE_ROW_A = g.row_y("A") - 48  # below the pad names, clear of the regions' outlines
 
 # The MOSFET adapter is about 4.5 holes long: it stands on a 1x3 header in row C and lies
 # parallel over rows D-F of its columns, so nothing else goes there - only wires under the
@@ -80,48 +81,20 @@ BELOW_ROW_F = g.ORIGIN_Y + 852
 GATE_WIRE = "#f76707"
 STEPS = [
     Step(
-        "Resistors, diodes and the bridge",
+        "The wires under the board, and the bridge",
         (
-            # Flat: GP22 to the ring transistor's base strip is about 13mm, too long a leg to
-            # bend over the top. The leg at the GP22 end passes close to the GP27 pad, so it
-            # gets a sleeve of heat-shrink.
-            Resistor("1k", "GP22", "4A", (g.column_x(6.5), LABEL_ROW_Y), lying=True),
-            # Flat, like the 1k: from the GP6 and GP5 pads to their strips is 9mm and 11mm.
-            Resistor("10k", "GP6", "15A", (g.column_x(16.6), LABEL_ROW_Y), lying=True),
-            # Flat from the gate strip to column 12, the junction with the start diode.
-            # Standing it would be 5mm tall, and columns 9-16 of rows D-F sit under the
-            # e-paper HAT's connector, which leaves 4mm.
-            Resistor("10k", "12F", "14F", (g.column_x(13), g.row_y("F") - 16), lying=True),
-            # Flat over column 20: two holes apart is just enough for a 3.5mm body.
-            Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16), lying=True),
-            Diode("GP5", "13A", (g.column_x(13.6), LABEL_ROW_Y), "sense", lying=True),
-            # Flat and diagonal from the junction in column 12 to the switch strip, its legs
-            # bent right at the body. That leaves 13B free on top for the switch wire.
-            Diode("12E", "13C", (g.column_x(11.3), BETWEEN_C_AND_D + 6), "start", lying=True),
-            SolderBridge("14C", "14D"),
-        ),
-    ),
-    Step("The AO3401 on its adapter", (Mosfet("21C", "19C"),)),
-    Step(
-        "The two BC337s",
-        (
-            Transistor("3B", "5B", "ring"),
-            Transistor("14B", "16B", "soft latch"),
-        ),
-    ),
-    Step(
-        "The wires under the board, and the wires that leave it",
-        (
+            # Above row A, so it crosses none of the others: the gate wire runs along row A
+            # itself, below it.
             Jumper(
                 (
                     "5C",
-                    (g.column_x(5) + g.PITCH / 2, g.row_y("C") + 22),
-                    (g.column_x(5) + g.PITCH / 2, BELOW_ROW_F),
-                    (g.column_x(23), BELOW_ROW_F),
-                    "23D",
+                    (g.column_x(5) + g.PITCH / 2, g.row_y("C")),
+                    (g.column_x(5) + g.PITCH / 2, ABOVE_ROW_A),
+                    (g.column_x(23), ABOVE_ROW_A),
+                    "23A",
                 ),
                 "the ring transistor's emitter",
-                (g.column_x(8.5), BELOW_ROW_F - 10),
+                (g.column_x(10.5), ABOVE_ROW_A + 27),
                 label="GND wires (under the board)",
                 underneath=True,
             ),
@@ -136,7 +109,7 @@ STEPS = [
                 underneath=True,
             ),
             Jumper(
-                ("14E", (g.column_x(18.5), g.row_y("E")), (g.column_x(18.5), g.row_y("A")), "19A"),
+                ("14E", (g.column_x(14.5), g.row_y("E")), (g.column_x(14.5), g.row_y("A")), "19A"),
                 "the gate on to the MOSFET's gate leg",
                 net="Gate",
                 colour=GATE_WIRE,
@@ -155,6 +128,41 @@ STEPS = [
                 colour=SWITCH_WIRE,
                 underneath=True,
             ),
+            SolderBridge("14C", "14D"),
+        ),
+    ),
+    Step(
+        "Resistors and diodes",
+        (
+            # Flat: GP22 to the ring transistor's base strip is about 13mm, too long a leg to
+            # bend over the top. The leg at the GP22 end passes close to the GP27 pad, so it
+            # gets a sleeve of heat-shrink.
+            Resistor("1k", "GP22", "4A", (g.column_x(6.5), LABEL_ROW_Y), lying=True),
+            # Flat, like the 1k: from the GP6 and GP5 pads to their strips is 9mm and 11mm.
+            Resistor("10k", "GP6", "15A", (g.column_x(16.6), LABEL_ROW_Y), lying=True),
+            # Flat from the gate strip to column 12, the junction with the start diode.
+            # Standing it would be 5mm tall, and columns 9-16 of rows D-F sit under the
+            # e-paper HAT's connector, which leaves 4mm.
+            Resistor("10k", "12F", "14F", (g.column_x(13), g.row_y("F") - 16), lying=True),
+            # Flat over column 20: two holes apart is just enough for a 3.5mm body.
+            Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16), lying=True),
+            Diode("GP5", "13A", (g.column_x(13.6), LABEL_ROW_Y), "sense", lying=True),
+            # Flat and diagonal from the junction in column 12 to the switch strip, its legs
+            # bent right at the body. That leaves 13B free on top for the switch wire.
+            Diode("12E", "13C", (g.column_x(11.3), BETWEEN_C_AND_D + 6), "start", lying=True),
+        ),
+    ),
+    Step("The AO3401 on its adapter", (Mosfet("21C", "19C"),)),
+    Step(
+        "The two BC337s",
+        (
+            Transistor("3B", "5B", "ring"),
+            Transistor("14B", "16B", "soft latch"),
+        ),
+    ),
+    Step(
+        "The wires that leave the board",
+        (
             # The power button's wires all leave from the left edge, next to each other, so
             # they run straight off the board and clear of the parts when it is fitted.
             Wire(1, "1C", "button LED + (5V rail)", LED_WIRE),
