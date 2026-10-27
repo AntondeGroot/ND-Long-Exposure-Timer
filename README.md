@@ -133,13 +133,34 @@ each colour goes.
 - Holes are column then row: `21C` is column 21, row C.
 - Numbered circles are wires that leave the board.
 
-The first drawing is a preview of the finished board. Build it in the five steps that follow.
+The first drawing is a preview of the finished board. Build it in the six steps that follow.
 
 ![Preview of the finished board](docs/breakout/overview.svg)
 
-#### 3.2.1 Resistors and diodes
+#### 3.2.1 Wires under the board
 
 ![Step 1](docs/breakout/step-1.svg)
+
+These go on first, while there is room to route them and before any part gives the meter
+a second path. Every wire on this board is 24AWG: thin enough that its stripped end goes
+through a hole, so it can be soldered on the other side. Four run under the board: two
+black ones to GND, from 5C to 23A and from 16C to 23C; an orange one from 14E to 19A that
+takes the gate on to the MOSFET; and a purple one from 13B to 3F that brings the power
+button's switch strip over to ③. Route them as drawn, so none of them cross: the long
+black one goes up past row A and along between row A and the GPIO pads, and the orange one
+goes straight up to row A and along it to 19A. Solder from the side away from the free holes, so no solder runs into a hole a
+leg still needs; if one fills anyway, heat it and push the leg through, or clear it with
+wick.
+
+Then, underneath, join 14C and 14D with a blob of solder or an offcut of wire: that is the
+bridge.
+
+Check: 5C and 16C beep to GND; 14B beeps to 19C; 13B beeps to 3D; 14C beeps to 14D.
+Also check each wire's strips don't beep to the strips next to them.
+
+#### 3.2.2 Resistors and diodes
+
+![Step 2](docs/breakout/step-2.svg)
 
 Use 1/8W resistors (about 3.5x1.8mm). Every part lies flat. The three that start at a
 GPIO pad have to anyway, because their strips are too far away for a bent-over leg: the 1k from GP22
@@ -153,14 +174,9 @@ for its body. The 10k from 12F to 14F lies flat the same way, over 13F. Nothing 
 9-16 of rows D-F may stand up: the e-paper HAT's connector hangs over them and leaves 4mm,
 and a 1/8W resistor stood up is about 5mm tall.
 
-Then, underneath, join 14C and 14D with a blob of solder or an offcut leg: that is the
-bridge.
+#### 3.2.3 MOSFET
 
-Check: 14C beeps to 14D.
-
-#### 3.2.2 MOSFET
-
-![Step 2](docs/breakout/step-2.svg)
+![Step 3](docs/breakout/step-3.svg)
 
 The AO3401 is too small to hold with your fingers. Pick it up with tweezers, place it on
 the adapter with its pin 1 at the dot, and keep it pressed down with the tweezers while
@@ -173,9 +189,9 @@ about 5mm high, clear of the display's connector, which ends at column 16.
 
 Check: 19C, 20C and 21C don't beep to each other.
 
-#### 3.2.3 Transistors
+#### 3.2.4 Transistors
 
-![Step 3](docs/breakout/step-3.svg)
+![Step 4](docs/breakout/step-4.svg)
 
 Measure each BC337's pinout first; makers differ. On the diode range the base reads about
 0.7V to both other legs, and the emitter reads slightly higher than the collector.
@@ -183,26 +199,22 @@ Flat face towards row F, round side towards the header: collector left, emitter 
 
 Check: 3B, 4B, 5B and 14B, 15B, 16B don't beep to each other.
 
-#### 3.2.4 Wires
-
-![Step 4](docs/breakout/step-4.svg)
-
-Every wire here is 24AWG: thin enough that its stripped end goes through a hole, so it can
-be soldered on the other side. Four run under the board: two black ones to GND, from 5C
-and 16C; an orange one from 14E to 19A that takes the gate on to the MOSFET; and a purple
-one from 13B to 3F that brings the power button's switch strip over to ③. That puts ①, ②
-and ③ side by side at the left edge, so the power button's wires run straight off the
-board, clear of the parts, when you move it about while fitting it. ④ and ⑤ go to the UPS
-HAT's old power switch pads and carry up to 1.5A, which 24AWG handles easily over a few
-centimetres. With the switch off, the ON pad reads battery voltage, the middle pad 0V.
-Heat-shrink every joint.
-
-Check: 5C and 16C beep to GND; 14B beeps to 19C; 13B beeps to 3D; ④ and ⑤
-don't beep to each other.
-
-#### 3.2.5 Button wires
+#### 3.2.5 Wires that leave the board
 
 ![Step 5](docs/breakout/step-5.svg)
+
+These go on last, so they don't hang in the way while you turn the board over. ①, ② and
+③ sit side by side at the left edge, thanks to the purple wire from step 1, so the power
+button's wires run straight off the board, clear of the parts, when you move it about
+while fitting it. ④ and ⑤ go to the UPS HAT's old power switch pads and carry up to 1.5A,
+which 24AWG handles easily over a few centimetres. With the switch off, the ON pad reads
+battery voltage, the middle pad 0V. Heat-shrink every joint.
+
+Check: ④ and ⑤ don't beep to each other.
+
+#### 3.2.6 Button wires
+
+![Step 6](docs/breakout/step-6.svg)
 
 The male half of the JST cable (3.1): purple into the leftmost pad, through red into the
 rightmost, and black into ⑭ for the buttons' ground.
@@ -210,7 +222,7 @@ rightmost, and black into ⑭ for the buttons' ground.
 Check: once the buttons are on (3.5), each pad beeps to GND only while its button is
 pressed.
 
-#### 3.2.6 Header
+#### 3.2.7 Header
 
 ![The header](docs/breakout/header.svg)
 
