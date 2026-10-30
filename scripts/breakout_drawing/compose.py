@@ -1,20 +1,28 @@
 """Pages: the overview with every step, and one page per step.
 
 A step page shows the steps before it faded - already on the board - its own parts at
-full strength, and nothing that comes later.
+full strength, and nothing that comes later. A step that puts parts under the board
+shows them a second time, from underneath.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterable
+from dataclasses import replace
 
+from . import geometry as g
 from .board import draw_board, draw_region
 from .layout import NOTES, PAD_COLOURS, REGIONS, STEPS
-from .parts import Part, Wire, badge
+from .parts import Jumper, Part, SolderBridge, Wire, badge
 from .svg import Canvas
 
 WIDTH = 1510
 LEGEND_TOP = 930
+UNDERSIDE_HEIGHT = 860
+UNDERSIDE_BOARD_GAP = 90  # from the underside view's heading down to the board
+UNDERSIDE_NOTE = (
+    "Turned over left to right: the header still at the top, column 1 now on the right. The wires show solid here."
+)
 LINE_HEIGHT = 42
 NOTE_HEIGHT = 32
 DONE_OPACITY = 0.3
@@ -51,6 +59,7 @@ def step_page(number: int) -> str:
         current=list(step.parts),
         legend_title="This step",
         legend=list(step.parts),
+        underside=[part for part in step.parts if _under_the_board(part)],
     )
 
 
@@ -62,22 +71,42 @@ def _page(
     legend: list[Part],
     subtitle: tuple[str, str] = (STRIPS, "#444"),
     steps: list[str] | None = None,
+    underside: list[Part] | None = None,
 ) -> str:
-    steps = steps or []
+    steps, underside = steps or [], underside or []
     in_two_columns = all(isinstance(part, Wire) for part in legend)
+    below_board = LEGEND_TOP + (UNDERSIDE_HEIGHT if underside else 0)
     steps_height = (len(steps) + 2) * LINE_HEIGHT if steps else 0
     legend_height = 60 + _legend_lines(legend, in_two_columns) * LINE_HEIGHT + len(NOTES) * NOTE_HEIGHT + 40
-    canvas = Canvas(WIDTH, LEGEND_TOP + steps_height + legend_height)
+    canvas = Canvas(WIDTH, below_board + steps_height + legend_height)
     _draw_title(canvas, title, subtitle)
-    draw_board(canvas, _highlighted_pads([*done, *current]))
+    pads = _highlighted_pads([*done, *current])
+    draw_board(canvas, pads)
     for region in REGIONS:
         draw_region(canvas, region)
     with canvas.faded(DONE_OPACITY):
         _draw_parts(canvas, done)
     _draw_parts(canvas, current)
-    _draw_steps(canvas, steps)
-    _draw_legend(canvas, legend_title, legend, in_two_columns, top=LEGEND_TOP + steps_height)
+    _draw_underside(canvas, underside, pads)
+    _draw_steps(canvas, steps, top=below_board)
+    _draw_legend(canvas, legend_title, legend, in_two_columns, top=below_board + steps_height)
     return canvas.svg()
+
+
+def _under_the_board(part: Part) -> bool:
+    return isinstance(part, SolderBridge) or (isinstance(part, Jumper) and part.underneath)
+
+
+def _draw_underside(canvas: Canvas, parts: list[Part], pads: dict[str, str]) -> None:
+    """The board turned over, with the parts under it: what you see while soldering them."""
+    if not parts:
+        return
+    canvas.text((40, LEGEND_TOP + 10), "The same step, seen from underneath", 30, bold=True)
+    canvas.text((40, LEGEND_TOP + 46), UNDERSIDE_NOTE, 21, "#444")
+    with canvas.mirrored(g.BOARD_X + g.BOARD_WIDTH / 2, LEGEND_TOP + UNDERSIDE_BOARD_GAP - g.BOARD_Y):
+        draw_board(canvas, pads)
+        # From underneath the wires are in plain sight, so they are drawn solid.
+        _draw_parts(canvas, [replace(part, underneath=False) if isinstance(part, Jumper) else part for part in parts])
 
 
 def _draw_title(canvas: Canvas, title: str, subtitle: tuple[str, str]) -> None:
@@ -86,13 +115,13 @@ def _draw_title(canvas: Canvas, title: str, subtitle: tuple[str, str]) -> None:
     canvas.text((40, 100), text, 21, colour, bold=colour == WARNING)
 
 
-def _draw_steps(canvas: Canvas, steps: list[str]) -> None:
+def _draw_steps(canvas: Canvas, steps: list[str], top: float) -> None:
     """The steps the overview is built in, each with its own drawing further down."""
     if not steps:
         return
-    canvas.text((80, LEGEND_TOP), "Built in these steps, each drawn on its own below", 22, bold=True)
+    canvas.text((80, top), "Built in these steps, each drawn on its own below", 22, bold=True)
     for i, step in enumerate(steps):
-        y = LEGEND_TOP + 44 + i * LINE_HEIGHT
+        y = top + 44 + i * LINE_HEIGHT
         canvas.circle((95, y - 7), 6, BULLET)
         canvas.text((122, y), step, 20, "#222")
 
