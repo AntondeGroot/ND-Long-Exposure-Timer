@@ -80,11 +80,7 @@ def _draw_pads(canvas: Canvas, highlighted: dict[str, str]) -> None:
         else:
             canvas.circle(centre, 16, COPPER)
         canvas.circle(centre, 7, DRILL)
-        weight = ' font-weight="bold"' if colour else ""
-        canvas.add(
-            f'<text transform="translate({centre[0] + 7:.1f},{g.PAD_Y + 30}) rotate(-90)" '
-            f'text-anchor="end" font-size="20"{weight} fill="{colour or SILKSCREEN}">{name}</text>'
-        )
+        canvas.upward_text((centre[0], g.PAD_Y + 30), name, 20, colour or SILKSCREEN, bold=bool(colour))
 
 
 def _draw_rails_and_strips(canvas: Canvas) -> None:

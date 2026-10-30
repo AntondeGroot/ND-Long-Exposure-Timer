@@ -15,9 +15,20 @@ class Canvas:
         self.width = width
         self.height = height
         self._elements: list[str] = []
+        self._mirrored = False
 
     def add(self, element: str) -> None:
         self._elements.append(element)
+
+    @contextmanager
+    def mirrored(self, axis_x: float, shift_y: float):
+        """Everything drawn inside is flipped left to right about `axis_x` and moved down by
+        `shift_y`: the board seen from underneath. Text is flipped back, so it still reads."""
+        self.add(f'<g transform="translate({2 * axis_x:.1f} {shift_y:.1f}) scale(-1 1)">')
+        self._mirrored = True
+        yield
+        self._mirrored = False
+        self.add("</g>")
 
     @contextmanager
     def faded(self, opacity: float):
@@ -60,9 +71,24 @@ class Canvas:
         """Text, optionally outlined in `halo` so it reads over holes and strips."""
         weight = ' font-weight="bold"' if bold else ""
         outline = f' stroke="{halo}" stroke-width="4" paint-order="stroke"' if halo else ""
+        where = f'x="{at[0]:.1f}" y="{at[1]:.1f}"'
+        if self._mirrored:
+            where = f'x="0" y="0" transform="translate({at[0]:.1f} {at[1]:.1f}) scale(-1 1)"'
         self.add(
-            f'<text x="{at[0]:.1f}" y="{at[1]:.1f}" font-size="{size}" fill="{colour}" '
-            f'text-anchor="{anchor}"{weight}{outline}>{content}</text>'
+            f'<text {where} font-size="{size}" fill="{colour}" text-anchor="{anchor}"{weight}{outline}>{content}</text>'
+        )
+
+    def upward_text(self, at: Point, content: str, size: float, colour: str, bold: bool = False) -> None:
+        """Text reading bottom to top and ending at `at`, centred across it."""
+        weight = ' font-weight="bold"' if bold else ""
+        across = size * 0.35  # from the baseline to the middle of the letters
+        x, y = at
+        place = f"translate({x + across:.1f},{y:g})"
+        if self._mirrored:
+            place = f"translate({x:.1f},{y:g}) scale(-1,1) translate({across:g},0)"
+        self.add(
+            f'<text transform="{place} rotate(-90)" text-anchor="end" font-size="{size}"{weight} '
+            f'fill="{colour}">{content}</text>'
         )
 
     def board_label(self, at: Point, content: str, size: float = 17) -> None:
