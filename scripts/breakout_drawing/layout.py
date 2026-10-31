@@ -66,6 +66,7 @@ FIRST_BUTTON_WIRE = 7
 class Step:
     title: str
     parts: tuple[Part, ...]
+    legend: bool = True  # the list of its parts and the notes under the drawing
 
 
 BETWEEN_C_AND_D = (g.row_y("C") + g.row_y("D")) / 2
@@ -130,6 +131,8 @@ STEPS = [
             ),
             SolderBridge("14C", "14D"),
         ),
+        # The underside view and the README already say all of it.
+        legend=False,
     ),
     Step(
         "Resistors and diodes",
