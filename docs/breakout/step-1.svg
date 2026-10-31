@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 2196" width="1510" height="2196" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="2196" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1790" width="1510" height="1790" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1790" fill="#ffffff"/>
 <text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 1 of 6: The wires under the board, and the bridge</text>
-<text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is.</text>
+<text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
 <circle cx="1372.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
@@ -393,7 +393,7 @@
 <path d="M 772.6 514.8 L 745.2 514.8 L 745.2 706.6 L 224.6 706.6 L 224.6 734.0" fill="none" stroke="#6741d9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 9"/>
 <rect x="816.4" y="569.6" width="22.0" height="54.8" fill="#c7c7c7" rx="10" stroke="#7d7d7d" stroke-width="2"/>
 <text x="40.0" y="940.0" font-size="30" fill="#111" text-anchor="start" font-weight="bold">The same step, seen from underneath</text>
-<text x="40.0" y="976.0" font-size="21" fill="#444" text-anchor="start">Turned over left to right: the header still at the top, column 1 now on the right. The wires show solid here.</text>
+<text x="40.0" y="976.0" font-size="21" fill="#444" text-anchor="start">Turned over: the wires show solid here.</text>
 <g transform="translate(1490.0 878.0) scale(-1 1)">
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
@@ -780,18 +780,4 @@
 <path d="M 772.6 514.8 L 745.2 514.8 L 745.2 706.6 L 224.6 706.6 L 224.6 734.0" fill="none" stroke="#6741d9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="816.4" y="569.6" width="22.0" height="54.8" fill="#c7c7c7" rx="10" stroke="#7d7d7d" stroke-width="2"/>
 </g>
-<text x="80.0" y="1790.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">This step</text>
-<circle cx="95.0" cy="1827.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1834.0" font-size="20" fill="#222" text-anchor="start">GND wire under the board: 5C to 23A, the ring transistor's emitter</text>
-<circle cx="95.0" cy="1869.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1876.0" font-size="20" fill="#222" text-anchor="start">GND wire under the board: 16C to 23C, the soft latch transistor's emitter</text>
-<circle cx="95.0" cy="1911.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1918.0" font-size="20" fill="#222" text-anchor="start">Gate wire under the board: 14E to 19A, the gate on to the MOSFET's gate leg</text>
-<circle cx="95.0" cy="1953.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="1960.0" font-size="20" fill="#222" text-anchor="start">Switch wire under the board: 13B to 3F, the power button's NO strip on to 3D</text>
-<circle cx="95.0" cy="1995.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
-<text x="122.0" y="2002.0" font-size="20" fill="#222" text-anchor="start">bridge: 14C to 14D on the underside, joining the gate's two strips</text>
-<text x="80.0" y="2054.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
-<text x="80.0" y="2086.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
-<text x="80.0" y="2118.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>

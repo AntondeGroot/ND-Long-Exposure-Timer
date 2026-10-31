@@ -58,7 +58,7 @@ those, it comes down to about €64.
 | 1/4" hot shoe mount | 1 |
 | JST connector with 8 wires | 1 |
 | Clear acrylic sheet, 1mm thick, at least 55x30mm | 1 |
-| Insulated hookup wire, 24AWG, for the breakout board's wires | ~1m |
+| Solid-core insulated hookup wire, 20AWG, for the breakout board's wires and bridge | ~1m |
 
 Five-way button\
 <img width="160" alt="five-way button" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
@@ -98,7 +98,7 @@ Acrylic sheet\
 
 </details>
 
-Tools: soldering iron, multimeter, fine-tipped tweezers (for the AO3401), 3D printer.
+Tools: soldering iron, multimeter, fine-tipped tweezers (for the AO3401), round nose pliers, 3D printer.
 
 ## 2. Print
 
@@ -141,22 +141,13 @@ The first drawing is a preview of the finished board. Build it in the six steps 
 
 ![Step 1](docs/breakout/step-1.svg)
 
-These go on first, while there is room to route them and before any part gives the meter
-a second path. Every wire on this board is 24AWG: thin enough that its stripped end goes
-through a hole, so it can be soldered on the other side. Four run under the board: two
-black ones to GND, from 5C to 23A and from 16C to 23C; an orange one from 14E to 19A that
-takes the gate on to the MOSFET; and a purple one from 13B to 3F that brings the power
-button's switch strip over to ③. Route them as drawn, so none of them cross: the long
-black one goes up past row A and along between row A and the GPIO pads, and the orange one
-goes straight up to row A and along it to 19A. Solder from the side away from the free holes, so no solder runs into a hole a
-leg still needs; if one fills anyway, heat it and push the leg through, or clear it with
-wick.
+These wires go on first, use 20AWG solid-core wire. Bend the wires first and use a piece of solid core for the bridge. Do not solder them immediately on.
 
-Then, underneath, join 14C and 14D with a blob of solder or an offcut of wire: that is the
-bridge.
-
-Check: 5C and 16C beep to GND; 14B beeps to 19C; 13B beeps to 3D; 14C beeps to 14D.
-Also check each wire's strips don't beep to the strips next to them.
+1. Strip the end of a wire, then bend it to shape with round nose pliers. Before you bend the last section, first strip the end and then bend it. Otherwise stripping it might be more difficult.
+2. Bend the bridge the same way, and fit all of them before soldering any.
+3. Solder the bridge and the orange wire's end at 14E together. 14D and 14E share a strip,
+   so if solder fills the holes there, it does no harm: both are already in.
+4. Solder the rest.
 
 #### 3.2.2 Resistors and diodes
 
@@ -207,7 +198,7 @@ These go on last, so they don't hang in the way while you turn the board over. �
 ③ sit side by side at the left edge, thanks to the purple wire from step 1, so the power
 button's wires run straight off the board, clear of the parts, when you move it about
 while fitting it. ④ and ⑤ go to the UPS HAT's old power switch pads and carry up to 1.5A,
-which 24AWG handles easily over a few centimetres. With the switch off, the ON pad reads
+which 20AWG handles easily over a few centimetres. With the switch off, the ON pad reads
 battery voltage, the middle pad 0V. Heat-shrink every joint.
 
 Check: ④ and ⑤ don't beep to each other.

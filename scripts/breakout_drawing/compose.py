@@ -20,15 +20,13 @@ WIDTH = 1510
 LEGEND_TOP = 930
 UNDERSIDE_HEIGHT = 860
 UNDERSIDE_BOARD_GAP = 90  # from the underside view's heading down to the board
-UNDERSIDE_NOTE = (
-    "Turned over left to right: the header still at the top, column 1 now on the right. The wires show solid here."
-)
+UNDERSIDE_NOTE = "Turned over: the wires show solid here."
 LINE_HEIGHT = 42
 NOTE_HEIGHT = 32
 DONE_OPACITY = 0.3
 BULLET = "#555"
 WARNING = "#c92a2a"
-STRIPS = "Top view, header at the top. Strips: rows A-C and D-F of each column are joined; nothing else is."
+STRIPS = "Top view, header at the top."
 
 
 def overview() -> str:
@@ -58,7 +56,7 @@ def step_page(number: int) -> str:
         done=done,
         current=list(step.parts),
         legend_title="This step",
-        legend=list(step.parts),
+        legend=list(step.parts) if step.legend else [],
         underside=[part for part in step.parts if _under_the_board(part)],
     )
 
@@ -77,8 +75,7 @@ def _page(
     in_two_columns = all(isinstance(part, Wire) for part in legend)
     below_board = LEGEND_TOP + (UNDERSIDE_HEIGHT if underside else 0)
     steps_height = (len(steps) + 2) * LINE_HEIGHT if steps else 0
-    legend_height = 60 + _legend_lines(legend, in_two_columns) * LINE_HEIGHT + len(NOTES) * NOTE_HEIGHT + 40
-    canvas = Canvas(WIDTH, below_board + steps_height + legend_height)
+    canvas = Canvas(WIDTH, below_board + steps_height + _legend_height(legend, in_two_columns))
     _draw_title(canvas, title, subtitle)
     pads = _highlighted_pads([*done, *current])
     draw_board(canvas, pads)
@@ -135,12 +132,20 @@ def _draw_parts(canvas: Canvas, parts: Iterable[Part]) -> None:
         part.draw(canvas)
 
 
+def _legend_height(parts: list[Part], in_two_columns: bool) -> float:
+    if not parts:
+        return 0
+    return 60 + _legend_lines(parts, in_two_columns) * LINE_HEIGHT + len(NOTES) * NOTE_HEIGHT + 40
+
+
 def _legend_lines(parts: list[Part], in_two_columns: bool) -> int:
     """Wires are short enough to list two to a line; parts get a line each."""
     return (len(parts) + 1) // 2 if in_two_columns else len(parts)
 
 
 def _draw_legend(canvas: Canvas, title: str, parts: list[Part], in_two_columns: bool, top: float) -> None:
+    if not parts:
+        return
     canvas.text((80, top), title, 22, bold=True)
     for i, part in enumerate(parts):
         column, line = (i % 2, i // 2) if in_two_columns else (0, i)
