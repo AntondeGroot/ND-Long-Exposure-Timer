@@ -283,23 +283,89 @@ the `COM`/`NO` pair that closes only while pressed. `NC` is not used.
 <details>
 <summary>Show the install steps</summary>
 
-On a Mac, with a blank SD card. Plug the Pi into the **middle** micro-USB port (`USB`),
+On a Mac, with a blank SD card and an ssh key at `~/.ssh/pi_deploy_key`.
+
+**Flash the card and boot it once.** Plug the Pi into the **middle** micro-USB port (`USB`),
 not `PWR IN`: that one carries no data.
 
 ```bash
-sudo ./scripts/flash-sd.sh ~/Downloads/raspios-lite.img.xz   # asks for a password for `pi`
-# put the card in the Pi and plug it in; it shows up as 10.55.0.1
-ssh-copy-id -i ~/.ssh/pi_deploy_key.pub pi@10.55.0.1
-sudo ./scripts/share-internet-macos.sh                       # the Pi has no network of its own
-./scripts/deploy-to-pi.sh
-ssh -t pi@10.55.0.1 'cd ~/ND-Long-Exposure-Timer && sudo ./scripts/setup-pi.sh --status-led-pin 22 --shutdown-pin 5'
-ssh pi@10.55.0.1 'sudo systemctl reboot'
-./scripts/deploy-to-pi.sh
-ssh -t pi@10.55.0.1 'sudo systemctl enable --now nd-timer'
+./scripts/flash-sd.sh --list                     # find the card, e.g. /dev/disk4
+sudo ./scripts/flash-sd.sh --disk /dev/disk4     # asks for a password for `pi`
+./scripts/enable-gadget-network.sh               # card still in the Mac
+# put the card in the Pi, plug it in, and give it ~3 minutes: it reboots twice by itself
 ```
 
-`setup-pi.sh` takes 15-30 minutes. After that, `deploy-to-pi.sh` is the only thing to
-rerun when the code changes.
+**Connect to it.** Try these in order, and stop at the first one that works.
+
+<details>
+<summary>Option 1: USB cable</summary>
+
+```bash
+ssh-copy-id -i ~/.ssh/pi_deploy_key.pub pi@10.55.0.1
+sudo ./scripts/share-internet-macos.sh           # the Pi has no network of its own
+```
+
+Your computer or cable may not be suitable. A charge-only cable carries no data, and on
+macOS 27.2 the Mac's USB network link has been seen to stop sending after 178 packets, so
+the Pi never answers. If `ping 10.55.0.1` gets no reply, go to option 2.
+
+The address for the next step is `10.55.0.1`.
+
+</details>
+
+<details>
+<summary>Option 2: Wi-Fi</summary>
+
+Unplug the Pi and put the card back in the Mac. `enable-wifi.sh` asks for the network's
+name and password, and also authorizes your ssh key. The Zero 2 W only has 2.4 GHz.
+
+```bash
+./scripts/enable-wifi.sh                         # add --country XX outside the Netherlands
+# put the card in the Pi and plug it in; it reboots once by itself
+```
+
+Settings on your router may prevent this. A router with mixed WPA2/WPA3 security has been
+seen to time out before the password is even checked. If the Pi does not appear, go to
+option 3.
+
+Find the address in your router's list of connected devices. The Mac must be on the same
+network.
+
+</details>
+
+<details>
+<summary>Option 3: Mobile hotspot</summary>
+
+Turn on a hotspot with WPA2 on 2.4 GHz. On an iPhone, turn on **Maximize Compatibility** and
+stay on the Personal Hotspot screen. Connect the Mac to the hotspot too, then do the steps in
+option 2 with the hotspot's name and password. The install then uses your mobile data.
+
+Find the address in the hotspot's list of connected devices.
+
+</details>
+
+**Install the software.** Point an ssh name at the address from the step above, in `~/.ssh/config`:
+
+```
+Host nd-timer
+    HostName 10.55.0.1
+    User pi
+    IdentityFile ~/.ssh/pi_deploy_key
+```
+
+```bash
+./scripts/deploy-to-pi.sh --host nd-timer
+ssh -t nd-timer 'cd ~/ND-Long-Exposure-Timer && sudo ./scripts/setup-pi.sh --status-led-pin 22 --shutdown-pin 5'
+ssh nd-timer 'sudo systemctl reboot'
+./scripts/deploy-to-pi.sh --host nd-timer
+ssh -t nd-timer 'sudo systemctl enable --now nd-timer'
+```
+
+**Over Wi-Fi or a hotspot, add `--no-boot-speedup` to the `setup-pi.sh` line.** Its boot
+speed-ups turn off `wpa_supplicant`, which would cut the Pi off from Wi-Fi after the reboot.
+
+`setup-pi.sh` takes 15-30 minutes. After that, `deploy-to-pi.sh --host nd-timer` is the only
+thing to rerun when the code changes.
 
 What each step does, and what to do if the panel looks wrong: [docs/installing.md](docs/installing.md).
 
