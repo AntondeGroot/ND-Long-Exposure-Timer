@@ -8,9 +8,14 @@ has cost you an evening.
 
 ### 1. Flash the card, on the Mac
 
-```bash 
-sudo ./scripts/flash-sd.sh ~/Downloads/raspios-lite.img.xz
+```bash
+./scripts/flash-sd.sh --list
+sudo ./scripts/flash-sd.sh --disk /dev/disk4
+./scripts/enable-gadget-network.sh
 ```
+
+`--list` shows which disk is the card; use that one in place of `/dev/disk4`. Without
+`--image` it downloads the latest Pi OS Lite first.
 
 It asks for a password for the `pi` account and writes it as a SHA-512 hash, because Pi
 OS ships no default user at all - without this you cannot log in, and the Pi will tell
@@ -20,6 +25,12 @@ powers it.
 
 The script refuses to write to anything that looks like a real disk rather than a card,
 and will not touch a write-protected one.
+
+`enable-gadget-network.sh` is the other half. Bookworm brings the USB ethernet gadget up
+but never gives it an address, so without it the Mac sees the Pi on USB and still cannot
+reach it. It adds a one-shot script to the card that sets `10.55.0.1`, and sets the Mac's
+end to `10.55.0.2`. The first boot then reboots twice by itself - once after growing the
+file system, once after the network setup - so give it about 3 minutes before trying ssh.
 
 ### 2. Get a key onto it
 
