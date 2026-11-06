@@ -73,6 +73,12 @@ class SplashScreen:
     version: str
 
 
+# What the panel is left showing when the app stops. E-paper keeps it with no
+# power, so it is what a switched-off device looks like. No battery level: it
+# would be the level at switch-off, and on screen it reads as a live one.
+SWITCHED_OFF = SplashScreen(message="switched off", version="")
+
+
 def render_splash(screen: SplashScreen):
     """The frame the panel holds while there is no software running yet.
 
