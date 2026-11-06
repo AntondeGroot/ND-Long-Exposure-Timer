@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draw the Breakout Pi Zero soldering guide to docs/breakout/.
 
-One overview of the finished board, one image per step, and the three cables. All of them come from
+One overview of the finished board, one image per step, the three cables and the two meter checks. All of them come from
 scripts/breakout_drawing/layout.py, so a change to the layout is a change to that file
 followed by a rerun of this one - never an edit to an SVG.
 
@@ -20,6 +20,7 @@ sys.path.insert(0, str(REPO))
 
 from scripts.breakout_drawing.cable_page import cable_page  # noqa: E402
 from scripts.breakout_drawing.cables import DATA_CABLE, POWER_CABLE  # noqa: E402
+from scripts.breakout_drawing.checks import diode_check_page, voltage_check_page  # noqa: E402
 from scripts.breakout_drawing.compose import overview, step_page  # noqa: E402
 from scripts.breakout_drawing.header_drawing import header_page  # noqa: E402
 from scripts.breakout_drawing.jst_cable import jst_cable_page  # noqa: E402
@@ -38,6 +39,8 @@ def pages() -> dict[str, str]:
         "jst-cable.svg": jst_cable_page(),
         "power-cable.svg": cable_page(POWER_CABLE),
         "data-cable.svg": cable_page(DATA_CABLE),
+        "check-diodes.svg": diode_check_page(),
+        "check-voltages.svg": voltage_check_page(),
     }
 
 

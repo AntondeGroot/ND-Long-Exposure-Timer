@@ -115,13 +115,14 @@ with the latching button released, the ON pin reads battery voltage to GND, and 
 middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#circuit-diagrams).
 
 - **Starting:** the button pulls the gate low through its diode and the rail comes up.
-  The hold line is GPIO6, which the Pi pulls up by default from the moment it has power,
-  so the latch catches within milliseconds and a short press is enough. The firmware
-  then makes it a driven output with `gpio=6=op,dh`.
+  The hold line is GPIO6, which the Pi pulls up by default from the moment it has power.
+  That pull-up charges the 10µF on the BC337's base through the 10k, and after about a
+  tenth of a second the transistor is on and the latch has caught - so a short press is
+  enough. The firmware then makes GPIO6 a driven output with `gpio=6=op,dh`.
 - **Stopping:** a second press pulls the sense GPIO low through the other diode, and
-  `gpio-shutdown` starts a clean poweroff - which is when the shutdown frame gets drawn.
-  At the very end `dtoverlay=gpio-poweroff,gpiopin=6,active_low=1` drops the hold line
-  and the rail goes with it.
+  `gpio-shutdown` starts a clean poweroff - which is when the app leaves the "switched
+  off" screen on the panel. At the very end `dtoverlay=gpio-poweroff,gpiopin=6,active_low=1`
+  drops the hold line and the rail goes with it.
 - **The two diodes** both point at the button: stripe (cathode) on the button side. It
   needs two. While the Pi runs, the BC337 holds the gate at about 0V; with one diode the
   button's side would sit there too, and hold the sense GPIO near its threshold the whole
@@ -131,6 +132,20 @@ middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#ci
 - **Schottky, not silicon.** A pressed button leaves the sense GPIO at the diode's forward
   voltage: about 0.2-0.3V through a BAT85, 0.5-0.6V through a 1N4148 or 1N4001. The Pi
   reads below about 0.8V as low, so both work, but the Schottky leaves the margin.
+- **The 10µF from base to GND stops a restart at the end of a shutdown.** Without it the
+  Pi switched itself back on: when gpio-poweroff drops the hold line the rail dips, the
+  Pi resets on the dip, and the reset puts GPIO6's pull-up back while the rail is still
+  there - which catches the latch again (measured 2026-11-04 with `pinctrl set 6 op dl`).
+  The capacitor makes that catch take about a tenth of a second, and the rail is gone
+  well before then. A 10k from base to GND fixed it too, but then nothing but the
+  firmware's `gpio=6=op,dh` could catch the latch, and a start needed the button held for
+  about 4 seconds. A ceramic X5R or X7R, 6.3V or more; an electrolytic also works, its
+  long leg (+) on the base.
+- **The 100nF from gate to source stops the device switching on when the cell goes in.**
+  The 100k alone lets the gate lag behind the source for a moment, and the MOSFET
+  conducts in that moment. With the capacitor across them they rise together. Elektor's
+  [Raspberry Pi Smart Power Button](https://www.elektormagazine.com/labs/raspberry-pi-smart-power-button)
+  uses the same 100nF for the same reason.
 - **Gate drive and heat.** The gate sees SYS, not 5V, so the MOSFET is driven with only
   3.0-4.2V. The AO3401 is specified down to 2.5V (about 85mΩ there), which is why it is
   the one to buy. Current is also higher on this side of the boost: about 0.4A
@@ -144,7 +159,9 @@ writes both hold-line settings for BCM6; the sense line, GPIO5, needs `--shutdow
 
 The default pull-up is also what keeps a reboot from switching the device off: the GPIOs
 reset while the firmware restarts, and GPIO6 goes back to pulled up rather than to low.
-A pin above 8 would be pulled down there, and the rail would go with it.
+A pin above 8 would be pulled down there, and the rail would go with it. The 10µF helps
+here as well: it holds the base up through the moment the pin changes over. Tested
+2026-11-06: `sudo systemctl reboot` comes back up on its own.
 
 The latching button comes off the ON and middle pins and the soft latch is the only switch.
 Off, the MOSFET leaks microamps, so storage drain is about what a hard switch gives.

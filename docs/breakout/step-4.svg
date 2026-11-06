@@ -409,6 +409,14 @@
 <line x1="717.8" y1="679.2" x2="772.6" y2="569.6" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <g transform="translate(745.2,624.4) rotate(-63.4)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
 <text x="679.4" y="603.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
+<line x1="1101.4" y1="460.0" x2="1156.2" y2="436.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<line x1="1211.0" y1="460.0" x2="1156.2" y2="436.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<rect x="1124.2" y="428.5" width="64.0" height="15.0" fill="#2f7fd6" rx="7" stroke="#0d3d78" stroke-width="2"/>
+<text x="1079.5" y="436.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100nF</text>
+<line x1="882.2" y1="569.6" x2="909.6" y2="651.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<line x1="937.0" y1="569.6" x2="909.6" y2="651.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<rect x="890.6" y="620.8" width="38.0" height="62.0" fill="#2f7fd6" rx="7" stroke="#0d3d78" stroke-width="2"/>
+<text x="909.6" y="728.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10µF</text>
 <rect x="1077.4" y="542.2" width="157.6" height="246.6" fill="#2b5d9b" rx="4" stroke="#0f2e55" stroke-width="2" opacity="0.92"/>
 <rect x="1140.2" y="657.2" width="32.0" height="22.0" fill="#111"/>
 <circle cx="1211.0" cy="569.6" r="6" fill="#bbb" stroke="none" stroke-width="0"/>
@@ -441,7 +449,7 @@
 <text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">BC337 (ring): collector 3B, base 4B, emitter 5B</text>
 <circle cx="95.0" cy="1009.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="1016.0" font-size="20" fill="#222" text-anchor="start">BC337 (soft latch): collector 14B, base 15B, emitter 16B</text>
-<text x="80.0" y="1068.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
+<text x="80.0" y="1068.0" font-size="19" fill="#444" text-anchor="start">Every resistor, diode and capacitor lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
 <text x="80.0" y="1100.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
 <text x="80.0" y="1132.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>

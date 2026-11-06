@@ -152,6 +152,43 @@ class Diode:
 
 
 @dataclass(frozen=True)
+class Capacitor:
+    """A ceramic capacitor with both legs out of one end, seen from above: its legs from the
+    holes to the body, and the body where it ends up - bent flat, or arched over a hole that
+    something else still needs.
+
+    An electrolytic works in the same place if `plus` is set: its long leg, the end without
+    the stripe, goes there.
+    """
+
+    value: str
+    leg_a: str
+    leg_b: str
+    role: str
+    body_at: g.Point
+    body_size: tuple[float, float]
+    label_at: g.Point
+    how: str
+    plus: str | None = None
+
+    def pads(self) -> set[str]:
+        return set()
+
+    def draw(self, canvas: Canvas) -> None:
+        for leg in (self.leg_a, self.leg_b):
+            canvas.line(point(leg), self.body_at, LEG, 4)
+        width, height = self.body_size
+        x, y = self.body_at
+        # Blue, as the ones in hand are: yellow would vanish against the strips.
+        canvas.rect(x - width / 2, y - height / 2, width, height, "#2f7fd6", rx=7, stroke="#0d3d78", stroke_width=2)
+        canvas.board_label(self.label_at, self.value, 16)
+
+    def describe(self) -> str:
+        polarity = f"; an electrolytic has its long leg (+) in {self.plus}" if self.plus else ""
+        return f"{self.value} capacitor ({self.role}): {self.leg_a} to {self.leg_b}, {self.how}{polarity}"
+
+
+@dataclass(frozen=True)
 class SolderBridge:
     """A blob joining two neighbouring holes of different strips."""
 
@@ -291,4 +328,4 @@ class Wire:
         return f"{place(self.at)}  ->  {self.to}{wire}"
 
 
-Part = Resistor | Diode | SolderBridge | Transistor | Mosfet | Jumper | Wire
+Part = Resistor | Diode | Capacitor | SolderBridge | Transistor | Mosfet | Jumper | Wire

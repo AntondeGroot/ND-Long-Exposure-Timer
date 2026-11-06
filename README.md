@@ -51,6 +51,7 @@ those, it comes down to about €64.
 | Pin header, 1x3, straight, 2.54mm (to stand the adapter on) | 1 |
 | BAT85 Schottky diode | 2 |
 | Resistors, 1/8W (3.5x1.8mm; the 1W ones are too big to fit it on the board): 1kΩ, 10kΩ, 10kΩ, 100kΩ | 4 |
+| Ceramic capacitors, through-hole: 100nF, and 10µF X5R/X7R 6.3V or more (a 10µF electrolytic also works) | 2 |
 | USB-C power-only socket | 1 |
 | Micro-USB solder plug, 5 pin (one for power, one for the camera) | 2 |
 | USB-A socket, 4 pin | 1 |
@@ -149,7 +150,7 @@ These wires go on first, use 20AWG solid-core wire. Bend the wires first and use
    so if solder fills the holes there, it does no harm: both are already in.
 4. Solder the rest.
 
-#### 3.2.2 Resistors and diodes
+#### 3.2.2 Resistors, diodes and capacitors
 
 ![Step 2](docs/breakout/step-2.svg)
 
@@ -164,6 +165,14 @@ The 100k lies flat too, from 19B to 21B over column 20: two holes apart is just 
 for its body. The 10k from 12F to 14F lies flat the same way, over 13F. Nothing in columns
 9-16 of rows D-F may stand up: the e-paper HAT's connector hangs over them and leaves 4mm,
 and a 1/8W resistor stood up is about 5mm tall.
+
+Two capacitors. The 100nF goes from 19A to 21A and arches over 20A, so wire ④ still fits
+there later. Rows D-F of those columns are under the MOSFET adapter, so it shares 19A with
+the gate wire and 21A with wire ⑤: keep its legs to one side of each hole. The 10µF goes
+from 15C to 16C, bent flat over 15D-16E. A ceramic one can go either way round; an
+electrolytic has its long leg (+) in 15C, and lying flat it is 4-5mm high, which is as much
+as the 4mm under the display's connector or more. Why both are there is in
+[docs/power-button.md](docs/power-button.md).
 
 #### 3.2.3 MOSFET
 
@@ -368,6 +377,41 @@ speed-ups turn off `wpa_supplicant`, which would cut the Pi off from Wi-Fi after
 thing to rerun when the code changes.
 
 What each step does, and what to do if the panel looks wrong: [docs/installing.md](docs/installing.md).
+
+</details>
+
+## 5. Test the power circuit
+
+<details>
+<summary>Show the meter checks</summary>
+
+The last step, once the software is installed. Do the diodes first, because that check needs
+the power off. The expected voltages are worked out from the circuit, so if one differs by a
+tenth of a volt or two, that is fine.
+
+**Check 1: the diodes.**
+
+![Check 1: the two diodes](docs/breakout/check-diodes.svg)
+
+**Check 2: the voltages.** Put the cell back in and clip the black probe to GND, so you have
+a hand free for the button. Take the display off the board to reach the points, and keep the
+HAT's slide switch on OFF: on ON it bypasses the MOSFET and column 1 means nothing.
+
+![Check 2: the voltages](docs/breakout/check-voltages.svg)
+
+If a reading is off, this is where to look first:
+
+| Reading | Look at |
+|---------|---------|
+| T2 reads the cell in column 1 | The slide switch is on ON, or the MOSFET is shorted |
+| T4 is not 0 while held | The button or its wires ③ and ⑥: `COM` and `NO` should beep only while pressed |
+| T4 is 0 while held, T3 stays at the cell | The start diode or the 10k from 12F to 14F |
+| T3 is low while held, T2 stays at 0 | The MOSFET, its adapter, or wires ④ and ⑤ |
+| T2 reads the cell, T7 stays at 0 | Wires ④ and ⑤ on the wrong switch pads, or the HAT |
+| T3 reads about 0.6 while held and the power drops when you let go | The hold transistor: T6, the 10k from GP6 to 15A, and the BC337's pinout |
+| A short press shuts down, then the Pi starts again by itself | The 10µF from 15C to 16C |
+| It switches on by itself when the cell goes in | The 100nF from 19A to 21A |
+| T5 goes low without a press | The sense line is shorted, and the Pi will shut itself down |
 
 </details>
 
