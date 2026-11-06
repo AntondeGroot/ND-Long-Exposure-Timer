@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1378" width="1510" height="1378" font-family="Helvetica, Arial, sans-serif">
-<rect width="1510" height="1378" fill="#ffffff"/>
-<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 2 of 6: Resistors and diodes</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1510 1462" width="1510" height="1462" font-family="Helvetica, Arial, sans-serif">
+<rect width="1510" height="1462" fill="#ffffff"/>
+<text x="40.0" y="60.0" font-size="34" fill="#111" text-anchor="start" font-weight="bold">Breakout board, step 2 of 6: Resistors, diodes and capacitors</text>
 <text x="40.0" y="100.0" font-size="21" fill="#444" text-anchor="start">Top view, header at the top.</text>
 <rect x="48.0" y="142.0" width="1394.0" height="644.0" fill="#1f6b48" rx="55"/>
 <circle cx="120.0" cy="210.0" r="27" fill="#ffffff" stroke="#cfcfcf" stroke-width="2"/>
@@ -410,6 +410,14 @@
 <line x1="717.8" y1="679.2" x2="772.6" y2="569.6" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
 <g transform="translate(745.2,624.4) rotate(-63.4)"><rect x="-25.0" y="-8.0" width="50" height="16" rx="5" fill="#7a3b2e" stroke="#3b1b14" stroke-width="2"/><rect x="8.3" y="-8.0" width="8.3" height="16" fill="#e6e6e6"/></g>
 <text x="679.4" y="603.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">BAT85</text>
+<line x1="1101.4" y1="460.0" x2="1156.2" y2="436.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<line x1="1211.0" y1="460.0" x2="1156.2" y2="436.0" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<rect x="1124.2" y="428.5" width="64.0" height="15.0" fill="#2f7fd6" rx="7" stroke="#0d3d78" stroke-width="2"/>
+<text x="1079.5" y="436.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">100nF</text>
+<line x1="882.2" y1="569.6" x2="909.6" y2="651.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<line x1="937.0" y1="569.6" x2="909.6" y2="651.8" stroke="#9a9a9a" stroke-width="4" stroke-linecap="round"/>
+<rect x="890.6" y="620.8" width="38.0" height="62.0" fill="#2f7fd6" rx="7" stroke="#0d3d78" stroke-width="2"/>
+<text x="909.6" y="728.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold" stroke="#1f6b48" stroke-width="4" paint-order="stroke">10µF</text>
 <text x="80.0" y="930.0" font-size="22" fill="#111" text-anchor="start" font-weight="bold">This step</text>
 <circle cx="95.0" cy="967.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="974.0" font-size="20" fill="#222" text-anchor="start">1k resistor: GP22 pad to 4A, lying flat</text>
@@ -423,7 +431,11 @@
 <text x="122.0" y="1142.0" font-size="20" fill="#222" text-anchor="start">BAT85 (sense): anode GP5 pad, stripe 13A, lying flat</text>
 <circle cx="95.0" cy="1177.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
 <text x="122.0" y="1184.0" font-size="20" fill="#222" text-anchor="start">BAT85 (start): anode 12E, stripe 13C, lying flat</text>
-<text x="80.0" y="1236.0" font-size="19" fill="#444" text-anchor="start">Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
-<text x="80.0" y="1268.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
-<text x="80.0" y="1300.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
+<circle cx="95.0" cy="1219.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="1226.0" font-size="20" fill="#222" text-anchor="start">100nF capacitor (gate to source): 19A to 21A, arched over 20A; shares its holes with the gate wire and wire 5</text>
+<circle cx="95.0" cy="1261.0" r="6" fill="#555" stroke="none" stroke-width="0"/>
+<text x="122.0" y="1268.0" font-size="20" fill="#222" text-anchor="start">10µF capacitor (base to GND): 15C to 16C, bent flat over 15D-16E; an electrolytic has its long leg (+) in 15C</text>
+<text x="80.0" y="1320.0" font-size="19" fill="#444" text-anchor="start">Every resistor, diode and capacitor lies flat: columns 9-16 of rows D-F sit under the display's connector, 4mm up. Diode stripe = cathode.</text>
+<text x="80.0" y="1352.0" font-size="19" fill="#444" text-anchor="start">Transistors: flat face towards row F, so C-B-E reads left to right.</text>
+<text x="80.0" y="1384.0" font-size="19" fill="#444" text-anchor="start">MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.</text>
 </svg>

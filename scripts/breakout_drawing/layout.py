@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from . import geometry as g
 from .board import Region
-from .parts import Diode, Jumper, Mosfet, Part, Resistor, SolderBridge, Transistor, Wire
+from .parts import Capacitor, Diode, Jumper, Mosfet, Part, Resistor, SolderBridge, Transistor, Wire
 
 RING = "#e8590c"
 LATCH = "#0b3a8c"
@@ -135,7 +135,7 @@ STEPS = [
         legend=False,
     ),
     Step(
-        "Resistors and diodes",
+        "Resistors, diodes and capacitors",
         (
             # Flat: GP22 to the ring transistor's base strip is about 13mm, too long a leg to
             # bend over the top. The leg at the GP22 end passes close to the GP27 pad, so it
@@ -153,6 +153,33 @@ STEPS = [
             # Flat and diagonal from the junction in column 12 to the switch strip, its legs
             # bent right at the body. That leaves 13B free on top for the switch wire.
             Diode("12E", "13C", (g.column_x(11.3), BETWEEN_C_AND_D + 6), "start", lying=True),
+            # Gate to source, beside the 100k: the gate then rises with the cell when it goes
+            # in, and the MOSFET stays off. Rows D-F of these columns are under the MOSFET
+            # adapter, so it shares row A with the gate wire and wire 5, arched over 20A.
+            Capacitor(
+                "100nF",
+                "19A",
+                "21A",
+                "gate to source",
+                (g.column_x(20), g.row_y("A") - 24),
+                (64, 15),
+                (g.column_x(18.6), g.row_y("A") - 24),
+                "arched over 20A; shares its holes with the gate wire and wire 5",
+            ),
+            # Base to emitter, so the base to GND: the Pi's weak pull-up now takes about a tenth
+            # of a second to switch the BC337 on. Long enough that the dip at the end of a
+            # shutdown no longer catches the latch again, short enough for a short press.
+            Capacitor(
+                "10µF",
+                "15C",
+                "16C",
+                "base to GND",
+                (g.column_x(15.5), g.row_y("D") + g.PITCH / 2),
+                (38, 62),
+                (g.column_x(15.5), g.row_y("F") - 6),
+                "bent flat over 15D-16E",
+                plus="15C",
+            ),
         ),
     ),
     Step("The AO3401 on its adapter", (Mosfet("21C", "19C"),)),
@@ -186,7 +213,7 @@ STEPS = [
 ]
 
 NOTES = [
-    "Every resistor and diode lies flat: columns 9-16 of rows D-F sit under the display's "
+    "Every resistor, diode and capacitor lies flat: columns 9-16 of rows D-F sit under the display's "
     "connector, 4mm up. Diode stripe = cathode.",
     "Transistors: flat face towards row F, so C-B-E reads left to right.",
     "MOSFET adapter: on a 1x3 header in 19C-21C, lying over rows D-F; its holes 2-3-1 are source, drain, gate.",
