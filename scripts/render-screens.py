@@ -21,6 +21,7 @@ from nd_timer.exposure import COMMON_FILTERS  # noqa: E402
 from nd_timer.filter_bag import FilterBag  # noqa: E402
 from nd_timer.subjects import SUBJECTS  # noqa: E402
 from nd_timer.ui.screens import (  # noqa: E402
+    SWITCHED_OFF,
     CountdownScreen,
     DelayScreen,
     MainScreen,
@@ -51,6 +52,7 @@ README_SCALE = 3
 # that time, so the screens in the README cannot drift away from the arithmetic.
 CASES = {
     "splash": SplashScreen(message="starting up...", version="v0.1"),
+    "switched-off": SWITCHED_OFF,
     # A waterfall, metered at 1/60 f/11: two thirds of a second wants ND64, and
     # a third of a stop of ISO is what lands it there. A tenth of a stop is left
     # over, which is closer than the camera can be set and is said anyway - it

@@ -28,12 +28,17 @@ class FakeEPD:
 
     def __init__(self) -> None:
         self.calls: list[str] = []
+        self.last_frame = None
 
     def init(self) -> None:
         self.calls.append("init")
 
     def display(self, buffer) -> None:
         self.calls.append("display")
+        self.last_frame = buffer
+
+    def sleep(self) -> None:
+        self.calls.append("sleep")
 
 
 @pytest.fixture
@@ -61,3 +66,18 @@ def test_a_panel_nothing_has_drawn_this_boot_is_still_cleared_to_white(epd):
     main_module.Panel(splash_drawn=False)
 
     assert epd.calls == ["init", "display"]
+
+
+def test_a_stopping_app_leaves_the_switched_off_screen_and_then_sleeps_the_panel(epd):
+    # E-paper keeps its last image unpowered, so a device left showing its last
+    # screen looks switched on. Initialised again first: systemd's SIGINT can
+    # land in the middle of a refresh, and a reset is what gets the panel out of
+    # one.
+    panel = main_module.Panel(splash_drawn=True)
+    epd.calls.clear()
+
+    panel.leave_switched_off()
+
+    switched_off = main_module.render_splash(main_module.SplashScreen(message="switched off", version=""))
+    assert epd.calls == ["init", "display", "sleep"]
+    assert epd.last_frame == list(main_module.to_panel_bytes(switched_off))

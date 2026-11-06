@@ -34,6 +34,7 @@ from nd_timer.saved_settings import SettingsFile
 from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH
 from nd_timer.ui.panel import to_panel_bytes
 from nd_timer.ui.screens import (
+    SWITCHED_OFF,
     CountdownScreen,
     DelayScreen,
     MainScreen,
@@ -189,8 +190,16 @@ class Panel:
         self._panel.display(list(to_panel_bytes(frame)))
         self._showing = screen
 
-    def rest(self) -> None:
-        """Sleep the panel, which keeps the image without holding it awake."""
+    def leave_switched_off(self) -> None:
+        """Draw the switched-off screen, then sleep the panel.
+
+        E-paper keeps its last image unpowered, so whatever is on it when the
+        app stops is what a switched-off device shows. Initialised again first:
+        the stop can land in the middle of a refresh, and a reset is what gets
+        the panel out of one.
+        """
+        self._panel.init()
+        self._panel.display(list(to_panel_bytes(render_splash(SWITCHED_OFF))))
         self._panel.sleep()
 
 
@@ -558,12 +567,12 @@ def main() -> int:
         run(settings_file.restored(Device()), buttons, panel, camera, led, settings_file)
     except KeyboardInterrupt:
         # systemd stops this with SIGINT for exactly this reason: the panel
-        # keeps whatever is on it, so it is left showing the last screen rather
-        # than half of one.
+        # keeps whatever is on it, so the app gets to put the switched-off
+        # screen there rather than leave half of one.
         print("stopping", file=sys.stderr)
     finally:
         buttons.close()
-        panel.rest()
+        panel.leave_switched_off()
         led.close()
     return 0
 

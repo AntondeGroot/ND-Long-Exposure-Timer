@@ -184,6 +184,16 @@ watch it sit at zero with the shutter still open.
 
 ![Countdown screen](screens/countdown-bulb@3x.png)
 
+### Switched off
+
+E-paper keeps its image with no power, so whatever is on the panel at shutdown stays
+there. Left alone, a switched-off device would go on showing a recipe and a battery as
+if it were running. So the app's last act on the way down is this screen. It leaves out
+the battery: the level would be the one at switch-off, and on screen it reads as a live
+one.
+
+![The switched-off screen](screens/switched-off@3x.png)
+
 ## Navigation
 
 On AUTO the five-way lands on four things - the time, the AUTO/MANUAL band, the scenario
