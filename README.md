@@ -98,7 +98,7 @@ Hot shoe mount\
 Acrylic sheet\
 <img width="160" alt="clear acrylic sheets" src="https://github.com/user-attachments/assets/01a9c53f-c7d5-4f04-ac88-26bfdfb01c78" />
 
-Capacitor 10\muF\
+Capacitor 10 μF\
 <img width="160" alt="ceramic-capacitor-10uf-25v" src="https://github.com/user-attachments/assets/dd0294c4-8024-4c2f-bf74-c3e8db51aec7" />
 
 Capacitor 100 nF
