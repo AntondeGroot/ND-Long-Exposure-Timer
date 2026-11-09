@@ -400,6 +400,8 @@ What each step does, and what to do if the panel looks wrong: [docs/installing.m
 <details>
 <summary>Show the meter checks</summary>
 
+<img width="160" alt="IMG_20261109_215048 - kopie" src="https://github.com/user-attachments/assets/93ddd03e-423e-4625-a71b-618a118617fb" />
+
 The last step, once the software is installed. Do the diodes first, because that check needs
 the power off. The expected voltages are worked out from the circuit, so if one differs by a
 tenth of a volt or two, that is fine.
