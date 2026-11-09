@@ -9,6 +9,7 @@ Run after changing it:  ./scripts/draw-soft-latch.py
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -36,7 +37,10 @@ SOURCE_X, FET_X, HOLD_X = 3.0, 4.0, 6.5
 
 
 def _power_path(d: schemdraw.Drawing) -> tuple[Point, Point]:
-    """SYS through the MOSFET to the boost converter, the gate held up by 100k and 100nF.
+    """SYS through the MOSFET to the boost converter, the gate held up by 10k and 100nF.
+
+    The 10k from the drain to GND drains the MOSFET's off-state leakage, which otherwise
+    charges the boost converter's input until the Pi half wakes.
 
     Answers the gate node, and the joint under the MOSFET where the BC337 takes the gate.
     """
@@ -53,11 +57,16 @@ def _power_path(d: schemdraw.Drawing) -> tuple[Point, Point]:
             .at((x + (0.2 if letter == "G" else 0), y + (0.15 if letter == "G" else 0.3)))
             .label(letter, color="#666", fontsize=11)
         )
-    d += elm.Line().at(fet.drain).right(1.5)
+    d += elm.Line().at(fet.drain).right(0.6)
+    d += (drain := elm.Dot())
+    d += elm.Line().right(0.9)
     d += elm.Dot(open=True).label("UPS switch middle pin\n(boost converter input)", loc="right")
 
+    d += elm.Resistor().at(drain.center).down(2.0).label("10kΩ", loc="bottom")
+    d += elm.Ground()
+
     gate = (SOURCE_X, -GATE_DROP)
-    d += elm.Resistor().at((SOURCE_X, 0)).to(gate).label("100kΩ", loc="bottom")
+    d += elm.Resistor().at((SOURCE_X, 0)).to(gate).label("10kΩ", loc="bottom")
     d += elm.Capacitor().at((SOURCE_X - 1.2, 0)).to((SOURCE_X - 1.2, -GATE_DROP)).label("100nF", loc="top")
     d += elm.Line().to(gate)
     d += elm.Dot().at(gate)
@@ -69,7 +78,10 @@ def _power_path(d: schemdraw.Drawing) -> tuple[Point, Point]:
 
 
 def _hold(d: schemdraw.Drawing, gate_to_fet: Point) -> None:
-    """The BC337 that holds the gate low while GPIO6 is high, slowed by 10µF on its base."""
+    """The BC337 that holds the gate low while GPIO6 is high, slowed by 10µF on its base.
+
+    The 22k from base to GND keeps a GPIO6 that is only half up from switching it on.
+    """
     collector = (HOLD_X, gate_to_fet[1])
     d += elm.Line().at(gate_to_fet).to(collector)
     d += (bjt := elm.BjtNpn(circle=True).reverse().at(collector).anchor("collector").label("BC337", loc="left"))
@@ -78,7 +90,12 @@ def _hold(d: schemdraw.Drawing, gate_to_fet: Point) -> None:
     d += (base := elm.Dot())
     d += elm.Resistor().right().label("10kΩ", loc="top")
     d += elm.Dot(open=True).label("hold GPIO6\n(gpio=6=op,dh,\ngpio-poweroff)", loc="right")
-    d += elm.Capacitor().at(base.center).down(2.0).label("10µF", loc="bottom")
+    d += elm.Line().at(base.center).down(0.5)
+    d += (base_low := elm.Dot())
+    d += elm.Capacitor().down(1.5).label("10µF", loc="bottom")
+    d += elm.Ground()
+    d += elm.Line().at(base_low.center).right(1.9)
+    d += elm.Resistor().down(1.5).label("22kΩ", loc="bottom")
     d += elm.Ground()
 
 
@@ -96,7 +113,15 @@ def _button(d: schemdraw.Drawing, gate: Point) -> None:
 
 
 def svg() -> str:
-    return drawing().get_imagedata("svg").decode()
+    return _on_white(drawing().get_imagedata("svg").decode())
+
+
+def _on_white(image: str) -> str:
+    """Put a white rectangle behind the drawing: schemdraw leaves it transparent, and black
+    lines on GitHub's dark mode background are close to invisible."""
+    x, y, width, height = re.search(r'viewBox="([^"]+)"', image).group(1).split()
+    background = f'<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="#ffffff"/>'
+    return re.sub(r"(<svg[^>]*>)", rf"\1{background}", image, count=1)
 
 
 def main() -> int:

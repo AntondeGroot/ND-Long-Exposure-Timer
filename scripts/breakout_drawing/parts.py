@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Literal
 
 from . import geometry as g
 from .svg import Canvas
@@ -25,6 +26,11 @@ DIODE_DIAMETER = 1.9 * g.UNITS_PER_MM
 # A part lying flat is drawn slimmer than life: to scale it hides the holes around it,
 # and nothing stands next to it for its true width to matter.
 LYING_LENGTH, LYING_WIDTH = 50, 16
+# Two parts sharing a pair of holes: one part's legs go in the side of each hole facing the
+# other hole, the other part's in the far side. This far off the centre they are drawn.
+LEG_INSET = 7
+
+Side = Literal["inner", "outer"]
 
 
 def point(name: str) -> g.Point:
@@ -81,6 +87,15 @@ def _lying(canvas: Canvas, a: g.Point, b: g.Point, fill: str, rim: str, stripe_a
     )
 
 
+def _bent_leg(canvas: Canvas, hole: g.Point, body_end: g.Point, side: Side) -> None:
+    """A leg bent at a right angle: straight up out of one side of its hole to the body's
+    height, then across into the body's end."""
+    towards_body = 1 if body_end[0] > hole[0] else -1
+    x = hole[0] + LEG_INSET * (towards_body if side == "inner" else -towards_body)
+    canvas.line((x, hole[1]), (x, body_end[1]), LEG, 4)
+    canvas.line((x, body_end[1]), body_end, LEG, 4)
+
+
 def badge(canvas: Canvas, centre: g.Point, number: int, colour: str, radius: float = 15) -> None:
     """A numbered circle; light fills (a white or yellow wire) get dark text and a dark rim."""
     size = 17 if radius >= 15 else 14
@@ -99,27 +114,46 @@ def _is_light(colour: str) -> bool:
 @dataclass(frozen=True)
 class Resistor:
     """Stood up (hairpin) over leg_a, so a short span is fine: one leg straight in under the
-    body, the other bent over its top. Or lying flat, which needs its legs three holes apart."""
+    body, the other bent over its top. Or lying flat, which needs its legs three holes apart.
+
+    A lying one can have its body moved off the line between its holes with `body_at`, its
+    legs bent out to it: to lie over the label strip, clear of the parts in between. With
+    `bent_legs` the legs go up at a right angle from that side of their holes, for when
+    another part shares them. `how` replaces the legend's "lying flat" when the way it is
+    fitted needs saying.
+    """
 
     value: str
     leg_a: str
     leg_b: str
     label_at: g.Point
     lying: bool = False
+    body_at: g.Point | None = None
+    how: str | None = None
+    bent_legs: Side | None = None
 
     def pads(self) -> set[str]:
         return {leg for leg in (self.leg_a, self.leg_b) if leg in g.PADS}
 
     def draw(self, canvas: Canvas) -> None:
         a, b = point(self.leg_a), point(self.leg_b)
-        if self.lying:
+        if self.body_at:
+            x, y = self.body_at
+            left, right = (x - LYING_LENGTH / 2, y), (x + LYING_LENGTH / 2, y)
+            for hole, end in ((a, left), (b, right)):
+                if self.bent_legs:
+                    _bent_leg(canvas, hole, end, self.bent_legs)
+                else:
+                    canvas.line(hole, end, LEG, 4)
+            _lying(canvas, left, right, "#e7cfa0", "#7a6440")
+        elif self.lying:
             _lying(canvas, a, b, "#e7cfa0", "#7a6440")
         else:
             _standing(canvas, a, b, RESISTOR_DIAMETER, "#e7cfa0", "#7a6440")
         canvas.board_label(self.label_at, self.value)
 
     def describe(self) -> str:
-        how = "lying flat" if self.lying else f"standing on {place(self.leg_a)}"
+        how = self.how or ("lying flat" if self.lying else f"standing on {place(self.leg_a)}")
         return f"{self.value} resistor: {place(self.leg_a)} to {place(self.leg_b)}, {how}"
 
 
@@ -158,7 +192,10 @@ class Capacitor:
     something else still needs.
 
     An electrolytic works in the same place if `plus` is set: its long leg, the end without
-    the stripe, goes there.
+    the stripe, goes there. `angle` turns the body, in degrees clockwise, so it can lie
+    alongside a part that runs askew. `bent_legs` takes each leg up at a right angle from
+    that side of its hole into the near end of the body, so it stays apart from another
+    part's legs in the same holes.
     """
 
     value: str
@@ -170,17 +207,31 @@ class Capacitor:
     label_at: g.Point
     how: str
     plus: str | None = None
+    angle: float = 0.0
+    bent_legs: Side | None = None
 
     def pads(self) -> set[str]:
         return set()
 
     def draw(self, canvas: Canvas) -> None:
-        for leg in (self.leg_a, self.leg_b):
-            canvas.line(point(leg), self.body_at, LEG, 4)
         width, height = self.body_size
         x, y = self.body_at
+        for leg in (self.leg_a, self.leg_b):
+            hole = point(leg)
+            if self.bent_legs:
+                end = (x - width / 2 + 6, y) if hole[0] < x else (x + width / 2 - 6, y)
+                _bent_leg(canvas, hole, end, self.bent_legs)
+            else:
+                canvas.line(hole, self.body_at, LEG, 4)
         # Blue, as the ones in hand are: yellow would vanish against the strips.
-        canvas.rect(x - width / 2, y - height / 2, width, height, "#2f7fd6", rx=7, stroke="#0d3d78", stroke_width=2)
+        if not self.angle:
+            canvas.rect(x - width / 2, y - height / 2, width, height, "#2f7fd6", rx=7, stroke="#0d3d78", stroke_width=2)
+        else:
+            canvas.add(
+                f'<g transform="translate({x:.1f},{y:.1f}) rotate({self.angle:.1f})">'
+                f'<rect x="{-width / 2:.1f}" y="{-height / 2:.1f}" width="{width}" height="{height}" '
+                f'rx="7" fill="#2f7fd6" stroke="#0d3d78" stroke-width="2"/></g>'
+            )
         canvas.board_label(self.label_at, self.value, 16)
 
     def describe(self) -> str:
@@ -194,6 +245,7 @@ class SolderBridge:
 
     top: str
     bottom: str
+    joins: str = "the gate's two strips"
 
     def pads(self) -> set[str]:
         return set()
@@ -203,7 +255,7 @@ class SolderBridge:
         canvas.rect(x - 11, y0, 22, y1 - y0, "#c7c7c7", rx=10, stroke="#7d7d7d", stroke_width=2)
 
     def describe(self) -> str:
-        return f"bridge: {self.top} to {self.bottom} on the underside, joining the gate's two strips"
+        return f"bridge: {self.top} to {self.bottom} on the underside, joining {self.joins}"
 
 
 @dataclass(frozen=True)

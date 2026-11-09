@@ -50,7 +50,7 @@ those, it comes down to about €64.
 | AO3401 P-channel MOSFET (SOT-23) + SOT-23 to SIP3 adapter | 1 |
 | Pin header, 1x3, straight, 2.54mm (to stand the adapter on) | 1 |
 | BAT85 Schottky diode | 2 |
-| Resistors, 1/8W (3.5x1.8mm; the 1W ones are too big to fit it on the board): 1kΩ, 10kΩ, 10kΩ, 100kΩ | 4 |
+| Resistors, 1/8W (3.5x1.8mm; the 1W ones are too big to fit it on the board): 1kΩ, 10kΩ, 10kΩ, 10kΩ, 10kΩ, 22kΩ | 6 |
 | Ceramic capacitors, through-hole: 100nF, and 10µF X5R/X7R 6.3V or more (a 10µF electrolytic also works) | 2 |
 | USB-C power-only socket | 1 |
 | Micro-USB solder plug, 5 pin (one for power, one for the camera) | 2 |
@@ -59,7 +59,8 @@ those, it comes down to about €64.
 | 1/4" hot shoe mount | 1 |
 | JST connector with 8 wires | 1 |
 | Clear acrylic sheet, 1mm thick, at least 55x30mm | 1 |
-| Solid-core insulated hookup wire, 20AWG, for the breakout board's wires and bridge | ~1m |
+| Hex standoffs M2.5 for the Pi stack, 4 of each: 10mm female, 12mm male, 10mm male, 6mm male | 16 |
+| Solid-core insulated hookup wire, 20AWG, for the breakout board's wires and bridges | ~1m |
 
 Five-way button\
 <img width="160" alt="five-way button" src="https://github.com/user-attachments/assets/b6a12755-35c8-49f5-8064-88f008445e4b" />
@@ -142,10 +143,11 @@ The first drawing is a preview of the finished board. Build it in the six steps 
 
 ![Step 1](docs/breakout/step-1.svg)
 
-These wires go on first, use 20AWG solid-core wire. Bend the wires first and use a piece of solid core for the bridge. Do not solder them immediately on.
+These wires go on first, use 20AWG solid-core wire. Bend the wires first and use a piece of solid core for the bridges. Do not solder them immediately on.
 
 1. Strip the end of a wire, then bend it to shape with round nose pliers. Before you bend the last section, first strip the end and then bend it. Otherwise stripping it might be more difficult.
-2. Bend the bridge the same way, and fit all of them before soldering any.
+2. Bend the two bridges the same way, and fit all of them before soldering any. The second
+   one, 16C to 16D, makes 16D-F GND too, for the 10µF and the 22k in step 2.
 3. Solder the bridge and the orange wire's end at 14E together. 14D and 14E share a strip,
    so if solder fills the holes there, it does no harm: both are already in.
 4. Solder the rest.
@@ -161,17 +163,22 @@ on the 1k's leg at the GP22 end, which passes close to the GP27 pad. The start d
 diagonally from 12E to 13C, with its legs bent right at the body. Both diode stripes go
 in column 13: 13A and 13C.
 
-The 100k lies flat too, from 19B to 21B over column 20: two holes apart is just enough
-for its body. The 10k from 12F to 14F lies flat the same way, over 13F. Nothing in columns
+The 10k from the gate to the source goes from 19A to 21A, arched a little over 20A: two
+holes apart is just enough for its body, and the arch leaves 20A free. Another 10k goes from
+that 20A to GND at 23B: its body lies over the label strip above row A, its legs bent down
+into the two holes. Row A of columns 19-21 holds only these parts and the 100nF, so they
+are easy to solder and to change; the gate wire and wires ④ and ⑤ go in row B, right
+next to the MOSFET. The 10k from 12F to 14F lies flat the same way, over 13F. Nothing in columns
 9-16 of rows D-F may stand up: the e-paper HAT's connector hangs over them and leaves 4mm,
 and a 1/8W resistor stood up is about 5mm tall.
 
-Two capacitors. The 100nF goes from 19A to 21A and arches over 20A, so wire ④ still fits
-there later. Rows D-F of those columns are under the MOSFET adapter, so it shares 19A with
-the gate wire and 21A with wire ⑤: keep its legs to one side of each hole. The 10µF goes
-from 15C to 16C, bent flat over 15D-16E. A ceramic one can go either way round; an
-electrolytic has its long leg (+) in 15C, and lying flat it is 4-5mm high, which is as much
-as the 4mm under the display's connector or more. Why both are there is in
+Two capacitors. The 100nF goes in the same holes as the gate's 10k, 19A and 21A, arched
+over 20A with it: keep each pair of legs to one side of its hole. The 22k goes
+from 15C to 16E, lying flat diagonally, and the 10µF goes in the same two holes, bent flat
+alongside it. Both run from the BC337's base to GND: 16E is GND through the bridge at
+16C-16D. A ceramic 10µF can go either way round; an electrolytic has its long leg (+) in
+15C, but lying flat it is 4-5mm high, which is as much as the 4mm under the display's
+connector or more, so use a ceramic one here. Why they are there is in
 [docs/power-button.md](docs/power-button.md).
 
 #### 3.2.3 MOSFET
@@ -404,14 +411,26 @@ If a reading is off, this is where to look first:
 | Reading | Look at |
 |---------|---------|
 | T2 reads the cell in column 1 | The slide switch is on ON, or the MOSFET is shorted |
+| T2 reads a few volts in column 1, or it starts by itself after minutes | The 10k from 20A to 23B, loose or missing |
 | T4 is not 0 while held | The button or its wires ③ and ⑥: `COM` and `NO` should beep only while pressed |
 | T4 is 0 while held, T3 stays at the cell | The start diode or the 10k from 12F to 14F |
 | T3 is low while held, T2 stays at 0 | The MOSFET, its adapter, or wires ④ and ⑤ |
 | T2 reads the cell, T7 stays at 0 | Wires ④ and ⑤ on the wrong switch pads, or the HAT |
 | T3 reads about 0.6 while held and the power drops when you let go | The hold transistor: T6, the 10k from GP6 to 15A, and the BC337's pinout |
-| A short press shuts down, then the Pi starts again by itself | The 10µF from 15C to 16C |
+| A short press shuts down, then the Pi starts again by itself | The 10µF and the 22k from 15C to 16E, and the bridge at 16C-16D |
 | It switches on by itself when the cell goes in | The 100nF from 19A to 21A |
 | T5 goes low without a press | The sense line is shorted, and the Pi will shut itself down |
+| It switches on while charging, or starts again by itself about 2 minutes after a shutdown | The soft latch BC337: replace it (see below) |
+
+**If it switches on by itself while charging, or keeps starting again after a shutdown,
+replace the BC337s.** A BC337 that has been stressed - a short on the gate while it was
+on, during testing for instance - can leak from collector to emitter with its base at
+0V. It then keeps the MOSFET half on after a shutdown: the Pi halts but keeps its power,
+and the watchdog starts it again about 2 minutes later. You can tell by T2: right after a
+shutdown it should drop to about 0, and with a leaky BC337 it stays at about 2.6V while
+15A (the base) reads about 0. A new BC337 costs a few cents and fixed exactly this on
+2026-11-09. Replace both while you are at it: the ring's BC337 is the same part, and
+the soldering is done anyway.
 
 </details>
 
