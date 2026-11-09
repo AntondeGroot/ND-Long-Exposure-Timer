@@ -8,6 +8,7 @@ the wires that leave the board last, so they don't hang in the way.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from . import geometry as g
@@ -32,6 +33,21 @@ PAD_COLOURS = {"GP22": RING, "GP5": LATCH, "GP6": LATCH} | dict.fromkeys(
 )
 
 LABEL_ROW_Y = g.ORIGIN_Y + 530  # between the pad names and row A
+
+
+def _beside(a: str, b: str, gap: float) -> tuple[g.Point, float]:
+    """Halfway between two holes, moved `gap` to the right of the line joining them, and the
+    angle that turns an upright body to lie along that line."""
+    (ax, ay), (bx, by) = g.hole(a), g.hole(b)
+    dx, dy = bx - ax, by - ay
+    length = math.hypot(dx, dy)
+    centre = ((ax + bx) / 2 + gap * dy / length, (ay + by) / 2 - gap * dx / length)
+    return centre, math.degrees(math.atan2(dy, dx)) - 90
+
+
+# The 10µF lies alongside the 22k that shares its holes, on its left: on the right it would
+# hide the bridge at 16C-16D.
+BASE_CAP_AT, BASE_CAP_ANGLE = _beside("15C", "16E", -30)
 
 
 @dataclass(frozen=True)
@@ -77,12 +93,12 @@ ABOVE_ROW_A = g.row_y("A") - 48  # below the pad names, clear of the regions' ou
 # parallel over rows D-F of its columns, so nothing else goes there - only wires under the
 # board pass.
 # It sits right of the rest of the soft latch, which keeps to columns 12-16, two columns
-# clear of the adapter and the 100k. The gate is column 14, top and bottom, joined by a
+# clear of the adapter and the 10k. The gate is column 14, top and bottom, joined by a
 # bridge, and a wire under the board takes it on to the gate leg in 19C.
 GATE_WIRE = "#f76707"
 STEPS = [
     Step(
-        "The wires under the board, and the bridge",
+        "The wires under the board, and the bridges",
         (
             # Above row A, so it crosses none of the others: the gate wire runs along row A
             # itself, below it.
@@ -110,7 +126,7 @@ STEPS = [
                 underneath=True,
             ),
             Jumper(
-                ("14E", (g.column_x(14.5), g.row_y("E")), (g.column_x(14.5), g.row_y("A")), "19A"),
+                ("14E", (g.column_x(14.5), g.row_y("E")), (g.column_x(14.5), g.row_y("B")), "19B"),
                 "the gate on to the MOSFET's gate leg",
                 net="Gate",
                 colour=GATE_WIRE,
@@ -130,6 +146,9 @@ STEPS = [
                 underneath=True,
             ),
             SolderBridge("14C", "14D"),
+            # Makes 16D-F GND too, so the 10µF and the 22k on the base can lie flat in rows
+            # C-E instead of crowding 16C, which already holds the emitter's GND wire.
+            SolderBridge("16C", "16D", "the emitter's GND strip to 16D-F"),
         ),
         # The underside view and the README already say all of it.
         legend=False,
@@ -140,31 +159,56 @@ STEPS = [
             # Flat: GP22 to the ring transistor's base strip is about 13mm, too long a leg to
             # bend over the top. The leg at the GP22 end passes close to the GP27 pad, so it
             # gets a sleeve of heat-shrink.
-            Resistor("1k", "GP22", "4A", (g.column_x(6.5), LABEL_ROW_Y), lying=True),
+            Resistor("1k", "GP22", "4A", (g.column_x(6.5) - 17, LABEL_ROW_Y - 44), lying=True),
             # Flat, like the 1k: from the GP6 and GP5 pads to their strips is 9mm and 11mm.
-            Resistor("10k", "GP6", "15A", (g.column_x(16.6), LABEL_ROW_Y), lying=True),
+            Resistor("10k", "GP6", "15A", (g.column_x(16.6) - 21, LABEL_ROW_Y - 42), lying=True),
             # Flat from the gate strip to column 12, the junction with the start diode.
             # Standing it would be 5mm tall, and columns 9-16 of rows D-F sit under the
             # e-paper HAT's connector, which leaves 4mm.
             Resistor("10k", "12F", "14F", (g.column_x(13), g.row_y("F") - 16), lying=True),
-            # Flat over column 20: two holes apart is just enough for a 3.5mm body.
-            Resistor("100k", "19B", "21B", (g.column_x(20), g.row_y("B") - 16), lying=True),
-            Diode("GP5", "13A", (g.column_x(13.6), LABEL_ROW_Y), "sense", lying=True),
+            # Gate to source, arched over 20A: two holes apart is just enough for a 3.5mm body,
+            # and the arch leaves 20A for the drain's 10k. Row A of these columns holds only
+            # these parts, so they are easy to change; the gate wire and wires 4 and 5 are in
+            # row B, next to the MOSFET adapter.
+            Resistor(
+                "10k",
+                "19A",
+                "21A",
+                (g.column_x(18.2) + 98, g.row_y("A") - 16),
+                lying=True,
+                # Drawn a little above row A, so its legs show which holes they go into.
+                body_at=(g.column_x(20), g.row_y("A") - 22),
+                bent_legs="inner",
+                how="arched over 20A, so the drain's 10k still fits in 20A under it",
+            ),
+            # Drain to GND: drains the MOSFET's leakage while it is off, which would otherwise
+            # charge the boost converter's input until the Pi half wakes. Its body lies over
+            # the label strip above row A, clear of the parts in 19A-21A.
+            Resistor(
+                "10k",
+                "20A",
+                "23B",
+                (g.column_x(23.0), g.row_y("A") - 40),
+                lying=True,
+                body_at=(g.column_x(21.9), g.row_y("A") - 46),
+                how="body over the label strip above row A, legs bent down into 20A and 23B",
+            ),
+            Diode("GP5", "13A", (g.column_x(13.6) + 55, LABEL_ROW_Y - 11), "sense", lying=True),
             # Flat and diagonal from the junction in column 12 to the switch strip, its legs
             # bent right at the body. That leaves 13B free on top for the switch wire.
-            Diode("12E", "13C", (g.column_x(11.3), BETWEEN_C_AND_D + 6), "start", lying=True),
-            # Gate to source, beside the 100k: the gate then rises with the cell when it goes
-            # in, and the MOSFET stays off. Rows D-F of these columns are under the MOSFET
-            # adapter, so it shares row A with the gate wire and wire 5, arched over 20A.
+            Diode("12E", "13C", (g.column_x(11.3) + 30, BETWEEN_C_AND_D + 26), "start", lying=True),
+            # Gate to source, in the 10k's holes: the gate then rises with the cell when it
+            # goes in, and the MOSFET stays off.
             Capacitor(
                 "100nF",
                 "19A",
                 "21A",
                 "gate to source",
-                (g.column_x(20), g.row_y("A") - 24),
-                (64, 15),
-                (g.column_x(18.6), g.row_y("A") - 24),
-                "arched over 20A; shares its holes with the gate wire and wire 5",
+                (g.column_x(20), g.row_y("A") - 44),
+                (100, 15),
+                (g.column_x(21.9) - 102, g.row_y("A") - 39),
+                "arched over 20A with the 10k; shares its holes",
+                bent_legs="outer",
             ),
             # Base to emitter, so the base to GND: the Pi's weak pull-up now takes about a tenth
             # of a second to switch the BC337 on. Long enough that the dip at the end of a
@@ -172,14 +216,18 @@ STEPS = [
             Capacitor(
                 "10µF",
                 "15C",
-                "16C",
+                "16E",
                 "base to GND",
-                (g.column_x(15.5), g.row_y("D") + g.PITCH / 2),
-                (38, 62),
-                (g.column_x(15.5), g.row_y("F") - 6),
-                "bent flat over 15D-16E",
+                BASE_CAP_AT,
+                (30, 62),
+                (BASE_CAP_AT[0] - 1, BASE_CAP_AT[1] + 8),
+                "bent flat alongside the 22k, between rows C and E; shares its holes with it",
                 plus="15C",
+                angle=BASE_CAP_ANGLE,
             ),
+            # Base to GND too, in the 10µF's holes: a GPIO6 that is only half up cannot
+            # switch the BC337 on through the 10k and this divider.
+            Resistor("22k", "15C", "16E", (g.column_x(17.0) - 77, g.row_y("D") + g.PITCH / 2 - 20), lying=True),
         ),
     ),
     Step("The AO3401 on its adapter", (Mosfet("21C", "19C"),)),
@@ -199,8 +247,8 @@ STEPS = [
             Wire(2, "3C", "button LED -", LED_GROUND_WIRE, "black"),
             Wire(3, "3D", "power button switch, NO", SWITCH_WIRE),
             Wire(6, "24C", "power button switch, COM (GND)", SWITCH_WIRE),
-            Wire(4, "20A", "UPS switch MIDDLE pin (boost in)", POWER_WIRE),
-            Wire(5, "21A", "UPS switch ON pin (SYS, battery)", POWER_WIRE),
+            Wire(4, "20B", "UPS switch MIDDLE pin (boost in)", POWER_WIRE),
+            Wire(5, "21B", "UPS switch ON pin (SYS, battery)", POWER_WIRE),
         ),
     ),
     Step(

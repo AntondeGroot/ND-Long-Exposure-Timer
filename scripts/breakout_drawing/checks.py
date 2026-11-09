@@ -55,9 +55,9 @@ class VoltagePoint:
 
 CELL = "cell"
 VOLTAGE_POINTS = [
-    VoltagePoint("T1", "21A", "SYS, the cell (wire 5)", CELL, CELL, CELL, CELL),
-    VoltagePoint("T2", "20A", "MOSFET drain (wire 4)", "0", CELL, CELL, CELL),
-    VoltagePoint("T3", "19A", "MOSFET gate", CELL, "under 0.7", "under 0.2", "under 0.2"),
+    VoltagePoint("T1", "21B", "SYS, the cell (wire 5)", CELL, CELL, CELL, CELL),
+    VoltagePoint("T2", "20B", "MOSFET drain (wire 4)", "0", CELL, CELL, CELL),
+    VoltagePoint("T3", "19B", "MOSFET gate", CELL, "under 0.7", "under 0.2", "under 0.2"),
     VoltagePoint("T4", "13A", "Button side of the diodes", "near cell", "0", "about 3", "0"),
     VoltagePoint("T5", "GP5", "Sense line", "about 0", "0.2-0.4", "3.3", "0.2-0.4"),
     VoltagePoint("T6", "GP6", "Hold line", "0", "3.3", "3.3", "3.3"),
@@ -76,8 +76,8 @@ VOLTAGE_NOTES = [
     "3. Running: button released, about 30 seconds after the start.",
     "4. Pressed: a press starts a clean shutdown, so read one point per press. Afterwards column 1 applies again.",
     "* T9 stays at 3.3 until the app has drawn its first screen, so without the display it may never drop.",
-    "T2 off can read a few volts on a 10MΩ meter: MOSFET leakage with nothing to load it. "
-    "A 10k from 20A to GND makes it 0.",
+    "T2 off reads about 0.1: the 10k from 20A to GND drains the MOSFET's leakage. "
+    "A few volts there means that 10k is loose.",
 ]
 
 

@@ -95,7 +95,7 @@ makes the 5V. Its three pads, from Waveshare's schematic:
 
 | Switch pad | Connects to | In the soft latch |
 |------------|-------------|-------------------|
-| **ON pin** (end) | SYS, the battery side | MOSFET Source, and the 100k |
+| **ON pin** (end) | SYS, the battery side | MOSFET Source, and the 10k gate pull-up |
 | **Middle pin** | the boost converter's input | MOSFET Drain |
 | **OFF pin** (other end) | the boost input too, same as the middle | nothing |
 
@@ -141,8 +141,21 @@ middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#ci
   firmware's `gpio=6=op,dh` could catch the latch, and a start needed the button held for
   about 4 seconds. A ceramic X5R or X7R, 6.3V or more; an electrolytic also works, its
   long leg (+) on the base.
+- **The 22k from base to GND, next to the 10µF,** keeps a GPIO6 that is only half up from
+  switching the BC337 on: with the 10k from GPIO6 it is a divider, and the base only
+  reaches the 0.6V the BC337 needs when GPIO6 is near a full 3.3V. The Pi's own pull-up
+  still gets it there, so a short press still starts it (about 0.15-0.2s, simulated).
+- **The 10k from the drain to GND drains the MOSFET's leakage while it is off.** A few µA
+  leak through any P-FET that is off. With nothing to take them away, the boost
+  converter's input floated up to several volts while off (measured 2026-11-08, with this
+  10k come loose); with the 10k it stays at about 0.1V, below what the boost converter
+  passes on to the 5V side. It costs 0.4mA while the Pi runs, nothing while it is off.
+- **The gate pull-up is 10k, not 100k,** so a stray current on the gate has to be about ten
+  times larger before it can switch the MOSFET on. It costs 0.4mA through the BC337 while
+  the Pi runs; the start button still pulls the gate well below the source through its
+  10k and diode.
 - **The 100nF from gate to source stops the device switching on when the cell goes in.**
-  The 100k alone lets the gate lag behind the source for a moment, and the MOSFET
+  The pull-up resistor alone lets the gate lag behind the source for a moment, and the MOSFET
   conducts in that moment. With the capacitor across them they rise together. Elektor's
   [Raspberry Pi Smart Power Button](https://www.elektormagazine.com/labs/raspberry-pi-smart-power-button)
   uses the same 100nF for the same reason.
