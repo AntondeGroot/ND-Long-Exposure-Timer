@@ -52,12 +52,11 @@ def test_the_countdown_at_its_end_is_full_and_at_zero():
 
 def test_the_main_screen_says_what_the_device_holds():
     # A minute on the dial in WAVES, which wants 1/15 to 1/2s: far too long, so the
-    # arrow says shorter, and long enough that the camera needs bulb. The battery
-    # and the bolt come from the device as they are.
+    # arrow says shorter. The battery and the bolt come from the device as they are.
     device = Device(battery=71, charging=True, dial=Dial(60.0))
     screen = screen_for(device, now=0)
     assert (screen.mode, screen.target, screen.direction) == ("WAVES", "1/15-1/2s", -1)
-    assert (screen.final_time, screen.is_bulb) == ("1m", True)
+    assert screen.final_time == "1m"
     assert (screen.selected, screen.setting_time, screen.time_is_set) == ("time", False, False)
     assert (screen.is_auto, screen.shows_nudge_hint) == (True, True)
     assert (screen.battery, screen.charging) == (71, True)
@@ -100,7 +99,7 @@ def test_the_delay_screen_carries_the_shot():
     # says what is coming - the scenario, the length and the wait - and stays put.
     device = Device(battery=62, charging=True, shot=Shot(total_seconds=208, started_at=0, delay_seconds=8))
     screen = screen_for(device, now=3)
-    assert (screen.mode, screen.exposure, screen.delay, screen.is_bulb) == ("WAVES", "3m 28s", "8s", True)
+    assert (screen.mode, screen.exposure, screen.delay) == ("WAVES", "3m 28s", "8s")
     assert (screen.battery, screen.charging) == (62, True)
 
 
@@ -135,9 +134,9 @@ def test_each_list_screen_has_its_title_entries_and_carets():
 
 
 def test_the_countdown_screen_carries_the_shot():
-    # Once the shutter is open the frame still says which scenario this is, that the
-    # camera is on bulb for a five-minute shot, and how the battery is doing.
+    # Once the shutter is open the frame still says which scenario this is and how
+    # the battery is doing.
     device = Device(battery=48, charging=True, shot=Shot(total_seconds=300, started_at=0))
     screen = screen_for(device, now=30)
-    assert (screen.mode, screen.is_bulb) == ("WAVES", True)
+    assert screen.mode == "WAVES"
     assert (screen.battery, screen.charging) == (48, True)

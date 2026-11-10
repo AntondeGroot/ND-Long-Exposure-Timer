@@ -33,7 +33,6 @@ class MainScreen:
     time_is_set: bool
     target: str
     direction: int
-    is_bulb: bool
     synced_note: str
     battery: int | None
     charging: bool = False
@@ -48,7 +47,6 @@ class CountdownScreen:
     elapsed: str
     total: str
     progress: float
-    is_bulb: bool
     battery: int | None
     charging: bool = False
 
@@ -60,7 +58,6 @@ class DelayScreen:
     mode: str
     exposure: str
     delay: str
-    is_bulb: bool
     battery: int | None
     charging: bool = False
 
@@ -151,22 +148,14 @@ def _draw_answer(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
     the working that produced it - and it is also the one value the photographer
     can take over, so this is where the selection and the setting arrows show.
     """
-    ink = WHITE if screen.setting_time else BLACK
+    inverted = screen.setting_time or screen.selected == layout.TIME
+    ink = WHITE if inverted else BLACK
 
-    _draw_answer_box(draw, screen)
+    if inverted:
+        render.draw_inverted_bar(draw, layout.ANSWER_BOX)
     _draw_final_time(draw, screen, ink)
     _draw_target_or_hint(draw, screen, ink)
-    _draw_bulb_badge(draw, layout.CENTRE_X, screen, ink)
     draw.line((0, layout.ANSWER_BOTTOM, WIDTH, layout.ANSWER_BOTTOM), fill=BLACK)
-
-
-def _draw_answer_box(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
-    """Outlined when the five-way points at the time, filled while it is set."""
-    if screen.setting_time:
-        render.draw_inverted_bar(draw, layout.ANSWER_BOX)
-        return
-    if screen.selected == layout.TIME:
-        draw.rectangle(layout.ANSWER_BOX, outline=BLACK)
 
 
 def _draw_final_time(draw: ImageDraw.ImageDraw, screen: MainScreen, ink: int) -> None:
@@ -208,7 +197,7 @@ def _draw_target_or_hint(draw: ImageDraw.ImageDraw, screen: MainScreen, ink: int
     but the line stays empty rather than offering it as a fine control.
     """
     if not screen.setting_time:
-        _draw_target(draw, layout.CENTRE_X, screen)
+        _draw_target(draw, layout.CENTRE_X, screen, ink)
         return
     if not screen.shows_nudge_hint:
         return
@@ -218,7 +207,7 @@ def _draw_target_or_hint(draw: ImageDraw.ImageDraw, screen: MainScreen, ink: int
     )
 
 
-def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> None:
+def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen, ink: int) -> None:
     """What this subject wants, and which way to move if you are outside it.
 
     An arrow rather than a verdict: being told the exposure is wrong is not
@@ -230,30 +219,9 @@ def _draw_target(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen) -> 
     # Triangles rather than letters: at 9px a "v" reads as text, an arrow reads
     # as an instruction. DejaVu has both glyphs.
     arrow = {1: " ▲", -1: " ▼"}.get(screen.direction, "")
-    render.draw_centred(draw, centre, layout.TARGET_Y, f"aim {screen.target}{arrow}", render.regular(layout.TINY))
-
-
-def _draw_bulb_badge(draw: ImageDraw.ImageDraw, centre: int, screen: MainScreen, ink: int) -> None:
-    """Bulb is worth shouting about: it means the Pi is doing the timing.
-
-    The pill is an inversion of whatever it sits on, so it keeps shouting once
-    the answer around it has been inverted for setting.
-    """
-    if not screen.is_bulb:
-        return
-
-    font = render.bold(layout.TINY)
-    width = draw.textlength("BULB", font=font) + layout.PILL_PADDING
-    draw.rectangle(
-        (centre - width / 2, layout.PILL_TOP, centre + width / 2, layout.PILL_TOP + layout.PILL_HEIGHT),
-        fill=ink,
+    render.draw_centred(
+        draw, centre, layout.TARGET_Y, f"aim {screen.target}{arrow}", render.regular(layout.TINY), fill=ink
     )
-    render.draw_centred(draw, centre, layout.PILL_TOP + 2, "BULB", font, fill=_behind(ink))
-
-
-def _behind(ink: int) -> int:
-    """The other of the panel's two colours - the one this ink is legible on."""
-    return WHITE if ink == BLACK else BLACK
 
 
 def _draw_parameter_list(draw: ImageDraw.ImageDraw, screen: MainScreen) -> None:
@@ -292,8 +260,6 @@ def render_delay(screen: DelayScreen):
     render.draw_status_bar(draw, screen.mode.upper(), screen.battery, charging=screen.charging)
 
     render.draw_fitted(draw, layout.CENTRE_X, 66, screen.exposure, layout.ANSWER_MAX_WIDTH, layout.HERO_SIZES)
-    badge = "BULB" if screen.is_bulb else "TIMED"
-    render.draw_centred(draw, layout.CENTRE_X, 100, badge, render.bold(layout.SMALL))
 
     render.draw_centred(draw, layout.CENTRE_X, 140, f"{screen.delay} delay before", render.regular(layout.SMALL))
     render.draw_centred(draw, layout.CENTRE_X, 156, "exposure begins", render.regular(layout.SMALL))
@@ -308,8 +274,6 @@ def render_countdown(screen: CountdownScreen):
 
     render.draw_status_bar(draw, screen.mode.upper(), screen.battery, charging=screen.charging)
 
-    badge = "BULB" if screen.is_bulb else "TIMED"
-    render.draw_centred(draw, layout.CENTRE_X, 26, badge, render.bold(layout.SMALL))
     render.draw_centred(draw, layout.CENTRE_X, 48, "REMAINING", render.regular(layout.TINY))
 
     # The one number worth seeing from where the camera is standing.
