@@ -225,6 +225,8 @@ while fitting it. ④ and ⑤ go to the UPS HAT's old power switch pads and carr
 which 20AWG handles easily over a few centimetres. With the switch off, the ON pad reads
 battery voltage, the middle pad 0V. Heat-shrink every joint.
 
+<img width="160" alt="IMG_20261110_071212 - kopie" src="https://github.com/user-attachments/assets/83ef58e2-6666-476c-9833-f09d194739de" />
+
 Check: ④ and ⑤ don't beep to each other.
 
 #### 3.2.6 Button wires
