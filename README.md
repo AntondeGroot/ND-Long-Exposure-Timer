@@ -51,7 +51,7 @@ those, it comes down to about €64.
 | Pin header, 1x3, straight, 2.54mm (to stand the adapter on) | 1 |
 | BAT85 Schottky diode | 2 |
 | Resistors, 1/8W (3.5x1.8mm; the 1W ones are too big to fit it on the board): 1kΩ, 10kΩ, 10kΩ, 10kΩ, 10kΩ, 22kΩ | 6 |
-| Ceramic capacitors, through-hole: 100nF, and 10µF X5R/X7R 6.3V or more (a 10µF electrolytic also works) | 2 |
+| Ceramic capacitors, through-hole: 100nF, and 10µF 25V (a 10µF electrolytic also works) | 2 |
 | USB-C power-only socket | 1 |
 | Micro-USB solder plug, 5 pin (one for power, one for the camera) | 2 |
 | USB-A socket, 4 pin | 1 |
