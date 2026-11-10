@@ -158,8 +158,8 @@ class Device:
 
     @property
     def selections(self) -> tuple:
-        """The stops the five-way walks, which is not the same list on MANUAL."""
-        return layout.selections(self.is_auto)
+        """The stops the five-way walks, which is not the same list on MANUAL or in NO FILTERS."""
+        return layout.selections(self.is_auto, self.uses_filters)
 
     @property
     def exposure_seconds(self) -> float:

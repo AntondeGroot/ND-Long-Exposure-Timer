@@ -1,5 +1,7 @@
 """Tests for what a press does: the time is the input, the recipe is the answer."""
 
+from dataclasses import replace
+
 from nd_timer.camera import CameraSettings, MeteredExposure
 from nd_timer.device import Device
 from nd_timer.exposure import COMMON_FILTERS
@@ -381,12 +383,26 @@ def test_shoot_with_filters_sends_no_settings():
     assert by_hand.pressed_shoot(now=0).shot.camera_settings is None
 
 
+def test_scrolling_in_no_filters_passes_over_the_band():
+    # The band only says MANUAL there and cannot change, so the five-way has no
+    # business stopping on it: a full lap down visits every other stop, never it.
+    night = in_no_filters(synced())
+
+    visited = []
+    for _ in range(len(layout.MANUAL_SELECTIONS)):
+        night = night.pressed_down()
+        visited.append(night.navigation.selected)
+
+    assert layout.AUTO not in visited
+    assert set(visited) == {layout.TIME, layout.ISO, layout.APERTURE, layout.MODE, layout.SETTINGS}
+
+
 def test_no_filters_cannot_be_switched_to_auto():
     # With no glass there is nothing to solve, so AUTO would have nothing to choose:
     # neither a centre press nor left and right on the band take NO FILTERS off MANUAL.
-    on_band = in_no_filters(synced())
-    while on_band.navigation.selected != layout.AUTO:
-        on_band = on_band.pressed_up()
+    # Scrolling passes over the band there, so the five-way is put on it directly.
+    night = in_no_filters(synced())
+    on_band = replace(night, navigation=replace(night.navigation, selected=layout.AUTO))
 
     for press in (on_band.pressed_centre, on_band.pressed_left, on_band.pressed_right):
         assert not press().is_auto
