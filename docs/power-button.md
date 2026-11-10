@@ -139,7 +139,7 @@ middle and OFF pins read about 0V. The schematic is under [Circuit diagrams](#ci
   The capacitor makes that catch take about a tenth of a second, and the rail is gone
   well before then. A 10k from base to GND fixed it too, but then nothing but the
   firmware's `gpio=6=op,dh` could catch the latch, and a start needed the button held for
-  about 4 seconds. A ceramic X5R or X7R, 6.3V or more; an electrolytic also works, its
+  about 4 seconds. A through-hole ceramic, 10µF 25V; an electrolytic also works, its
   long leg (+) on the base.
 - **The 22k from base to GND, next to the 10µF,** keeps a GPIO6 that is only half up from
   switching the BC337 on: with the 10k from GPIO6 it is a divider, and the base only
