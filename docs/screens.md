@@ -12,10 +12,11 @@ on, and how close that lands.
 
 ![The main screen](screens/main-waterfall@3x.png)
 
-Past 30 seconds the shot has to run on bulb, and the panel says so - the Pi is the timer
-from that point on.
+When the five-way points at the time, the answer turns black, the same as a selected row
+or SETTINGS: one way of saying "selected" across the whole screen. Whether the camera times
+the shot or the Pi holds the shutter open on bulb is not shown; it changes nothing you do.
 
-![The main screen showing a bulb exposure](screens/main-bulb@3x.png)
+![The main screen with the time selected](screens/main-time-selected@3x.png)
 
 Before the first SYNC there is no scene to work back from, and the device says that
 rather than printing a recipe it cannot stand behind.
@@ -107,8 +108,8 @@ second the screen stops offering them - a second added to 1/8 is three stops, wh
 jump rather than an adjustment - but the press still works, and is often how you leave
 the fast end.
 
-While the time is being set the answer is inverted and written as a clock, so a second on
-or off moves a digit rather than reflowing the whole number.
+While the time is being set it stays black and gains arrows either side, and it is written
+as a clock, so a second on or off moves a digit rather than reflowing the whole number.
 
 ![The main screen with the time being set](screens/main-setting-time@3x.png)
 
@@ -182,7 +183,7 @@ holds still between steps rather than one part of it creeping. The step rounds t
 down, which rounds what is left up - better to be told a little more is coming than to
 watch it sit at zero with the shutter still open.
 
-![Countdown screen](screens/countdown-bulb@3x.png)
+![Countdown screen](screens/countdown@3x.png)
 
 ### Switched off
 

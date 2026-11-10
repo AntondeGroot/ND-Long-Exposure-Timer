@@ -57,11 +57,6 @@ ANSWER_CENTRE_Y = 40
 # The target the subject wants, directly under the answer so the two read together.
 TARGET_Y = 60
 
-# BULB only appears when it applies, so it sits below the target rather than
-# displacing it.
-PILL_HEIGHT = 14
-PILL_TOP = 72
-PILL_PADDING = 12
 ANSWER_BOTTOM = 88
 
 # Selection on the answer, escalating: an outline says the five-way is pointing

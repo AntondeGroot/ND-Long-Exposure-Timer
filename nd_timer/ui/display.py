@@ -18,7 +18,6 @@ from nd_timer.exposure import (
     SECONDS_PER_HOUR,
     SECONDS_PER_MINUTE,
     format_exposure,
-    needs_bulb,
 )
 from nd_timer.subjects import SUBJECTS
 from nd_timer.ui.screens import CountdownScreen, DelayScreen, MainScreen
@@ -70,7 +69,6 @@ def _main_screen(device, now: float) -> MainScreen:
         time_is_set=device.dial.is_hand_set,
         target=device.subject.target_label,
         direction=device.subject.direction_from(seconds),
-        is_bulb=needs_bulb(seconds),
         synced_note=_synced_note(device, now),
         battery=device.battery,
         charging=device.charging,
@@ -101,7 +99,6 @@ def _delay_screen(device) -> DelayScreen:
         mode=device.subject.name,
         exposure=format_exposure(shot.total_seconds),
         delay=f"{shot.delay_seconds:g}s",
-        is_bulb=needs_bulb(shot.total_seconds),
         battery=device.battery,
         charging=device.charging,
     )
@@ -123,7 +120,6 @@ def _countdown_screen(device, now: float) -> CountdownScreen:
         elapsed=_clock(elapsed),
         total=_clock(shot.total_seconds),
         progress=elapsed / shot.total_seconds if shot.total_seconds else 1.0,
-        is_bulb=needs_bulb(shot.total_seconds),
         battery=device.battery,
         charging=device.charging,
     )
