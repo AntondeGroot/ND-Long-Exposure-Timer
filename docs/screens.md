@@ -10,18 +10,18 @@ you pressed SYNC - a measurement, which nothing the device does moves - and the 
 to your time, read down the column: the ISO and aperture to set, the filters to screw
 on, and how close that lands. 
 
-![The main screen](screens/main-waterfall@3x.png)
+![The main screen](screens/main-waterfall.png)
 
 When the five-way points at the time, the answer turns black, the same as a selected row
 or SETTINGS: one way of saying "selected" across the whole screen. Whether the camera times
 the shot or the Pi holds the shutter open on bulb is not shown; it changes nothing you do.
 
-![The main screen with the time selected](screens/main-time-selected@3x.png)
+![The main screen with the time selected](screens/main-time-selected.png)
 
 Before the first SYNC there is no scene to work back from, and the device says that
 rather than printing a recipe it cannot stand behind.
 
-![The main screen before syncing](screens/main-not-synced@3x.png)
+![The main screen before syncing](screens/main-not-synced.png)
 
 ### The battery
 
@@ -37,7 +37,7 @@ When nothing answers on the bus - no UPS fitted, or I2C never enabled - the
 battery is drawn hatched rather than empty. An empty outline says the cell is
 dead and sends you home; hatching says the number is not known.
 
-![A device with no battery gauge](screens/main-no-battery@3x.png)
+![A device with no battery gauge](screens/main-no-battery.png)
 
 ### When the filter bag cannot get there
 
@@ -50,7 +50,7 @@ Aperture is moved last and least, because it is the one thing on the list the ph
 itself can see - and it moves in thirds, so when it has to move it moves by f/11 to f/13
 rather than by a whole stop.
 
-![The main screen with a filter bag that cannot reach](screens/main-out-of-reach@3x.png)
+![The main screen with a filter bag that cannot reach](screens/main-out-of-reach.png)
 
 ### Taking the settings over
 
@@ -64,7 +64,7 @@ do not move: whatever is screwed on stays screwed on, and the ISO and the apertu
 what you turn around it. What changes is the **off** row, which is the whole point of
 the mode - the device stops solving and starts telling you where you have got to.
 
-![The settings taken over by hand](screens/main-manual@3x.png)
+![The settings taken over by hand](screens/main-manual.png)
 
 The ISO ceiling and the lens ends from settings do not hold here. They tell AUTO where
 to look; a setting chosen by hand is a decision, not a search.
@@ -81,7 +81,7 @@ camera before it opens the shutter: what is on the panel is the photograph. It s
 from the camera's own settings if you synced, and from ISO 100 f/11 if not. Scroll back
 out and the device goes back to AUTO.
 
-![NO FILTERS](screens/main-no-filters@3x.png)
+![NO FILTERS](screens/main-no-filters.png)
 
 The aperture only gets set on a lens the camera can stop down itself; with a manual
 lens, turn its ring to match.
@@ -94,7 +94,7 @@ time, and room for a name like GHOST CROWD that the main screen cannot fit besid
 carets. The list opens on the one already chosen; the centre press picks a line and goes
 back, and BACK at the bottom goes back without changing anything.
 
-![The scenarios](screens/modes@3x.png)
+![The scenarios](screens/modes.png)
 
 Left and right on the row still step to the next scenario without opening the list.
 
@@ -111,19 +111,19 @@ the fast end.
 While the time is being set it stays black and gains arrows either side, and it is written
 as a clock, so a second on or off moves a digit rather than reflowing the whole number.
 
-![The main screen with the time being set](screens/main-setting-time@3x.png)
+![The main screen with the time being set](screens/main-setting-time.png)
 
 The ladder runs from 1/125 to 15s, then 00:16 and whole minutes to an hour - well past what
 long exposure needs at the fast end, because waves want 1/8 and a dial that reaches 1/125 is
 one a self-timer can be built on later.
 
-![The main screen dialling a fast shutter](screens/main-setting-waves@3x.png)
+![The main screen dialling a fast shutter](screens/main-setting-waves.png)
 
 A time dialled away from the scenario's own says SET in the status bar. The rows
 underneath always agree with the time, so the tag is not about them: it says this time is
 yours, and choosing a scenario is how you hand it back.
 
-![The main screen with a hand-set time](screens/main-time-set@3x.png)
+![The main screen with a hand-set time](screens/main-time-set.png)
 
 ### Settings
 
@@ -139,13 +139,13 @@ described exactly rather than rounded to the nearest whole stop. It starts descr
 every lens, f/1.4 to f/22, and the whole common filter set, so it is useful before it is
 configured rather than empty.
 
-![Settings](screens/settings@3x.png)
+![Settings](screens/settings.png)
 
 The filter list is the same screen one level down. The centre press is what puts a
 filter in the filter bag or takes it out, so its rows go without the carets that would promise
 left and right do something.
 
-![The filter list](screens/settings-filters@3x.png)
+![The filter list](screens/settings-filters.png)
 
 ### Exposing
 
@@ -161,7 +161,7 @@ takes about a second and wears the panel a little each time, so a ticking number
 spend the delay flashing - through the very seconds the delay exists to keep still - and
 would be out of date by the time it had finished drawing itself.
 
-![The delay before the exposure](screens/delay@3x.png)
+![The delay before the exposure](screens/delay.png)
 
 Nothing has been recorded yet at that point, so it is also the cheapest moment to change
 your mind - the same press that stops a running exposure calls this off.
@@ -171,7 +171,7 @@ does not start. A device counting down a shutter that never opened is the one sc
 photographer walks away from, so the status bar takes the news instead and says which
 kind of refusal it was. The words gphoto2 used are in the journal.
 
-![The camera did not answer](screens/main-no-camera@3x.png)
+![The camera did not answer](screens/main-no-camera.png)
 
 Then the exposure itself. Remaining time gets the whole column, because it is read from
 wherever the camera is standing. A progress bar and the elapsed/total sit beneath it.
@@ -183,7 +183,7 @@ holds still between steps rather than one part of it creeping. The step rounds t
 down, which rounds what is left up - better to be told a little more is coming than to
 watch it sit at zero with the shutter still open.
 
-![Countdown screen](screens/countdown@3x.png)
+![Countdown screen](screens/countdown.png)
 
 ### Switched off
 
@@ -193,7 +193,7 @@ if it were running. So the app's last act on the way down is this screen. It lea
 the battery: the level would be the one at switch-off, and on screen it reads as a live
 one.
 
-![The switched-off screen](screens/switched-off@3x.png)
+![The switched-off screen](screens/switched-off.png)
 
 ## Navigation
 

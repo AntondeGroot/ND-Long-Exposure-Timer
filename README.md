@@ -6,7 +6,7 @@ to match. No maths, no guessing. At night it is a plain long-exposure timer too.
 
 **Try it in your browser:** https://antondegroot.github.io/ND-Long-Exposure-Timer/
 
-![The main screen](docs/screens/main-waterfall@3x.png)
+![The main screen](docs/screens/main-waterfall.png)
 
 How it works:
 1. Meter the scene on your camera as usual and press **SYNC**.
