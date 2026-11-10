@@ -43,10 +43,6 @@ OUTPUT_DIR = REPO / "docs" / "screens"
 # staring at a blank panel.
 SPLASH_BUFFER = REPO / "assets" / "splash.bin"
 
-# Upscaled copies for the README: 250x122 is unreadably small on a web page, and
-# nearest-neighbour keeps the pixels honest rather than blurring them.
-README_SCALE = 3
-
 # One case per state worth documenting - and worth noticing a change to. The
 # recipes are real: each one is what nd_timer.recipe solves for that scene and
 # that time, so the screens in the README cannot drift away from the arithmetic.
@@ -422,9 +418,6 @@ def main() -> int:
     for name, screen in CASES.items():
         frame = render(name, screen)
         frame.save(OUTPUT_DIR / f"{name}.png")
-
-        readme_size = (frame.width * README_SCALE, frame.height * README_SCALE)
-        frame.resize(readme_size, resample=0).save(OUTPUT_DIR / f"{name}@{README_SCALE}x.png")
         print(f"  {name}")
 
     from nd_timer.ui.panel import to_panel_bytes
