@@ -115,10 +115,14 @@ SETTINGS = "settings"
 
 AUTO_SELECTIONS = (TIME, AUTO, MODE, SETTINGS)
 MANUAL_SELECTIONS = (TIME, AUTO, ISO, APERTURE, MODE, SETTINGS)
+# In NO FILTERS the band says MANUAL and cannot change, so it is not a stop.
+NO_FILTERS_SELECTIONS = (TIME, ISO, APERTURE, MODE, SETTINGS)
 
 
-def selections(is_auto: bool) -> tuple:
-    """The stops the five-way walks, which the toggle adds two of."""
+def selections(is_auto: bool, uses_filters: bool = True) -> tuple:
+    """The stops the five-way walks: the toggle adds two, and NO FILTERS takes the band."""
+    if not uses_filters:
+        return NO_FILTERS_SELECTIONS
     return AUTO_SELECTIONS if is_auto else MANUAL_SELECTIONS
 
 

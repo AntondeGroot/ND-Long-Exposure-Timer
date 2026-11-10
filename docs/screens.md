@@ -73,8 +73,8 @@ to look; a setting chosen by hand is a decision, not a search.
 
 The last scenario, past NO PEOPLE, turns the device into a plain timer for night shots,
 so it is the only thing you need on the camera. There is nothing to filter, so the
-**ND** row says **DISABLED**, the band is **MANUAL** and stays there, and the **DEV**
-row has nothing to measure against. It needs no SYNC either, and does not ask for one.
+**ND** row says **DISABLED**, the band is **MANUAL** and stays there - so the five-way
+passes over it - and the **DEV** row has nothing to measure against. It needs no SYNC either, and does not ask for one.
 
 You set the time, the ISO and the aperture, and SHOOT puts the ISO and aperture on the
 camera before it opens the shutter: what is on the panel is the photograph. It starts
