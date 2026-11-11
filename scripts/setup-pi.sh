@@ -482,6 +482,24 @@ else
   warn "once you have a main.py: sudo systemctl enable --now $SERVICE_NAME"
 fi
 
+# ---------------------------------------------------------------- wifi switch
+
+# The WIFI setting on the device switches Wi-Fi for the next boot and reboots, which
+# takes root. So the helper is installed as a root-owned copy - not a link into the
+# app's folder, which the app's user can edit - and that user may sudo exactly it,
+# with "on" or "off", and nothing else. Re-run setup after changing the helper:
+# deploying alone does not update the copy.
+WIFI_HELPER="/usr/local/sbin/nd-timer-wifi"
+log "installing $WIFI_HELPER and its sudo rule"
+install -o root -g root -m 0755 "$SCRIPT_DIR/nd-timer-wifi.sh" "$WIFI_HELPER"
+
+sudo_rule="$(mktemp)"
+printf '%s ALL=(root) NOPASSWD: %s on, %s off\n' "$TARGET_USER" "$WIFI_HELPER" "$WIFI_HELPER" > "$sudo_rule"
+# A broken file in sudoers.d can lock sudo out entirely, so it is checked first.
+visudo -cqf "$sudo_rule" || { rm -f "$sudo_rule"; die "the sudo rule for $WIFI_HELPER did not validate"; }
+install -o root -g root -m 0440 "$sudo_rule" /etc/sudoers.d/nd-timer-wifi
+rm -f "$sudo_rule"
+
 # ---------------------------------------------------------------- verify
 
 log "verifying"

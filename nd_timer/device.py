@@ -38,6 +38,7 @@ from nd_timer.ui.settings import (
     ENTRY_LABELS,
     FILTERS,
     ISO_MAX,
+    WIFI,
 )
 
 VERSION = "v0.1"
@@ -140,6 +141,14 @@ class Device:
     # claiming more than the hatched outline beside it admits.
     charging: bool = False
 
+    # Whether the Pi booted with Wi-Fi, as config.txt says. Switching it means a
+    # reboot, so left and right only choose (`wifi_choice`, None while it matches),
+    # and the centre press turns the choice into a request the main loop carries
+    # out (`wifi_to_apply`).
+    wifi_on: bool = True
+    wifi_choice: bool | None = None
+    wifi_to_apply: bool | None = None
+
     # --- what the numbers currently are -------------------------------------
 
     @property
@@ -202,12 +211,12 @@ class Device:
     def pressed_up(self) -> Device:
         if self.dial.is_being_set:
             return self._with_dial(self.dial.pressed_up())
-        return replace(self, navigation=self.navigation.pressed_up(self.selections))
+        return replace(self, navigation=self.navigation.pressed_up(self.selections), wifi_choice=None)
 
     def pressed_down(self) -> Device:
         if self.dial.is_being_set:
             return self._with_dial(self.dial.pressed_down())
-        return replace(self, navigation=self.navigation.pressed_down(self.selections))
+        return replace(self, navigation=self.navigation.pressed_down(self.selections), wifi_choice=None)
 
     def pressed_left(self) -> Device:
         if self.dial.is_being_set:
@@ -232,6 +241,8 @@ class Device:
         pointed = self.navigation.pointed_filter
         if pointed is not None:
             return replace(self, filter_bag=self.filter_bag.toggled(pointed))
+        if self._on_setting(WIFI):
+            return self._confirmed_wifi()
         return replace(self, navigation=self.navigation.pressed_centre())
 
     def pressed_sync(self, metered: MeteredExposure, now: float) -> Device:
@@ -290,6 +301,7 @@ class Device:
             APERTURE_MIN: f"f/{self.aperture_min:g}",
             APERTURE_MAX: f"f/{self.aperture_max:g}",
             DELAY: _delay_label(self.delay_seconds),
+            WIFI: self._wifi_label(),
             ABOUT: VERSION,
         }[label]
 
@@ -403,6 +415,7 @@ class Device:
             APERTURE_MIN: self._changed_widest_aperture,
             APERTURE_MAX: self._changed_narrowest_aperture,
             DELAY: self._changed_delay,
+            WIFI: self._changed_wifi,
         }.get(ENTRY_LABELS[entry])
         return changed(direction) if changed else self
 
@@ -425,6 +438,33 @@ class Device:
         """How long the tripod is given to go still before the shutter opens."""
         index = _stepped(_nearest(DELAYS, self.delay_seconds), direction, DELAYS)
         return replace(self, delay_seconds=DELAYS[index])
+
+    def _on_setting(self, label: str) -> bool:
+        """Whether the five-way is on that entry of the settings list."""
+        navigation = self.navigation
+        if not navigation.on_settings_screen or navigation.on_filters_screen:
+            return False
+        entry = navigation.settings_entry
+        return entry < len(ENTRY_LABELS) and ENTRY_LABELS[entry] == label
+
+    def _confirmed_wifi(self) -> Device:
+        """The centre press makes the choice a request; with no choice there is nothing to ask."""
+        if self.wifi_choice is None:
+            return self
+        return replace(self, wifi_to_apply=self.wifi_choice)
+
+    def _changed_wifi(self, _direction: int) -> Device:
+        """Two values, so either way flips the choice; back to the boot state is no choice."""
+        flipped = not self._wifi_shown()
+        return replace(self, wifi_choice=None if flipped == self.wifi_on else flipped)
+
+    def _wifi_shown(self) -> bool:
+        return self.wifi_on if self.wifi_choice is None else self.wifi_choice
+
+    def _wifi_label(self) -> str:
+        """ON or OFF, with a question mark while it is a choice the centre press has yet to confirm."""
+        word = "ON" if self._wifi_shown() else "OFF"
+        return word if self.wifi_choice is None else f"{word}?"
 
     def _with_dial(self, dial: Dial) -> Device:
         return replace(self, dial=dial)

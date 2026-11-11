@@ -374,6 +374,21 @@ CASES = {
         selected=2,
         battery=10,
     ),
+    # Wi-Fi chosen off but not yet confirmed: the question mark is the centre press
+    # still to come, which then switches it and reboots.
+    "settings-wifi": SettingsScreen(
+        entries=(
+            SettingsEntry("FILTERS", "9 owned"),
+            SettingsEntry("ISO MAX", "400"),
+            SettingsEntry("APER MIN", "f/4"),
+            SettingsEntry("APER MAX", "f/16"),
+            SettingsEntry("DELAY", "8s"),
+            SettingsEntry("WIFI", "OFF?"),
+            SettingsEntry("ABOUT", "v0.1"),
+        ),
+        selected=5,
+        battery=78,
+    ),
     "settings-filters": SettingsScreen(
         entries=tuple(SettingsEntry(f.name, TYPICAL_FILTER_BAG.ownership_label(f)) for f in COMMON_FILTERS),
         selected=2,
