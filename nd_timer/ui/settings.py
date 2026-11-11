@@ -27,15 +27,17 @@ from nd_timer.ui import layout, render
 # Four of them are the shape of the kit: which filters are in the filter bag, how far
 # the ISO may be pushed, and how wide and how far down the lens goes. Between
 # them they are the whole search space the device is allowed to answer from.
-# The fifth is the wait between the press and the shutter.
+# The fifth is the wait between the press and the shutter, and the sixth whether
+# the Pi boots with Wi-Fi: off in the field, so it stops searching for a network.
 FILTERS = "FILTERS"
 ISO_MAX = "ISO MAX"
 APERTURE_MIN = "APER MIN"
 APERTURE_MAX = "APER MAX"
 DELAY = "DELAY"
+WIFI = "WIFI"
 ABOUT = "ABOUT"
 
-ENTRY_LABELS = (FILTERS, ISO_MAX, APERTURE_MIN, APERTURE_MAX, DELAY, ABOUT)
+ENTRY_LABELS = (FILTERS, ISO_MAX, APERTURE_MIN, APERTURE_MAX, DELAY, WIFI, ABOUT)
 
 # The title of the list of scenarios, which is a list screen without being a setting.
 MODES = "MODES"

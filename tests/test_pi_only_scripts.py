@@ -21,6 +21,7 @@ PI_ONLY = [
     "install-boot-splash.sh",
     "bulb-test.sh",
     "camera-probe.sh",
+    "nd-timer-wifi.sh",
 ]
 
 

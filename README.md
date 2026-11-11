@@ -357,6 +357,11 @@ option 3.
 Find the address in your router's list of connected devices. The Mac must be on the same
 network.
 
+**WIFI** in the device's settings switches Wi-Fi off for the field, to save the battery. With
+it off there is no ssh and no deploying: switch it back on from the device's settings first.
+That setting needs `setup-pi.sh` to have run at least once since it was added, because
+setup installs what switches it.
+
 </details>
 
 <details>

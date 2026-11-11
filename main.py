@@ -34,6 +34,7 @@ from nd_timer.saved_settings import SettingsFile
 from nd_timer.ui.layout import PANEL_HEIGHT, PANEL_WIDTH
 from nd_timer.ui.panel import to_panel_bytes
 from nd_timer.ui.screens import (
+    RESTARTING,
     SWITCHED_OFF,
     CountdownScreen,
     DelayScreen,
@@ -45,6 +46,7 @@ from nd_timer.ui.screens import (
     render_splash,
 )
 from nd_timer.ui.settings import SettingsScreen, render_settings
+from nd_timer.wifi import WifiSwitch
 
 # ---------------------------------------------------------------------- PINS
 #
@@ -492,6 +494,20 @@ def stepped(device: Device, buttons: Buttons, panel: Panel, camera: Camera, shut
     return device
 
 
+def carried_out_wifi(device: Device, panel, wifi) -> Device:
+    """Switch Wi-Fi when the device asks: the panel first, because the switch reboots.
+
+    A switch that comes back did not reboot, so the request is dropped and the fault
+    says so, rather than the loop asking again on every turn.
+    """
+    if device.wifi_to_apply is None:
+        return device
+    panel.show(RESTARTING)
+    failure = wifi.switch(device.wifi_to_apply)
+    dropped = replace(device, wifi_to_apply=None, wifi_choice=None)
+    return dropped.faulted(failure) if failure else dropped
+
+
 def run(
     device: Device,
     buttons: Buttons,
@@ -499,6 +515,7 @@ def run(
     camera: Camera,
     led: StatusLed | None = None,
     settings_file: SettingsFile | None = None,
+    wifi: WifiSwitch | None = None,
 ) -> None:
     """Presses in, frames out, until something asks it to stop.
 
@@ -518,6 +535,8 @@ def run(
         device = stepped(device, buttons, panel, camera, shutter, now)
         if settings_file is not None:
             settings_file.save_if_changed(device)
+        if wifi is not None:
+            device = carried_out_wifi(device, panel, wifi)
 
         if now - read_battery_at >= BATTERY_INTERVAL_SECONDS:
             read_battery_at = now
@@ -562,9 +581,11 @@ def main() -> int:
     boot_mark("panel")
     buttons = Buttons(PINS)
     settings_file = SettingsFile(SETTINGS_FILE)
+    wifi = WifiSwitch()
 
     try:
-        run(settings_file.restored(Device()), buttons, panel, camera, led, settings_file)
+        device = settings_file.restored(Device(wifi_on=wifi.is_on()))
+        run(device, buttons, panel, camera, led, settings_file, wifi)
     except KeyboardInterrupt:
         # systemd stops this with SIGINT for exactly this reason: the panel
         # keeps whatever is on it, so the app gets to put the switched-off

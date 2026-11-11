@@ -75,6 +75,10 @@ class SplashScreen:
 # would be the level at switch-off, and on screen it reads as a live one.
 SWITCHED_OFF = SplashScreen(message="switched off", version="")
 
+# Left on the panel while the Pi reboots to switch Wi-Fi, so the settings list it
+# was on does not look as if it froze.
+RESTARTING = SplashScreen(message="restarting", version="")
+
 
 def render_splash(screen: SplashScreen):
     """The frame the panel holds while there is no software running yet.

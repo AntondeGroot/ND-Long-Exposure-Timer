@@ -147,6 +147,17 @@ left and right do something.
 
 ![The filter list](screens/settings-filters.png)
 
+**WIFI** decides whether the Pi boots with Wi-Fi. Off in the field saves the battery the
+radio spends searching for a network that is not there, and the boot the time it spends
+loading it. Switching it means a reboot, so left and right only choose - the row says
+**OFF?** - and the centre press confirms: the panel says "restarting" and the Pi comes back
+up the other way. Scroll off the row instead and nothing changes.
+
+![Wi-Fi chosen off, waiting for the centre press](screens/settings-wifi.png)
+
+With Wi-Fi off there is no ssh and no deploying, so switch it back on from here before
+reaching for the laptop.
+
 ### Exposing
 
 The shutter does not open on the press. A finger coming off a button is the worst

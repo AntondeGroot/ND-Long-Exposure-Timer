@@ -8,7 +8,7 @@ from nd_timer.exposure import COMMON_FILTERS
 from nd_timer.filter_bag import FilterBag
 from nd_timer.subjects import SUBJECTS
 from nd_timer.ui import layout
-from nd_timer.ui.settings import DELAY, ENTRY_LABELS
+from nd_timer.ui.settings import DELAY, ENTRY_LABELS, WIFI
 
 DUSK = MeteredExposure(iso=100, aperture=11.0, shutter_seconds=1 / 60)
 TYPICAL_FILTER_BAG = FilterBag(tuple(f for f in COMMON_FILTERS if f.name in ("ND8", "ND64", "ND1000")))
@@ -353,6 +353,50 @@ def test_the_delay_is_dialled_in_the_settings_list():
     turned_off = shortened.pressed_left().pressed_left()
     assert turned_off.delay_seconds == 0
     assert turned_off.setting_value(DELAY) == "off"
+
+
+def test_choosing_wifi_off_changes_the_row_but_switches_nothing_yet():
+    # Switching Wi-Fi means a reboot, so left and right only choose: the row says
+    # what will happen, and nothing is asked of the Pi until the centre press.
+    on_wifi = on_setting(synced(), WIFI)
+    assert on_wifi.setting_value(WIFI) == "ON"
+
+    chosen = on_wifi.pressed_left()
+
+    assert chosen.setting_value(WIFI) == "OFF?"
+    assert chosen.wifi_on
+    assert chosen.wifi_to_apply is None
+
+
+def test_confirming_a_wifi_choice_asks_for_the_switch():
+    # The centre press is the decision: from here the main loop switches Wi-Fi and
+    # reboots, so the request carries what the Pi should boot with next.
+    chosen = on_setting(synced(), WIFI).pressed_left()
+
+    confirmed = chosen.pressed_centre()
+
+    assert confirmed.wifi_to_apply is False
+
+
+def test_the_centre_press_on_wifi_without_a_choice_asks_for_nothing():
+    # A press on the row as it stands, or on a choice walked back to where it
+    # started, must not reboot the device to arrive where it already is.
+    on_wifi = on_setting(synced(), WIFI)
+    walked_back = on_wifi.pressed_left().pressed_right()
+
+    assert on_wifi.pressed_centre().wifi_to_apply is None
+    assert walked_back.pressed_centre().wifi_to_apply is None
+
+
+def test_scrolling_off_the_wifi_row_drops_an_unconfirmed_choice():
+    # Only the centre press decides. Walking away from "OFF?" and coming back must
+    # not leave a reboot one stray press away.
+    chosen = on_setting(synced(), WIFI).pressed_left()
+
+    back_again = chosen.pressed_down().pressed_up()
+
+    assert back_again.setting_value(WIFI) == "ON"
+    assert back_again.pressed_centre().wifi_to_apply is None
 
 
 def test_shoot_pressed_again_cancels_the_running_exposure():
