@@ -13,8 +13,7 @@ on, and how close that lands.
 ![The main screen](screens/main-waterfall.png)
 
 When the five-way points at the time, the answer turns black, the same as a selected row
-or SETTINGS: one way of saying "selected" across the whole screen. Whether the camera times
-the shot or the Pi holds the shutter open on bulb is not shown; it changes nothing you do.
+or SETTINGS: one way of saying "selected" across the whole screen.
 
 ![The main screen with the time selected](screens/main-time-selected.png)
 
