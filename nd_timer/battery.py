@@ -17,6 +17,7 @@ from __future__ import annotations
 import fcntl
 import os
 from dataclasses import dataclass
+from itertools import pairwise
 
 I2C_BUS = "/dev/i2c-1"
 INA219_ADDRESS = 0x43
@@ -42,10 +43,38 @@ SHUNT_OHMS = 0.01
 # "charging" would leave a bolt on the screen for ever.
 CHARGING_ABOVE_MILLIAMPS = 20.0
 
-# A single lithium cell: full at 4.2, and by 3.0 the protection circuit is about
-# to cut in. Waveshare's own examples for this board use the same two numbers.
-FULL_VOLTS = 4.2
-EMPTY_VOLTS = 3.0
+# Where a single lithium cell's charge goes as its voltage falls, as (volts,
+# percent) from full to empty. Not a straight line: the cell holds 3.6-3.8V for
+# most of its charge and then falls away fast. Waveshare's example for this board
+# draws a straight line from 3.0 to 4.2, which called a cell at 3.5V - nearly
+# spent - 40%, and the device ran out while the corner still said plenty.
+#
+# A typical curve rather than this cell's own: age and temperature move it, so it
+# says roughly where the charge is, which is all the corner of the screen claims.
+# Empty is 3.3V, not the 3.0 the protection circuit cuts at: under the Pi's load
+# there is next to nothing left below it, and the boost gives up around there.
+DISCHARGE_CURVE = (
+    (4.20, 100),
+    (4.10, 90),
+    (4.00, 80),
+    (3.90, 68),
+    (3.80, 55),
+    (3.75, 45),
+    (3.70, 35),
+    (3.65, 25),
+    (3.60, 17),
+    (3.50, 8),
+    (3.40, 3),
+    (3.30, 0),
+)
+FULL_VOLTS = DISCHARGE_CURVE[0][0]
+EMPTY_VOLTS = DISCHARGE_CURVE[-1][0]
+
+# The cell's own resistance. Current through it moves the voltage the gauge sees -
+# down while the Pi runs off it, up while it charges - and the curve above is for a
+# cell at rest. A typical small lithium cell's; TODO: measured on this one, from the
+# voltage and current at two different loads.
+INTERNAL_OHMS = 0.15
 
 # Reported in steps of this, so that a reading wandering by a percent does not
 # cost a panel refresh. E-paper wears with every one.
@@ -64,11 +93,30 @@ class Charge:
     charging: bool
 
 
+def resting_volts(volts: float, milliamps: float | None) -> float:
+    """The voltage with the current's push or pull through the cell taken back out.
+
+    Positive current is into the cell, so charging comes off and a load goes back
+    on. With no current to go on, the voltage is all there is.
+    """
+    if milliamps is None:
+        return volts
+    return volts - milliamps / 1000 * INTERNAL_OHMS
+
+
 def percent_from(volts: float) -> int:
-    """Where this voltage sits between empty and full, in steps of five."""
-    fraction = (volts - EMPTY_VOLTS) / (FULL_VOLTS - EMPTY_VOLTS)
-    percent = max(0.0, min(1.0, fraction)) * 100
-    return int(round(percent / STEP_PERCENT) * STEP_PERCENT)
+    """Where this voltage sits on the discharge curve, in steps of five."""
+    return int(round(_on_the_curve(volts) / STEP_PERCENT) * STEP_PERCENT)
+
+
+def _on_the_curve(volts: float) -> float:
+    """The charge at this voltage, straight-line between the curve's neighbouring points."""
+    if volts >= FULL_VOLTS:
+        return 100.0
+    for (upper_volts, upper), (lower_volts, lower) in pairwise(DISCHARGE_CURVE):
+        if volts >= lower_volts:
+            return lower + (upper - lower) * (volts - lower_volts) / (upper_volts - lower_volts)
+    return 0.0
 
 
 class Battery:
@@ -123,15 +171,21 @@ class Battery:
         volts = self.volts()
         if volts is None:
             return None
-
-        self._smoothed = volts if self._smoothed is None else (self._smoothed + SMOOTHING * (volts - self._smoothed))
-        return percent_from(self._smoothed)
+        return self._level(volts, self.milliamps())
 
     def charge(self) -> Charge | None:
         """The level and whether it is going up, or None if nothing answered."""
-        percent = self.percent()
-        if percent is None:
+        volts = self.volts()
+        if volts is None:
             return None
 
         current = self.milliamps()
-        return Charge(percent, charging=current is not None and current > CHARGING_ABOVE_MILLIAMPS)
+        charging = current is not None and current > CHARGING_ABOVE_MILLIAMPS
+        return Charge(self._level(volts, current), charging=charging)
+
+    def _level(self, volts: float, milliamps: float | None) -> int:
+        """The resting voltage, smoothed, read off the curve."""
+        resting = resting_volts(volts, milliamps)
+        previous = self._smoothed
+        self._smoothed = resting if previous is None else previous + SMOOTHING * (resting - previous)
+        return percent_from(self._smoothed)

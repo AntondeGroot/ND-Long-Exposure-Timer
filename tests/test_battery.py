@@ -1,11 +1,14 @@
 """Tests for turning a cell voltage into something worth drawing."""
 
+from itertools import pairwise
+
 import pytest
 
 from nd_timer.battery import (
     CHARGING_ABOVE_MILLIAMPS,
     EMPTY_VOLTS,
     FULL_VOLTS,
+    INTERNAL_OHMS,
     STEP_PERCENT,
     Battery,
     percent_from,
@@ -15,6 +18,27 @@ from nd_timer.battery import (
 def test_the_ends_of_the_cell_are_the_ends_of_the_scale():
     assert percent_from(FULL_VOLTS) == 100
     assert percent_from(EMPTY_VOLTS) == 0
+
+
+def test_a_cell_at_three_and_a_half_volts_reads_nearly_empty():
+    # A lithium cell holds 3.6-3.8V for most of its charge and then falls away
+    # fast: at 3.5V there is little left. A straight line from 3.0 to 4.2 called
+    # that 40%, which is how the device ran out while the corner said plenty.
+    assert percent_from(3.5) <= 10
+
+
+def test_the_middle_of_the_charge_sits_around_three_point_seven_five_volts():
+    # Where the cell spends most of its time: halfway is near 3.75V, not at the
+    # 3.6V a straight line puts it - which read 3.75V as 60%.
+    assert 40 <= percent_from(3.75) <= 55
+
+
+def test_a_falling_voltage_never_reads_as_more_charge():
+    # Walked down from full to past empty in hundredths of a volt: a level that
+    # ticked up as the cell ran down would read as the battery charging itself.
+    levels = [percent_from(millivolts / 1000) for millivolts in range(4200, 2990, -10)]
+
+    assert all(lower <= higher for higher, lower in pairwise(levels))
 
 
 def test_a_cell_outside_its_range_is_not_reported_outside_the_scale():
@@ -84,7 +108,34 @@ def test_a_cell_being_charged_is_reported_as_charging():
     charge = battery.charge()
 
     assert charge.charging
-    assert charge.percent == percent_from(3.9)
+
+
+def test_a_charging_cell_reads_its_resting_voltage_not_what_the_charger_pushes():
+    # Charging current through the cell's own resistance lifts the voltage the
+    # gauge sees, so the level read straight off it would race to full. Taking
+    # that rise back off - current times resistance - is where the charge is.
+    battery = Battery()
+    battery.volts = lambda: 3.9
+    battery.milliamps = lambda: 500.0
+
+    charge = battery.charge()
+
+    assert charge.percent == percent_from(3.9 - 0.5 * INTERNAL_OHMS)
+    assert charge.percent < percent_from(3.9)
+
+
+def test_a_cell_under_load_reads_higher_than_its_sagging_voltage():
+    # The Pi drawing from the cell pulls its voltage down by current times
+    # resistance, and lets go again when it idles. Read straight off the sag, the
+    # level would dip every time the device did some work.
+    battery = Battery()
+    battery.volts = lambda: 3.6
+    battery.milliamps = lambda: -300.0
+
+    level = battery.charge().percent
+
+    assert level == percent_from(3.6 + 0.3 * INTERNAL_OHMS)
+    assert level > percent_from(3.6)
 
 
 def test_a_cell_merely_held_at_float_is_not_reported_as_charging():
@@ -112,3 +163,13 @@ def test_a_readable_cell_with_an_unreadable_shunt_is_not_called_charging():
     battery.milliamps = lambda: None
 
     assert battery.charge().charging is False
+
+
+def test_an_unreadable_shunt_reads_the_level_off_the_plain_voltage():
+    # No current means no correction to make - not no level. The voltage is still
+    # the best thing known, so it is read as it stands.
+    battery = Battery()
+    battery.volts = lambda: 3.75
+    battery.milliamps = lambda: None
+
+    assert battery.charge().percent == percent_from(3.75)
