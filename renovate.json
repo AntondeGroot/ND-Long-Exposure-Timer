@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "reviewers": ["AntondeGroot"],
   "packageRules": [
     {
       "description": "The Pi runs the Python that Raspberry Pi OS ships (3.13), with Pillow, numpy and lgpio from apt built against it. .python-version follows the device, not the newest release, so it is changed by hand when the OS moves.",
